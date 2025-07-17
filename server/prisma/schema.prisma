@@ -1,0 +1,178 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+  // สามารถไปต่อยอดเพิ่มระดับอื่นๆ ได้ เช่น STAFF, MANAGER
+}
+
+enum BookingStatus {
+  DRAFT // กดจอง ยังไม่จ่ายเงิน
+  PENDING // กดจ่ายแล้ว แต่รอแอดมินตรวจสอบ
+  PAID // ชำระเงินแล้ว
+  FAILED // ชำระเงินไม่สำเร็จ
+  CANCELLED // update by cron job
+}
+
+enum PaymentMethod {
+  CREDIT_CARD // บัตรเครดิต → ระบบเช็คผลอัตโนมัติ
+  BANK_TRANSFER //  → ลูกค้าโอนแล้วอัปโหลดสลิป
+}
+
+enum PaymentStatus {
+  PENDING // ยังไม่จ่าย หรือ ยังไม่แนบสลิป 
+  PAID // จ่ายเรียบร้อย
+  FAILED // จ่ายไม่สำเร็จ (บัตรเครดิต fail) ระบบเช็คผลอัตโนมัติ
+  CANCELLED // ลูกค้ากดยกเลิก
+}
+
+// เริ่มสร้าง Datasource เพื่อเรียกใช้งาน
+model User {
+  id                  Int       @id @default(autoincrement()) // ออโต้เลขอัตโนมัติ เวลาเพิ่มฐานข้อมูลลงไปใหม่
+  email               String    @unique @db.VarChar(255)
+  username            String    @unique
+  password            String //? หมายถึงสามารถเป็นค่าว่างได้ ซึ่งเดี๋ยวเราจะเอาไปต่อยอดตรง log in google ถ้า login ผ่าน google ไม่ต้องเก็บ password เรามีการ authen เช็คกับ google ตลอดเวลา
+  name                String
+  surname             String
+  phone               String    @db.VarChar(20)
+  role                Role      @default(USER)
+  enable              Boolean   @default(true) // เอาไว้เปิดปิดผู้ใช้งาน คือถ้าคุณสมัครปุ๊บ ก็สามารถเข้าใช้งานได้เลย
+  address             String? // เป็นค่าว่างได้ด้วย เพราะบางทีผู้ใช้อาจจะยังไม่ได้กรอกที่อยู่ตั้งแต่แรก
+  createdDate         DateTime  @default(now()) // เวลาเรามีข้อมูลลงฐานข้อมูล ครั้งแรก เค้าก็จะบันทึก time stamp เวลา ณ ปัจจุบันที่ลงฐานข้อมูลไว้
+  updatedDate         DateTime  @updatedAt // เมื่อมีการแก้ไข เค้าก็จะ stamp เวลาปัจจุบัน ที่มีการแก้ไข ไปเรื่อยๆ ตามจำนวนที่เราอัพเดต
+  resetPasswordToken  String?   @db.VarChar(64)
+  resetPasswordExpire DateTime?
+  booking             Booking[] @relation("UserToBookings") // หนึ่ง User สามารถมีการจองได้หลายครั้ง 
+}
+
+model TourPackage {
+  id              Int       @id @default(autoincrement())
+  title           String
+  tourCode        String    @unique
+  categoryId      Int // FK เชื่อมกับ Category
+  countryId       Int // FK เชื่อมกับ Country 
+  isRecommend     Boolean   @default(false)
+  isActive        Boolean   @default(true)
+  isAlmostFull    Boolean   @default(false)
+  airline         String    @default("")
+  starRating      Int       @default(0)
+  itinerary       String    @db.Text
+  priceDetails    String    @default("")
+  duration        String
+  priceAdult      Float
+  priceChild      Float
+  singleStayExtra Float
+  priceVisa       Int       @default(0)
+  priceGuide      Int       @default(0)
+  maxSeats        Int       @default(0)
+  sold            Int       @default(0) // นับเฉพาะ Booking ที่ชำระเงินแล้ว (status = CONFIRMED)
+  startDate       DateTime
+  endDate         DateTime
+  createdDate     DateTime  @default(now())
+  updatedDate     DateTime  @updatedAt
+  booking         Booking[] @relation("TourPackageToBookings")
+  images          Image[]
+  tourPDF         TourPDF?
+  category        Category? @relation(fields: [categoryId], references: [id]) // ไม่มี onDelete
+  country         Country?  @relation(fields: [countryId], references: [id]) // ไม่มี onDelete
+}
+
+model Category {
+  id          Int           @id @default(autoincrement())
+  name        String        @unique
+  createdDate DateTime      @default(now()) // เวลาเรามีข้อมูลลงฐานข้อมูล ครั้งแรก เค้าก็จะบันทึก time stamp เวลา ณ ปัจจุบันที่ลงฐานข้อมูลไว้
+  updatedDate DateTime      @updatedAt // เมื่อมีการแก้ไข เค้าก็จะ stamp เวลาปัจจุบัน ที่มีการแก้ไข ไปเรื่อยๆ ตามจำนวนที่เราอัพเดต
+  TourPackage TourPackage[]
+}
+
+model Country {
+  id          Int           @id @default(autoincrement())
+  name        String        @unique
+  createdDate DateTime      @default(now()) // เวลาเรามีข้อมูลลงฐานข้อมูล ครั้งแรก เค้าก็จะบันทึก time stamp เวลา ณ ปัจจุบันที่ลงฐานข้อมูลไว้
+  updatedDate DateTime      @updatedAt // เมื่อมีการแก้ไข เค้าก็จะ stamp เวลาปัจจุบัน ที่มีการแก้ไข ไปเรื่อยๆ ตามจำนวนที่เราอัพเดต
+  TourPackage TourPackage[]
+}
+
+model Booking {
+  id              Int           @id @default(autoincrement())
+  userId          Int // FK ที่อ้างถึง User.id
+  tourPackageId   Int // FK ที่อ้างถึง TourPackage.id
+  adultCount      Int           @default(0) // จำนวนผู้ใหญ่
+  childCount      Int           @default(0) // จำนวนเด็ก
+  singleStayCount Int           @default(0) // ผู้ใช้ต้องการเลือกพักเดี่ยวหรือไม่ ถ้า true คิดเงิน false ไม่คิด
+  totalPrice      Decimal       @db.Decimal(10, 2)
+  bookingStatus   BookingStatus @default(DRAFT) // ต้องมี status default เพื่อบอกว่ายังไม่มีค่า process
+  createdDate     DateTime      @default(now()) // เวลาเรามีข้อมูลลงฐานข้อมูล ครั้งแรก เค้าก็จะบันทึก time stamp เวลา ณ ปัจจุบันที่ลงฐานข้อมูลไว้
+  updatedDate     DateTime      @updatedAt // เมื่อมีการแก้ไข เค้าก็จะ stamp เวลาปัจจุบัน ที่มีการแก้ไข ไปเรื่อยๆ ตามจำนวนที่เราอัพเดต
+  // ความสัมพันธ์
+  user            User          @relation(fields: [userId], references: [id], name: "UserToBookings", onDelete: Cascade) // เมื่อ User ถูกลบ ข้อมูล Booking ที่มีการเชื่อมโยงกับ userId จะถูกลบด้วย
+  tourPackage     TourPackage   @relation(fields: [tourPackageId], references: [id], name: "TourPackageToBookings", onDelete: Cascade) //เมื่อ TourPackage ถูกลบ ข้อมูล Booking ที่มีการเชื่อมโยงกับ tourPackageId จะถูกลบด้วย
+  Payment         Payment?
+}
+
+model Image {
+  id            Int         @id @default(autoincrement())
+  tourPackageId Int // FK ที่อ้างถึง TourPackage.id
+  asset_id      String //ต้องใช้ เพราะเราจะใช้ cloudinary คือการอัพไฟล์รูปไปบน cloud
+  public_id     String
+  url           String
+  secure_url    String
+  createdDate   DateTime    @default(now()) // เวลาเรามีข้อมูลลงฐานข้อมูล ครั้งแรก เค้าก็จะบันทึก time stamp เวลา ณ ปัจจุบันที่ลงฐานข้อมูลไว้
+  updatedDate   DateTime    @updatedAt // เมื่อมีการแก้ไข เค้าก็จะ stamp เวลาปัจจุบัน ที่มีการแก้ไข ไปเรื่อยๆ ตามจำนวนที่เราอัพเดต
+  tourPackage   TourPackage @relation(fields: [tourPackageId], references: [id], onDelete: Cascade) // เมื่อ TourPackage ถูกลบ รูปภาพ ที่มีการเชื่อมโยงกับ tourPackageId ก็จะถูกลบไปด้วย
+}
+
+model TourPDF {
+  id            Int         @id @default(autoincrement())
+  tourPackageId Int         @unique // FK ที่อ้างถึง TourPackage.id
+  asset_id      String // Cloudinary asset_id
+  public_id     String // Cloudinary public_id (ใช้สำหรับลบไฟล์)
+  url           String // URL ปกติที่ cloudinary ให้มา
+  secure_url    String // URL แบบ https
+  createdDate   DateTime    @default(now())
+  updatedDate   DateTime    @updatedAt
+  tourPackage   TourPackage @relation(fields: [tourPackageId], references: [id], onDelete: Cascade) // เมื่อ TourPackage ถูกลบ PDF ที่มีการเชื่อมโยงกับ tourPackageId ก็จะถูกลบไปด้วย
+}
+
+model Payment {
+  id            Int           @id @default(autoincrement())
+  bookingId     Int           @unique
+  amount        Decimal       @db.Decimal(10, 2) // แนะนำใช้ Decimal สำหรับเงิน
+  paymentMethod PaymentMethod
+  paymentStatus PaymentStatus @default(PENDING)
+  transactionId String?
+  paymentDate   DateTime?
+  secure_url    String? // URL แบบ https
+  public_id     String? // Cloudinary public_id (ใช้สำหรับลบไฟล์)
+  bankName      String?
+  createdDate   DateTime      @default(now())
+  updatedDate   DateTime      @updatedAt
+  booking       Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade) // เมื่อลบ Booking → Payment ที่เชื่อมโยงจะถูกลบตาม อัตโนมัติด้วย
+}
+
+// เหตุผลที่ควรใช้ onDelete: Cascade
+// 1. สำหรับ User → Booking
+// เหตุผลทางธุรกิจ: หากลูกค้า (User) ถอนตัวหรือปิดบัญชี
+// การจองทั้งหมดของลูกค้าควรยกเลิกโดยอัตโนมัติ
+// ป้องกันการมี "Booking ลอยๆ" ที่ไม่มีเจ้าของ
+
+// เหตุผลทางเทคนิค: รักษาความสัมพันธ์เชิงข้อมูล (Referential Integrity)
+
+// 2. สำหรับ Booking → Payment
+// เหตุผลทางธุรกิจ: เมื่อยกเลิกการจอง
+// ข้อมูลการชำระเงินที่เกี่ยวข้องควรหายไปด้วย
+
+// ป้องกันการมี "Payment ลอยๆ" ที่ไม่มี Booking อ้างอิง

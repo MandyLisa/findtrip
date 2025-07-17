@@ -1,0 +1,127 @@
+import { listBooking } from "@/API/booking"
+import useAuthStore from "@/store/authStore"
+import { Loader } from "lucide-react"
+import { useEffect, useState } from "react"
+import { FaSearch } from "react-icons/fa"
+import { Link } from "react-router-dom"
+import Pagination from "../card/Pagination"
+
+
+const FormBooking = () => {
+  const token = useAuthStore((state) => state.token)
+  const [loading, setLoading] = useState(false)
+
+  const [totalPages, setTotalPages] = useState(1)
+  const [currentPage, setCurrentPage] = useState(1)
+  const limit = 10
+
+  useEffect(() => {
+    if (token) {
+      setLoading(true)
+      fetchAllBooking()
+      setLoading(false)
+    }
+  }, [token, currentPage]) // เรียกใหม่เมื่อเปลี่ยนหน้า
+
+  const searchForm = {
+    id: '',
+    userId: '',
+    tourPackageId: '',
+    bookingStatus: '',
+  }
+  const [form, setForm] = useState(searchForm)
+
+  const [allBooking, setAllBooking] = useState([])
+
+  const fetchAllBooking = async () => {
+    setLoading(true)
+
+    try {
+      const res = await listBooking(token, currentPage, limit, form || {})
+      console.log('ดู listBooking ตรงนี้', res)
+      setAllBooking(res.data.data)
+      setTotalPages(res.data.totalPage)
+    } catch (err) {
+      console.log('Error fetching Booking List', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+
+  return (
+    <div className='overflow-x-auto bg-white shadow-md rounded-md mt-8 p-6'>
+      <div className='flex justify-between mb-5'>
+        <h2 className='text-lg font-semibold text-gray-700 mb-4'>รายการจองทัวร์</h2>
+      </div>
+
+      {loading ? (
+        <div className='flex flex-col items-center justify-center py-12'>
+          <Loader className='animate-spin text-brand-pink w-10 h-10 mb-2' />
+          <p className='text-center text-gray-500 mt-2'>กำลังโหลดข้อมูล...กรุณารอสักครู่</p>
+        </div>
+      ) : (
+        <>
+          <table className='min-w-full text-sm text-left text-gray-600'>
+            <thead className='text-sm text-gray-700 uppercase bg-gray-200'>
+              <tr>
+                <th className='px-4 py-2'>เลขการจอง</th>
+                <th className='px-4 py-2'>ชื่อ-นามสกุล</th>
+                <th className='px-4 py-2'>อีเมล์</th>
+                <th className='px-4 py-2'>เลขทัวร์</th>
+                <th className='px-4 py-2'>รหัสทัวร์</th>
+                <th className='px-4 py-2'>ผู้ใหญ่</th>
+                <th className='px-4 py-2'>เด็ก</th>
+                <th className='px-4 py-2'>พักแยก</th>
+                <th className='px-4 py-2'>ราคารวม</th>
+                <th className='px-4 py-2'>สถานะการจอง</th>
+                <th className='px-4 py-2 text-center'>จัดการ</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {allBooking.length > 0 ? (
+                allBooking.map((item) => (
+                  <tr key={item.id} className='border-b hover:bg-gray-100'>
+                    <td className='px-4 py-2'>{item.id}</td>
+                    <td className='px-4 py-2'>{item.user.name} {item.user.surname}</td>
+                    <td className='px-4 py-2'>{item.user.email}</td>
+                    <td className='px-4 py-2'>{item.tourPackageId}</td>
+                    <td className='px-4 py-2'>{item.tourPackage.tourCode}</td>
+                    <td className='px-4 py-2'>{item.adultCount}</td>
+                    <td className='px-4 py-2'>{item.childCount}</td>
+                    <td className='px-4 py-2'>{item.singleStayCount}</td>
+                    <td className='px-4 py-2'>{item.totalPrice}</td>
+                    <td className='px-4 py-2'>{item.bookingStatus}</td>
+                    <td className='px-4 py-2 text-center'>
+                      <Link
+                        to={`/admin/tourpackage/detail/${item.id}`}
+                        className='text-blue-600 hover:text-blue-800 inline-flex items-center gap-1'
+                      >
+                        <FaSearch />
+                        ดูรายละเอียด
+                      </Link>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={11} className='text-center text-gray-500 font-semibold py-8'>
+                    ไม่พบข้อมูลแพ็คเกจที่คุณค้นหา
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+          />
+        </>
+      )}
+    </div>
+  )
+}
+export default FormBooking

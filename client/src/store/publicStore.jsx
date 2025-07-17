@@ -1,0 +1,46 @@
+import { create } from 'zustand'
+import axios from 'axios'
+
+const usePublicStore = create((set) => ({
+  categories: [],
+  countries: [],
+  tourDetail: null,
+  isLoading: false, 
+
+  fetchCategories: async () => { // นี่คือการเขียน Axios call โดยตรงใน store
+    try {
+      const res = await axios.get('/api/public/category')
+      // console.log('ดู fetchCategories ตรงนี้', res)
+      set({ categories: res.data.data })
+    } catch (error) {
+      console.error('Error fetching Categories:', error)
+    }
+  },
+
+  fetchCountries: async () => {
+    try {
+      const res = await axios.get('/api/public/country')
+      // console.log('ดู fetchCountries ตรงนี้', res)
+      set({ countries: res.data.data })
+    } catch (error) {
+      console.error('Error fetching Countries:', error)
+    }
+  },
+
+  fetchTourDetail: async (id) => {
+    try {
+      set({ isLoading: true })
+      const res = await axios.get(`/api/public/tourdetail/${id}`)
+      // console.log('ดู fetchTourDetail ตรงนี้', res)
+      set({
+        tourDetail: res.data,
+        isLoading: false
+      })
+    } catch (error) {
+      console.error('Error fetching tour detail:', error)
+      set({ isLoading: false }) // สิ้นสุด loading แม้เกิด error
+    }
+  }
+}))
+
+export default usePublicStore

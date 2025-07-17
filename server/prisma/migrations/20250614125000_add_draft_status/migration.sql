@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `booking` MODIFY `bookingStatus` ENUM('DRAFT', 'PENDING', 'PAID', 'FAILED', 'CANCELLED') NOT NULL DEFAULT 'PENDING';

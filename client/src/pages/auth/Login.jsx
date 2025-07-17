@@ -1,0 +1,189 @@
+import { useEffect, useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import useAuthStore from '../../store/authStore'
+import { validateField, validateLoginForm } from '@/utils/validateRegisterForm'
+import Swal from 'sweetalert2'
+
+
+const Login = () => {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const actionLogin = useAuthStore((state) => state.actionLogin)
+  const user = useAuthStore((state) => state.user)
+
+  useEffect(() => {
+    if (user) { // ถ้ามี user แล้วไม่ต้องอยู่ที่หน้า login
+      navigate('/', { replace: true })
+    }
+  }, [user, navigate])
+
+  const [form, setForm] = useState({
+    identifier: '', // รับได้ทั้ง email และ username
+    password: ''
+  })
+
+  // state เพื่อเก็บค่าฟอร์ม และ error แต่ละฟิลด์
+  const [errors, setErrors] = useState({})
+
+  // อัปเดตค่าที่ผู้ใช้พิมพ์
+  const handleOnChange = (e) => {
+    const { name, value } = e.target
+    setForm({
+      ...form,
+      [name]: value
+    })
+
+    // Real-time validation
+    const fieldError = validateField(name, value, { ...form, isLogin: true })
+    setErrors(prev => ({ ...prev, [name]: fieldError }))
+  }
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault() // ป้องกันการรีโหลดหน้าเว็บอัตโนมัติ
+
+    // ตรวจสอบ validation
+    const { errors: validationErrors, isValid } = validateLoginForm(form)
+    setErrors(validationErrors)
+
+    if (!isValid) return // อยู่ที่เดิม ถ้า validate ไม่ผ่าน
+
+    try {
+      const res = await actionLogin(form)
+      const role = res.data.users.role
+
+      // ใช้ SweetAlert2
+      await Swal.fire({
+        title: 'เข้าสู่ระบบสำเร็จ!',
+        text: `ยินดีต้อนรับ ${res.data.users.name}`,
+        icon: 'success',
+        confirmButtonText: 'ตกลง',
+        confirmButtonColor: '#ec4899',
+        showClass: {
+          popup: 'animate__animated animate__fadeInDown'
+        },
+        hideClass: {
+          popup: 'animate__animated animate__fadeOutUp'
+        }
+      })
+
+      roleRedirect(role)
+
+    } catch (error) {
+      console.log(error)
+      const errMsg = error.response?.data?.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ'
+
+
+      Swal.fire({
+        title: 'เข้าสู่ระบบไม่สำเร็จ',
+        text: errMsg,
+        icon: 'error',
+        confirmButtonText: 'ลองอีกครั้ง',
+        confirmButtonColor: '#dc2626'
+      })
+    }
+  }
+
+  // ใช้ location.state
+  const roleRedirect = (role) => {
+    if (role.toLowerCase() === 'admin') {
+      navigate('/admin')
+    } else {
+      if (location.state?.fromRegister) { // เช็คจาก state ที่ส่งมาจากหน้าลงทะเบียน
+        navigate('/')
+      } else {
+        navigate('/')
+      }
+    }
+  }
+
+  return (
+    <>
+      {!user && (
+        <div className='min-h-[calc(100vh-14rem)] flex items-center justify-center py-4 px-2'>
+          <div className='bg-zinc-50 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-lg w-full max-w-md border border-gray-100'>
+            <div className='text-center mb-6'>
+              <h2 className='text-3xl font-semibold text-center text-brand-pink mb-6'>
+                findtrip
+              </h2>
+              <p className='text-gray-700 text-lg font-semibold'>
+                หาทัวร์ที่ใช่ โดนใจคุณ
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmit} className='space-y-4'>
+              {/* Username/Email */}
+              <div>
+                <label className='block text-gray-700 text-md font-medium mb-2'>
+                  Username or Email
+                </label>
+                <input
+                  name='identifier'
+                  type='text'
+                  className='w-full border border-gray-300 p-2 rounded-lg'
+                  placeholder='ชื่อบัญชีหรืออีเมล์'
+                  value={form.identifier}
+                  onChange={handleOnChange}
+                />
+                {errors.identifier && (
+                  <p className='text-red-500 text-sm mt-1'>{errors.identifier}</p>
+                )}
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className='block text-gray-700 text-md font-medium mb-2'>Password</label>
+                <input
+                  name='password'
+                  type='password'
+                  className='w-full border border-gray-300 p-2 rounded-lg'
+                  placeholder='กรอกรหัสผ่าน'
+                  value={form.password}
+                  onChange={handleOnChange}
+                />
+                {errors.password && (
+                  <p className='text-red-500 text-sm mt-1'>{errors.password}</p>
+                )}
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type='submit'
+                className='w-full bg-brand-pink text-white py-2 rounded-lg hover:bg-pink-600 font-medium mt-6'>
+                เข้าสู่ระบบ
+              </button>
+
+              {/* Links */}
+              <div className='flex justify-between'>
+                <div className='flex justify-start'>
+                  <p className='text-sm font-medium text-center text-gray-400 mb-1 sm:mb-0 pr-2'>
+                    ยังไม่เป็นสมาชิกใช่ไหม?
+                  </p>
+                  <p className='text-sm font-medium text-center text-brand-pink mb-6'>
+                    <Link
+                      to='/register'
+                      className='text-brand-pink hover:text-pink-600 font-medium'
+                    >
+                      ลงทะเบียนเลย
+                    </Link>
+                  </p>
+                </div>
+
+                {/* Forgot Password Link */}
+                <p className='text-sm font-medium text-center hover:underline ml-1 text-brand-pink mb-6'>
+                  <Link
+                    to='/forgot-password'
+                  >
+                    ลืมรหัสผ่าน?
+                  </Link>
+                </p>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+export default Login
