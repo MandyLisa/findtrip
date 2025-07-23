@@ -60,14 +60,13 @@ const PaymentUser = () => {
 
   // API call to Backend for cancel booking
   const handleCancelBooking = async () => {
-    // const confirmCancel = confirm('คุณต้องการยกเลิกการจองหรือไม่?')
-    // if (!confirmCancel) return
-    console.log('User cancelled bookings')
-
     try {
       const res = await cancelBooking(token, bookingId) // เรียก API ยกเลิกการจอง
-      // console.log('ดูตรงนี้', res)
-      setBooking({ ...booking, status: 'CANCELLED' }) // อัปเดตสถานะการจองใน UI
+      console.log('res.data.booking ================== ', res.data.booking)
+      console.log('booking ============= ',booking)
+
+      setBooking(res.data.booking) // อัปเดตสถานะการจองใน UI
+
       toast.success('ยกเลิกการจองเรียบร้อยแล้ว')
       navigate(`/user/mybookings`) // ไปยังหน้าการจองของฉัน
     } catch (error) {

@@ -26,6 +26,7 @@ import PaymentSuccess from '../pages/user/PaymentSuccess'
 import PaymentReceipt from '../pages/user/PaymentReceipt'
 import ForgotPassword from '@/pages/auth/ForgotPassword'
 import ResetPassword from '@/pages/auth/ResetPassword'
+import BookingDetail from '@/pages/admin/BookingDetail'
 
 
 const router = createBrowserRouter([ // หน้าที่เป็น guest เข้าได้
@@ -56,8 +57,8 @@ const router = createBrowserRouter([ // หน้าที่เป็น guest 
             { path: 'tourpackage', element: <Tourpackage /> }, // list
             { path: 'tourpackage/detail/:id?', element: <TourpackageDetail /> }, // create,update,read
             { path: 'booking', element: <Booking /> },
+            { path: 'booking/:id', element: <BookingDetail /> },
             { path: 'payment', element: <Payment /> },
-
         ]
     },
 

@@ -9,7 +9,7 @@ import ConfirmDialog from '../ui/ConfirmDialog'
 
 const FormCategory = () => {
 
-    const token = useAuthStore((state) => state.token)   // มาจาก zustand ใน store
+    const token = useAuthStore((state) => state.token)
     const [name, setName] = useState('')
     const [editMode, setEditMode] = useState(false)
     const [editId, setEditId] = useState(null)
@@ -17,17 +17,11 @@ const FormCategory = () => {
 
     const getCategory = useTourDataStore((state) => state.getCategory)
     const categories = useTourDataStore((state) => state.categories)
-    // console.log('ดู category ตรงนี้', categories)
 
     const totalPages = useTourDataStore((state) => state.totalPages)
     const [currentPage, setCurrentPage] = useState(1)
     const limit = 5
 
-    useEffect(() => {
-        setLoading(true)
-        getCategory(token, currentPage, limit, form || {})
-        setLoading(false)
-    }, [token, currentPage])
 
     // Add Category
     const handleSubmit = async (e) => {
@@ -38,6 +32,7 @@ const FormCategory = () => {
         }
 
         setLoading(true)
+
         try {
             if (editMode) {
                 const res = await updateCategory(token, editId, { name })
@@ -52,7 +47,7 @@ const FormCategory = () => {
             getCategory(token)
         } catch (err) {
             const message = err?.response?.data?.message
-            console.log(message)
+            console.log('ดู message catch error', message)
             if (message) {
                 toast.error(`ชื่อ ${name} มีอยู่แล้วในระบบ!`)
             } else {
@@ -62,9 +57,22 @@ const FormCategory = () => {
         } finally {
             setLoading(false)
         }
-
     }
 
+    // Edit Category
+    const handleEdit = (id, currentName) => {
+        setEditMode(true)
+        setEditId(id)
+        setName(currentName)
+    }
+
+    const handleCancelEdit = () => {
+        setEditMode(false)
+        setEditId(null)
+        setName('')
+    }
+
+    // Delete Category
     const handleRemove = async (id) => {
         setLoading(true)
         try {
@@ -78,53 +86,51 @@ const FormCategory = () => {
         }
     }
 
-    const handleEdit = (id, currentName) => {
-        setEditMode(true)
-        setEditId(id)
-        setName(currentName)
-    }
-
-    const handleCancelEdit = () => {
-        setEditMode(false)
-        setEditId(null)
-        setName('')
-    }
-
     // Search Category
     const searchForm = {
         id: '',
         name: '',
     }
     const [form, setForm] = useState(searchForm)
+    const [formTemp, setFormTemp] = useState(searchForm)
 
     const handleOnChange = (e) => {
-        console.log(e.target.name, e.target.value)
-        setForm({
-            ...form,
-            [e.target.name]: e.target.value
-        })
+        const { name, value } = e.target
+        setFormTemp((prevForm) => ({
+            ...prevForm,
+            [name]: value,
+        }))
     }
 
-    const handleSearch = async (e) => {
-        e.preventDefault()
-
+    const fetchCategories = async (form) => {
         setLoading(true)
         try {
-            setCurrentPage(1)
-            const res = getCategory(token, currentPage, limit, form || {})
-            // console.log('ดู getCategory ตรงนี้', res)
+            const res = await getCategory(token, currentPage, limit, form || {}) // zustand store
         } catch (err) {
-            console.log(err)
+            console.log('Error fetchCategories ', err)
         } finally {
             setLoading(false)
         }
     }
 
+    const handleSearch = async (e) => {
+        e.preventDefault()
+        setCurrentPage(1)
+        setForm(formTemp)
+        fetchCategories(formTemp)
+    }
+
     const handleReset = () => {
         setForm(searchForm)
+        setFormTemp(searchForm)
         setCurrentPage(1)
-        getCountry(token, currentPage, limit, null)
+        fetchCategories(searchForm)
     }
+
+    useEffect(() => {
+        fetchCategories(form)
+    }, [token, currentPage])
+
 
     return (
         <>
@@ -191,7 +197,7 @@ const FormCategory = () => {
                                 <input
                                     name='id'
                                     type='text'
-                                    value={form.id}
+                                    value={formTemp.id}
                                     onChange={handleOnChange}
                                     className='w-full px-3 py-1 border-2 border-blue-600 rounded'
                                 />
@@ -204,7 +210,7 @@ const FormCategory = () => {
                                 <input
                                     name='name'
                                     type='text'
-                                    value={form.name}
+                                    value={formTemp.name}
                                     onChange={handleOnChange}
                                     className='w-full px-3 py-1 border-2 border-blue-600 rounded'
                                 />

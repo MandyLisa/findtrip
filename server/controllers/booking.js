@@ -1,14 +1,12 @@
+const { BookingStatus } = require('@prisma/client')
 const prisma = require('../config/prisma')
 const { sendBookingConfirmationEmail } = require('../utils/email')
 
 // 1. User ดูการจองของตัวเองทั้งหมด
 // GET /api/user/bookings → ดึงข้อมูลการจองทั้งหมด
-// กำหนด f.getUser..  ที่เราจะ exports เพื่อให้โมดูลอื่นเรียกใช้
-// async: บ่งชี้ว่าฟังก์ชันนี้เป็น Asynchronous Function ซึ่งจะคืนค่าเป็น Promise และสามารถใช้ await เพื่อรอการทำงานของ Promise อื่นๆ ได้
-// (req, res) => { ... }: Arrow Function ที่รับพารามิเตอร์สองตัว: req object ที่รับมาจากหน้าบ้าน | res object ใช้สำหรับส่งกลับไปยัง client
 exports.getUserBookings = async (req, res) => {
     try {
-        const userId = req.user.id
+        const { id } = req.user
         // ดึงค่าจาก query params และแปลงให้เป็นตัวเลข
         const page = parseInt(req.query.page) || 1
         const limit = parseInt(req.query.limit) || 10
@@ -16,12 +14,12 @@ exports.getUserBookings = async (req, res) => {
 
         const bookingStatus = req.query.bookingStatus
 
-        const where = { userId: req.user.id }
+        const where = { userId: id }
         if (bookingStatus && bookingStatus != 'ALL') {
             where.bookingStatus = bookingStatus
         }
 
-        const bookings = await prisma.booking.findMany({
+        const booking = await prisma.booking.findMany({
             where: where,
             include: { // คสพ. ที่ต้องการให้โชว์ข้อมูลเหล่านี้ออกมาด้วย
                 tourPackage: true,
@@ -30,7 +28,7 @@ exports.getUserBookings = async (req, res) => {
             skip: skip,
             take: limit,
             orderBy: {
-                createdDate: 'desc'
+                updatedDate: 'desc'
             }
         })
 
@@ -39,19 +37,24 @@ exports.getUserBookings = async (req, res) => {
             where: where
         })
 
-        if (bookings.length === 0) { // ถ้าผู้ใช้ที่กำลังเข้าสู่ระบบอยู่ ไม่มีรายการจองใดๆ ให้ return ไปหาลค. และหยุดการทำงานของฟังก์ชัน
-            return res.status(400).json({ ok: false, message: 'No Booking List' }) // ตอบกลับเป็นรูปแบบของ json ที่มี 2 คีย์ ok: false: บอกว่าการดำเนินการไม่สำเร็จ กับ ข้อความ
+        // console.log('55555555======= ', booking.length)
+        if (booking.length === 0) {
+            return res.status(400).json({
+                ok: false,
+                message: 'No Booking List'
+            })
         }
 
-        res.json({
-            bookings,
-            total,
+
+        res.status(200).json({
+            booking: booking,
+            total: total,
             currentPage: page,
             totalPage: Math.ceil(total / limit)
         })
     } catch (error) { // บล็อกแคช จะทำงานเมื่อ มีข้อผิดพลาดในบล็อก try 
-        console.log('ดู getUserBookings', error)
-        res.status(500).json({ message: 'Error fetching bookings', error }) // ส่งการตอบกลับในรูปแบบ JSON ด้วยข้อความที่กำหนด และ err รายละเอียดของข้อผิดพลาด
+        console.log('Error fetching booking', error)
+        res.status(500).json({ message: 'Error fetching booking', error }) // ส่งการตอบกลับในรูปแบบ JSON ด้วยข้อความที่กำหนด และ err รายละเอียดของข้อผิดพลาด
     }
 }
 
@@ -59,11 +62,13 @@ exports.getUserBookings = async (req, res) => {
 // GET /api/user/booking/:id → ดูรายละเอียดการจองจาก id
 exports.getBookingById = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params
+        const isAdmin = req.user.role === 'ADMIN'
+        // console.log('ดู 000000==== ', isAdmin)
+
         const booking = await prisma.booking.findUnique({
             where: {
-                id: Number(id),
-                userId: req.user.id
+                id: Number(id)
             },
             include: {
                 tourPackage: {
@@ -73,13 +78,20 @@ exports.getBookingById = async (req, res) => {
                 },
                 Payment: true
             }
-        });
+        })
 
         if (!booking) {
             return res.status(404).json({ message: 'Booking not found' })
         }
 
-        res.json({ ok: true, booking })
+        if (!isAdmin && booking.userId !== req.user.id) {
+            return res.status(403).json({ message: 'Access denied' })
+        }
+
+        res.status(200).json({
+            ok: true,
+            booking: booking
+        })
     } catch (error) {
         console.log(error)
         res.status(500).json({ message: 'Error fetching booking details', error })
@@ -181,18 +193,14 @@ exports.createBooking = async (req, res) => {
     }
 }
 
-// 4. User ยกเลิกการจอง
-// DELETE /api/user/booking/:id → ยกเลิกการจอง
+// 4. User ยกเลิกการจอง DELETE /api/user/booking/:id → ยกเลิกการจอง
 exports.cancelBooking = async (req, res) => {
     try {
-        const { id } = req.params // id ที่ได้จาก req.params เป็น String อยู่แล้ว
-
-        const numericBookingId = Number(id) // แปลงให้เป็น Number
-
+        const { id } = req.params
         // 1. ตรวจสอบว่า Booking มีอยู่จริงและเป็นของ User ที่ถูกต้อง
-        const existingBooking = await prisma.booking.findUnique({
+        const existingBooking = await prisma.booking.findFirst({
             where: {
-                id: numericBookingId,
+                id: Number(id),
                 userId: req.user.id // ตรวจสอบ userId เพื่อให้แน่ใจว่าเป็นของ user ที่ login อยู่
             }
         })
@@ -204,7 +212,7 @@ exports.cancelBooking = async (req, res) => {
         // 2. อัปเดตสถานะ Booking เป็น CANCELLED
         const updateBooking = await prisma.booking.update({
             where: {
-                id: numericBookingId,
+                id: Number(id)
             },
             data: {
                 bookingStatus: 'CANCELLED'
@@ -215,15 +223,16 @@ exports.cancelBooking = async (req, res) => {
         let updatedPayment = null // กำหนดค่าเริ่มต้นเป็น null
         const existingPayment = await prisma.payment.findUnique({
             where: {
-                bookingId: numericBookingId
+                bookingId: Number(id)
             }
         })
 
         // ถ้ามี record อยู่ ให้อัปเดตสถานะ Payment เป็น CANCELLED
         if (existingPayment) {
+            console.log('เข้า updatesPayment ไหม ======== ')
             updatedPayment = await prisma.payment.update({
                 where: {
-                    bookingId: numericBookingId,
+                    bookingId: Number(id)
                 },
                 data: {
                     paymentStatus: 'CANCELLED'
@@ -243,23 +252,30 @@ exports.cancelBooking = async (req, res) => {
             }
         })
 
-        const updatedTour = await prisma.tourPackage.findUnique({
-            where: { id: existingBooking.tourPackageId }
+        const booking = await prisma.booking.findUnique({
+            where: {
+                id: Number(id)
+            },
+            include: {
+                tourPackage: {
+                    include: { // เพิ่ม include เพื่อดึง tourPDF เพิ่ม (nested ความสัมพันธ์ที่ซ้อนอยู่ภายใน)
+                        tourPDF: true // ชื่อ field ที่สัมพันธ์กันใน model TourPackage ของคุณ
+                    }
+                },
+                Payment: true
+            }
         })
 
-        res.json({
-            message: 'Booking cancelled successfully',
-            updateBooking,
-            updatedPayment,
-            updatedTour
+        res.status(200).json({
+            ok: true,
+            message: 'ยกเลิกการจองเรียบร้อยแล้ว',
+            booking: booking,
         })
-
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({ message: 'Error cancelling booking', error })
+    } catch (err) {
+        console.log('Error cancelling booking', err)
+        res.status(500).json({ message: 'Error cancelling booking', err })
     }
 }
-
 
 // 5. Admin ดูการจองทั้งหมด
 exports.listBookings = async (req, res) => {
@@ -268,12 +284,40 @@ exports.listBookings = async (req, res) => {
         const limit = parseInt(req.query.limit) || 10
         const skip = (page - 1) * limit
 
-        const [bookings, totalCount] = await Promise.all([
+        const { id, userEmail, name, bookingStatus } = req.query
+
+        const where = {}
+
+        if (id) {
+            where.id = Number(id)
+        }
+
+        if (bookingStatus) {
+            where.bookingStatus = bookingStatus
+        }
+
+        if (userEmail || name) {
+            where.user = {} // เตรียม object ก่อน
+            if (userEmail) {
+                where.user.email = {
+                    contains: userEmail,
+                }
+            }
+
+            if (name) {
+                where.user.name = {
+                    contains: name,
+                }
+            }
+        }
+
+        const [booking, totalCount] = await Promise.all([
             prisma.booking.findMany({
                 skip: skip,
                 take: limit,
+                where: where,
                 orderBy: {
-                    createdDate: 'desc' 
+                    createdDate: 'desc'
                 },
                 include: {
                     user: true,
@@ -281,36 +325,114 @@ exports.listBookings = async (req, res) => {
                     Payment: true
                 }
             }),
-            prisma.booking.count()
+            prisma.booking.count({
+                where: where,
+            })
         ])
 
-        res.status(200).json({ 
-            data: bookings,
+        res.status(200).json({
+            ok: true,
+            message: 'ดึงข้อมูลการจองสำเร็จ',
+            data: booking,
             currentPage: page,
             totalPage: Math.ceil(totalCount / limit),
             totalCount,
-         })
+        })
+
     } catch (err) {
-        console.log(err)
-        res.status(500).json({ message: 'Error fetching all bookings', err })
+        console.log('Error fetching all booking', err)
+        res.status(500).json({ message: 'Error fetching all booking', err })
     }
 }
 
-// 6. Admin อัปเดตสถานะการจอง จาก 'Pending' เป็น 'Confirmed' หลังจากที่ลูกค้าชำระเงินเรียบร้อยแล้ว
+// Drop down Booking Status
+exports.listBookingStatus = async (req, res) => {
+    try {
+        const allStatusList = Object.values(BookingStatus) // แปลง enum เป็น array ของ string
 
+        res.status(200).json({
+            data: allStatusList,
+            totalCount: allStatusList.length,
+        })
+
+    } catch (err) {
+        console.error('Error in listBookingStatus', err)
+        res.status(500).json({ message: 'Server Error', err })
+    }
+}
+
+// 6. Admin อัปเดตสถานะการจอง
 exports.updateBookingStatus = async (req, res) => {
     try {
-        const { id } = req.params; // ดึงหมายเลขการจองนั้นๆ ออกมา เพื่อนำไปใช้ค้นหารายการจองในฐานข้อมูล
-        const { bookingStatus } = req.body;
+        const { id } = req.params
+        const { bookingStatus } = req.body
 
         const updatedBooking = await prisma.booking.update({
             where: { id: Number(id) },
-            data: { bookingStatus }
-        });
+            data: { bookingStatus: bookingStatus }
+        })
 
-        res.json({ ok: true, updatedBooking });
+        // ตรวจสอบว่ามี payment ที่ผูกกับ bookingId นี้หรือไม่
+        const payment = await prisma.payment.findUnique({
+            where: { bookingId: Number(id) }
+        })
+
+        // ถ้ามี payment ค่อย update
+        if (payment) {
+            if (bookingStatus === 'CANCELLED') {
+                await prisma.payment.update({
+                    where: { bookingId: Number(id) },
+                    data: { paymentStatus: 'CANCELLED' }
+                })
+                await prisma.tourPackage.update({
+                    where: {
+                        id: updatedBooking.tourPackageId,
+                    },
+                    data: {
+                        sold: {
+                            decrement: updatedBooking.adultCount
+                        }
+                    }
+                })
+            } else if (bookingStatus === 'FAILED') {
+                await prisma.payment.update({
+                    where: { bookingId: Number(id) },
+                    data: { paymentStatus: 'FAILED' }
+                })
+                await prisma.tourPackage.update({
+                    where: {
+                        id: updatedBooking.tourPackageId,
+                    },
+                    data: {
+                        sold: {
+                            decrement: updatedBooking.adultCount
+                        }
+                    }
+                })
+            } else if ((bookingStatus === 'PAID')) {
+                await prisma.payment.update({
+                    where: { bookingId: Number(id) },
+                    data: { paymentStatus: 'PAID' }
+                })
+            }
+        }
+
+        const booking = await prisma.booking.findUnique({
+            where: {
+                id: Number(id)
+            },
+            include: {
+                tourPackage: true,
+                Payment: true
+            }
+        })
+        res.status(200).json({
+            ok: true,
+            booking: booking
+        })
+
     } catch (err) {
-        console.log(err)
-        res.status(500).json({ message: 'Error updating booking status', err });
+        console.log('Error updating booking status', err)
+        res.status(500).json({ message: 'Error updating booking status', err })
     }
 }

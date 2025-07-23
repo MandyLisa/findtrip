@@ -10,8 +10,9 @@ const {
     checkPaymentStatus,
     getPaymentDetails,
     listPayments,
+    listPaymentStatus,
+    listPaymentMethod,
     confirmPaymentSlip, 
-    deletePayment, 
 } = require('../controllers/payment')
 
 
@@ -25,8 +26,11 @@ router.get('/detail/:paymentId', authCheck, getPaymentDetails)  // ดูข้�
 
 // admin 
 // @ Endpoint http://localhost:5000/api/payments
-router.get('/admin', authCheck, adminCheck, listPayments) // ดูรายการชำระเงินทั้งหมด
+router.get('/admin/all', authCheck, adminCheck, listPayments) // ดูรายการชำระเงินทั้งหมด
+router.get('/admin/list-status/payment', authCheck, adminCheck, listPaymentStatus) // ดูการจองทั้งหมด
+router.get('/admin/list-status/method', authCheck, adminCheck, listPaymentMethod) // ดูการจองทั้งหมด
+
 router.put('/admin/:paymentId/status', authCheck, adminCheck, confirmPaymentSlip) // อัปเดตสถานะการชำระเงิน
-router.delete('/admin/:paymentId', authCheck, adminCheck, deletePayment) // ลบการชำระเงิน
+// router.delete('/admin/:paymentId', authCheck, adminCheck, deletePayment) // ลบการชำระเงิน
 
 module.exports = router

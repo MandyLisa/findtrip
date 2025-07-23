@@ -19,7 +19,7 @@ export const currentAdmin = async (token) => {
 // ส่งอีเมลรีเซ็ตรหัสผ่าน (Forgot Password)
 export const forgotPassword = async (email) => {
     return await axios.post('/api/auth/forgot-password',
-        { email }, // ← ส่ง body เป็น object
+        { email :email }, // ← ส่ง body เป็น object
         {
             headers: {
                 'Content-Type': 'application/json'

@@ -121,12 +121,7 @@ exports.list = async (req, res) => {
         const skip = (page - 1) * limit
 
         const { id, tourCode, categoryId, countryId, isRecommend, isActive } = req.query
-        // console.log('1111111111111========= ', id)
-        // console.log('2222222222222========= ', tourCode)
-        // console.log('3333333333333========= ', categoryId)
-        // console.log('4444444444444========= ', countryId)
-        // console.log('5555555555555========= ', isRecommend)
-        // console.log('6666666666666========= ', isActive)
+        console.log('ดู categoryId ======== id ', categoryId)
 
         // สร้างเงื่อนไข where แบบ dynamic
         const where = {}

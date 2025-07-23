@@ -16,27 +16,26 @@ datasource db {
 enum Role {
   USER
   ADMIN
-  // สามารถไปต่อยอดเพิ่มระดับอื่นๆ ได้ เช่น STAFF, MANAGER
 }
 
 enum BookingStatus {
-  DRAFT // กดจอง ยังไม่จ่ายเงิน
-  PENDING // กดจ่ายแล้ว แต่รอแอดมินตรวจสอบ
-  PAID // ชำระเงินแล้ว
-  FAILED // ชำระเงินไม่สำเร็จ
-  CANCELLED // update by cron job
+  DRAFT 
+  PENDING 
+  PAID 
+  FAILED 
+  CANCELLED 
 }
 
 enum PaymentMethod {
-  CREDIT_CARD // บัตรเครดิต → ระบบเช็คผลอัตโนมัติ
-  BANK_TRANSFER //  → ลูกค้าโอนแล้วอัปโหลดสลิป
+  CREDIT_CARD 
+  BANK_TRANSFER 
 }
 
 enum PaymentStatus {
-  PENDING // ยังไม่จ่าย หรือ ยังไม่แนบสลิป 
-  PAID // จ่ายเรียบร้อย
-  FAILED // จ่ายไม่สำเร็จ (บัตรเครดิต fail) ระบบเช็คผลอัตโนมัติ
-  CANCELLED // ลูกค้ากดยกเลิก
+  PENDING 
+  PAID 
+  FAILED 
+  CANCELLED 
 }
 
 // เริ่มสร้าง Datasource เพื่อเรียกใช้งาน
@@ -78,7 +77,7 @@ model TourPackage {
   priceVisa       Int       @default(0)
   priceGuide      Int       @default(0)
   maxSeats        Int       @default(0)
-  sold            Int       @default(0) // นับเฉพาะ Booking ที่ชำระเงินแล้ว (status = CONFIRMED)
+  sold            Int       @default(0) 
   startDate       DateTime
   endDate         DateTime
   createdDate     DateTime  @default(now())

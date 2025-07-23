@@ -5,7 +5,7 @@ import { formatThaiDate } from '../../utils/formatDate'
 import Pagination from '../card/Pagination'
 import useTourDataStore from '../../store/tourDataStore'
 import useAuthStore from '../../store/authStore'
-import { FileSearch } from 'lucide-react'
+import { FileSearch, Loader } from 'lucide-react'
 import usePublicStore from '@/store/publicStore'
 
 
@@ -36,48 +36,50 @@ const FormTourpackage = () => {
 
     }
     const [form, setForm] = useState(searchForm)
-
-    // List Tourpackage
-    useEffect(() => {
-        if (token) {
-            setLoading(true)
-            fetchCategories()
-            fetchCountries()
-            getTourpackage(token, currentPage, limit, form || {})
-            setLoading(false)
-        }
-    }, [token, currentPage]) // เรียกใหม่เมื่อเปลี่ยนหน้า
-
+    const [formTemp, setFormTemp] = useState(searchForm)
 
     const handleOnChange = (e) => {
-        console.log(e.target.name, e.target.value)
-        setForm({
-            ...form,
-            [e.target.name]: e.target.value
-        })
+        const { name, value } = e.target
+        setFormTemp((prevForm) => ({
+            ...prevForm,
+            [name]: value,
+        }))
     }
 
-    const handleSearch = async (e) => {
-        e.preventDefault() // ถ้ากดแล้วมันรีเฟรช
-
+    // List Tourpackage
+    const fetchAllTourPackage = async (form) => {
         setLoading(true)
-
         try {
-            setCurrentPage(1)
-            const res = getTourpackage(token, currentPage, limit, form || {})
-            // console.log('ดู getTourpackage ตรงนี้', res)
+            const res = await getTourpackage(token, currentPage, limit, form || {})
         } catch (err) {
-            console.log(err)
+            console.log('Error fetching All TourPackage', err)
         } finally {
             setLoading(false)
         }
     }
 
+    const handleSearch = async (e) => {
+        e.preventDefault() // ถ้ากดแล้วมันรีเฟรช
+        setCurrentPage(1)
+        setForm(formTemp)
+        fetchAllTourPackage(formTemp)
+    }
+
     const handleReset = () => {
         setForm(searchForm)
+        setFormTemp(searchForm)
         setCurrentPage(1)
-        getTourpackage(token, currentPage, limit, null)
+        fetchAllTourPackage(searchForm)
     }
+
+
+    useEffect(() => {
+        if (token) {
+            fetchCategories()
+            fetchCountries()
+            fetchAllTourPackage(form)
+        }
+    }, [token, currentPage])
 
 
     return (
@@ -96,7 +98,7 @@ const FormTourpackage = () => {
                         <div className='flex flex-col basis-1/4'>
                             <label className='text-md mb-2'>เลขไอดี/ID No.</label>
                             <input
-                                value={form.id}
+                                value={formTemp.id}
                                 onChange={handleOnChange}
                                 name='id'
                                 type='number'
@@ -107,7 +109,7 @@ const FormTourpackage = () => {
                         <div className='flex flex-col basis-1/4'>
                             <label className='text-md mb-2'>รหัสทัวร์/Tour Code</label>
                             <input
-                                value={form.tourCode}
+                                value={formTemp.tourCode}
                                 onChange={handleOnChange}
                                 name='tourCode'
                                 type='text'
@@ -118,7 +120,7 @@ const FormTourpackage = () => {
                         <div className='flex flex-col basis-1/4'>
                             <label className='text-md mb-2'>ประเภททัวร์/Category</label>
                             <select
-                                value={form.categoryId}
+                                value={formTemp.categoryId}
                                 name='categoryId'
                                 onChange={handleOnChange}
                                 className='w-full px-2 py-1 border-2 rounded border-brand-pink'
@@ -135,7 +137,7 @@ const FormTourpackage = () => {
                         <div className='flex flex-col basis-1/4'>
                             <label className='text-md mb-2'>ประเทศ/Country</label>
                             <select
-                                value={form.countryId}
+                                value={formTemp.countryId}
                                 name='countryId'
                                 onChange={handleOnChange}
                                 className='w-full px-2 py-1 border-2 rounded border-brand-pink'
@@ -156,7 +158,7 @@ const FormTourpackage = () => {
                         <div className='flex flex-col basis-1/4'>
                             <label className='text-md mb-2'>ทัวร์แนะนำ/isRecommend?</label>
                             <select
-                                value={form.isRecommend}
+                                value={formTemp.isRecommend}
                                 name='isRecommend'
                                 onChange={handleOnChange}
                                 className='w-full px-2 py-1 border-2 rounded border-brand-pink'
@@ -170,7 +172,7 @@ const FormTourpackage = () => {
                         <div className='flex flex-col basis-1/4'>
                             <label className='text-md mb-2'>สถานะทัวร์/isActive?</label>
                             <select
-                                value={form.isActive}
+                                value={formTemp.isActive}
                                 name='isActive'
                                 onChange={handleOnChange}
                                 className='w-full px-2 py-1 border-2 rounded border-brand-pink'

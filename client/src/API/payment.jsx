@@ -28,12 +28,37 @@ export const uploadPaymentSlip = async (token, bookingId, formData) => {
 }
 
 
-// // สำหรับลบสลิปการโอน
-// export const deletePaymentSlip = async (token, bookingId) => {
-//     return await axios.delete(`/api/payment/${bookingId}/payment-slip`, {
-//         headers: {
-//             Authorization: `Bearer ${token}`
-//         }
-//     })
-// }
+// Admin Dropdown Payment Status
+export const getPaymentStatusList = async (token) => {
+    return await axios.get('/api/payment/admin/list-status/payment', {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    })
+}
+
+// Admin Dropdown Payment Status
+export const getPaymentMethodList = async (token) => {
+    return await axios.get('/api/payment/admin/list-status/method', {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    })
+}
+
+// Admin ดึงข้อมูลการจองทั้งหมด
+export const listPayment = async (token, page = 1, limit = 10, form = {}) => {
+    const params = {
+        page,
+        limit,
+        ...form
+    }
+
+    return axios.get('/api/payment/admin/all', {
+        headers: {
+            Authorization: `Bearer ${token}`
+        },
+        params
+    })
+}
 

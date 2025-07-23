@@ -52,8 +52,8 @@ const MyBooking = () => {
     try {
       setLoading(true)
       const res = await getUserBookings(token, currentPage, limit, bookingStatus)
-      console.log('ดู fetchBookingData', res.data.bookings)
-      setAllBookings(res.data.bookings)
+      console.log('ดู fetchBookingData', res)
+      setAllBookings(res.data.booking)
       setTotalPages(res.data.totalPage)
     } catch (error) {
       console.log('Error fetching Booking Data', error)

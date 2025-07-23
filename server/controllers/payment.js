@@ -4,6 +4,9 @@ const { v4: uuidv4 } = require('uuid') // ใช้สร้าง transactionId
 const cloudinary = require('../utils/cloudinary')
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 const Stripe = require('stripe')
+const { PaymentStatus } = require('@prisma/client')
+const { PaymentMethod } = require('@prisma/client')
+
 
 
 // user อัพโหลด payment slip
@@ -115,10 +118,10 @@ exports.checkPaymentStatus = async (req, res) => {
     try {
         const { bookingId } = req.params
 
-        const payment = await prisma.payment.findUnique({ 
-            where: { 
-                bookingId: parseInt(bookingId) 
-            } 
+        const payment = await prisma.payment.findUnique({
+            where: {
+                bookingId: parseInt(bookingId)
+            }
         })
 
         if (!payment) {
@@ -152,19 +155,120 @@ exports.getPaymentDetails = async (req, res) => {
     }
 };
 
-
 // Admin ดูรายการชำระเงินทั้งหมด
 exports.listPayments = async (req, res) => {
     try {
-        const payments = await prisma.payment.findMany({
-            orderBy: { paymentDate: 'desc' },
-        });
-        res.json(payments);
+        const page = parseInt(req.query.page) || 1
+        const limit = parseInt(req.query.limit) || 10
+        const skip = (page - 1) * limit
+
+        const { id, bookingId, userEmail, name, paymentStatus, paymentMethod } = req.query
+
+        const where = {}
+
+        if (id) {
+            where.id = Number(id)
+        }
+
+        if (bookingId) {
+            where.bookingId = Number(bookingId)
+        }
+
+        if (paymentStatus) {
+            where.paymentStatus = paymentStatus
+        }
+
+        if (paymentMethod) {
+            where.paymentMethod = paymentMethod
+        }
+
+        // เงื่อนไข userEmail และ name อยู่ใน booking → user
+        if (userEmail || name) {
+            where.booking = {
+                user: {}
+            }
+
+            if (userEmail) {
+                where.booking.user.email = {
+                    contains: userEmail,
+                }
+            }
+
+            if (name) {
+                where.booking.user.name = {
+                    contains: name,
+                }
+            }
+        }
+
+        const [payment, totalCount] = await Promise.all([
+            prisma.payment.findMany({
+                skip: skip,
+                take: limit,
+                where: where,
+                orderBy: {
+                    createdDate: 'desc'
+                },
+                include: {
+                    booking: {
+                        include: {
+                            user: true,
+                            tourPackage: true
+                        }
+                    }
+                }
+            }),
+            prisma.payment.count({
+                where: where,
+            })
+        ])
+
+        res.status(200).json({
+            ok: true,
+            message: 'ดึงข้อมูลการชำระเงินสำเร็จ',
+            data: payment,
+            currentPage: page,
+            totalPage: Math.ceil(totalCount / limit),
+            totalCount,
+        })
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server Error' });
+        console.log('Error fetching all payment', err)
+        res.status(500).json({ message: 'Error fetching all payment', err })
     }
-};
+}
+
+// Drop down Payment Status
+exports.listPaymentStatus = async (req, res) => {
+    try {
+        const allStatusList = Object.values(PaymentStatus) // แปลง enum เป็น array ของ string
+
+        res.status(200).json({
+            data: allStatusList,
+            totalCount: allStatusList.length,
+        })
+
+    } catch (err) {
+        console.error('Error in listPaymentStatus', err)
+        res.status(500).json({ message: 'Error in listPaymentStatus', err })
+    }
+}
+
+// Drop down Payment Method
+exports.listPaymentMethod = async (req, res) => {
+    try {
+        const allStatusList = Object.values(PaymentMethod) // แปลง enum เป็น array ของ string
+
+        res.status(200).json({
+            data: allStatusList,
+            totalCount: allStatusList.length,
+        })
+
+    } catch (err) {
+        console.error('Error in listPaymentMethod', err)
+        res.status(500).json({ message: 'Error in listPaymentMethod', err })
+    }
+}
+
 
 // Admin ยืนยันการชำระเงินและอัพเดตสถานะให้ลค.
 exports.confirmPaymentSlip = async (req, res) => {

@@ -40,7 +40,6 @@ exports.authCheck = async (req, res, next) => {
         if (!user.enable) {
             return res.status(403).json({ message: 'This account is disabled' })
         }
-        console.log(user)
         next()
     } catch (err) {
         if (err.name === 'JsonWebTokenError') {

@@ -1,4 +1,4 @@
-import FormBooking from "@/components/admin/FormBooking"
+import FormBooking from '@/components/admin/FormBooking'
 
 
 const Booking = () => {
