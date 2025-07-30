@@ -1,4 +1,4 @@
-const prisma = require('../config/prisma') // Import Prisma Client
+const prisma = require('../config/prisma')
 const { sendPaymentSuccessEmail } = require('../utils/email')
 const { v4: uuidv4 } = require('uuid') // ใช้สร้าง transactionId แบบสุ่ม
 const cloudinary = require('../utils/cloudinary')
@@ -12,11 +12,8 @@ const { PaymentMethod } = require('@prisma/client')
 // user อัพโหลด payment slip
 exports.uploadPaymentSlip = async (req, res) => {
 
-    console.log('เข้า uploadPaymentSlip ไหม ?????????')
-
     try {
         const { bookingId } = req.params // <-- ดึงจาก URL
-        console.log('ดูก่อนว่า bookingId ได้อะไร', bookingId)
         const { bankName } = req.body
         const slipFile = req.file // ดึงไฟล์ที่อัปโหลด
         const userId = req.user.id; // ดึง userId จาก token
@@ -40,13 +37,13 @@ exports.uploadPaymentSlip = async (req, res) => {
         })
 
         if (!booking) {
-            return res.status(404).json({ message: 'Booking Not Found' });
+            return res.status(404).json({ message: 'Booking Not Found' })
         }
 
         const fileBuffer = req.file.buffer
 
         // 2. อัพโหลดไฟล์ไป Cloudinary
-        const fileBase64 = `data:${slipFile.mimetype};base64,${fileBuffer.toString('base64')}`;
+        const fileBase64 = `data:${slipFile.mimetype};base64,${fileBuffer.toString('base64')}`
 
         const result = await cloudinary.uploader.upload(fileBase64, {
             public_id: `slip-${Date.now()}`,
@@ -94,11 +91,10 @@ exports.uploadPaymentSlip = async (req, res) => {
                     transactionId: `BANK-${Date.now()}-${booking.id}` // สร้าง transactionId ง่ายๆ สำหรับการโอน
                 }
             })
-            console.log('New Payment record created:', newPayment);
-            res.status(201).json({ message: 'Payment slip uploaded and new payment created successfully', payment: newPayment });
+            console.log('New Payment record created:', newPayment)
+            res.status(201).json({ message: 'Payment slip uploaded and new payment created successfully', payment: newPayment })
         }
         // 4. อัปเดตสถานะ Booking ให้เป็น 'PENDING'
-        // เพิ่มโค้ดส่วนนี้ก่อนการส่ง response กลับ
         const updatedBooking = await prisma.booking.update({
             where: { id: numericBookingId },
             data: {
@@ -109,7 +105,7 @@ exports.uploadPaymentSlip = async (req, res) => {
 
     } catch (err) {
         console.error('Error uploading payment slip:', err)
-        res.status(500).json({ message: 'Server Error during slip upload or payment update', error: err.message })
+        res.status(500).json({ message: 'Error uploading payment slip', err })
     }
 }
 
@@ -125,35 +121,40 @@ exports.checkPaymentStatus = async (req, res) => {
         })
 
         if (!payment) {
-            return res.status(404).json({ message: 'Payment not found!' });
+            return res.status(404).json({ message: 'Payment not found!' })
         }
 
-        res.json(payment);
+        res.status(200).json({
+            ok: true,
+            payment: payment
+        })
 
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server Error' });
+        console.error('Error Check Payment Status', err)
+        res.status(500).json({ message: 'Error Check Payment Status', err})
     }
-};
+}
 
 // User ดูรายละเอียดการชำระเงินของตัวเอง
 exports.getPaymentDetails = async (req, res) => {
     try {
-        const { paymentId } = req.params;
+        const { paymentId } = req.params
 
-        const payment = await prisma.payment.findUnique({ where: { id: parseInt(paymentId) } });
+        const payment = await prisma.payment.findUnique({ where: { id: parseInt(paymentId) } })
 
         if (!payment) {
-            return res.status(404).json({ message: 'Payment not found!' });
+            return res.status(404).json({ message: 'Payment not found!' })
         }
 
-        res.json(payment);
-
+        res.status(200).json({
+            ok: true,
+            payment: payment
+        })
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server Error' });
+        console.error('Error fetching payment details', err)
+        res.status(500).json({ message: 'Error fetching payment details', err })
     }
-};
+}
 
 // Admin ดูรายการชำระเงินทั้งหมด
 exports.listPayments = async (req, res) => {
@@ -269,9 +270,38 @@ exports.listPaymentMethod = async (req, res) => {
     }
 }
 
+// Admin ดูรายละเอียดการชำระเงินแต่ละไอดี
+exports.getPaymentDetailByAdmin = async (req, res) => {
+    try {
+        const { id } = req.params
+        // console.log('getPaymentDeatilByAdmin ======', id)
+
+        const payment = await prisma.payment.findUnique({
+            where: {
+                id: Number(id)
+            },
+            include: {
+                booking: {
+                    include: {
+                        user: true,
+                        tourPackage: true
+                    }
+                }
+            }
+        })
+        res.status(200).json({
+            ok: true,
+            payment: payment
+        })
+
+    } catch (err) {
+        console.error('Error in get Payment Deatil', err)
+        res.status(500).json({ message: 'Error in get Payment Deatil', err })
+    }
+}
 
 // Admin ยืนยันการชำระเงินและอัพเดตสถานะให้ลค.
-exports.confirmPaymentSlip = async (req, res) => {
+exports.updatePayment = async (req, res) => {
     try {
         const { paymentId } = req.params;
 
@@ -286,15 +316,15 @@ exports.confirmPaymentSlip = async (req, res) => {
                     },
                 },
             },
-        });
+        })
 
         if (!payment) {
-            return res.status(404).json({ message: 'Payment not found' });
+            return res.status(404).json({ message: 'Payment not found' })
         }
 
         // 2. ตรวจสอบสถานะการชำระเงินปัจจุบัน
         if (payment.paymentStatus === 'CONFIRMED') {
-            return res.status(400).json({ message: 'Payment has already been confirmed' });
+            return res.status(400).json({ message: 'Payment has already been confirmed' })
         }
 
         // 3. อัปเดตสถานะการชำระเงินเป็น 'CONFIRMED'
@@ -304,7 +334,7 @@ exports.confirmPaymentSlip = async (req, res) => {
                 paymentStatus: 'CONFIRMED',
                 updatedDate: new Date(),
             },
-        });
+        })
 
         // 4. อัปเดตสถานะการจองเป็น "Confirmed" หากการชำระเงินเสร็จสมบูรณ์
         await prisma.booking.update({
@@ -312,50 +342,22 @@ exports.confirmPaymentSlip = async (req, res) => {
             data: {
                 bookingStatus: 'CONFIRMED',
             },
-        });
+        })
 
         // 5. ส่งอีเมลยืนยันไปยังผู้ใช้งาน
-        const userEmail = payment.booking.user.email;
-        const tourTitle = payment.booking.tourPackage.title;
+        const userEmail = payment.booking.user.email
+        const tourTitle = payment.booking.tourPackage.title
 
-        await sendPaymentSuccessEmail(userEmail, tourTitle, payment.booking.id);
+        await sendPaymentSuccessEmail(userEmail, tourTitle, payment.booking.id)
 
         // 6. ส่งผลลัพธ์การอัปเดต
         res.json({
             message: 'Payment successfully confirmed',
             payment: updatedPayment,
-        });
+        })
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server Error', err });
+        console.error(err)
+        res.status(500).json({ message: 'Server Error', err })
     }
-};
+}
 
-// Admin ยกเลิกการชำระเงิน (ลบ Payment)
-exports.deletePayment = async (req, res) => {
-    try {
-        const { bookingId } = req.params;
-
-        const payment = await prisma.payment.findUnique({
-            where: {
-                bookingId: parseInt(bookingId)
-            }
-        });
-
-        if (!payment) {
-            return res.status(404).json({ message: 'Payment not found!' });
-        }
-
-        await prisma.payment.delete({
-            where: {
-                bookingId: parseInt(bookingId)
-            }
-        });
-
-        res.json({ message: 'Payment deleted successfully!' });
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server Error' });
-    }
-};

@@ -5,14 +5,13 @@ const uploadImage = require('../middlewares/uploadImage')
 
 const { authCheck, adminCheck } = require('../middlewares/authCheck')
 const { 
-    // choosePaymentMethod,
     uploadPaymentSlip,
     checkPaymentStatus,
     getPaymentDetails,
     listPayments,
     listPaymentStatus,
     listPaymentMethod,
-    confirmPaymentSlip, 
+    getPaymentDetailByAdmin, 
 } = require('../controllers/payment')
 
 
@@ -27,10 +26,9 @@ router.get('/detail/:paymentId', authCheck, getPaymentDetails)  // ดูข้�
 // admin 
 // @ Endpoint http://localhost:5000/api/payments
 router.get('/admin/all', authCheck, adminCheck, listPayments) // ดูรายการชำระเงินทั้งหมด
-router.get('/admin/list-status/payment', authCheck, adminCheck, listPaymentStatus) // ดูการจองทั้งหมด
-router.get('/admin/list-status/method', authCheck, adminCheck, listPaymentMethod) // ดูการจองทั้งหมด
+router.get('/admin/list-status/payment', authCheck, adminCheck, listPaymentStatus) // drop down สถานะการชำระเงิน
+router.get('/admin/list-status/method', authCheck, adminCheck, listPaymentMethod) // drop down ช่องทางการชำระเงิน
+router.get('/admin/payment-details/:id', authCheck, adminCheck, getPaymentDetailByAdmin) // อัปเดตสถานะการชำระเงิน
 
-router.put('/admin/:paymentId/status', authCheck, adminCheck, confirmPaymentSlip) // อัปเดตสถานะการชำระเงิน
-// router.delete('/admin/:paymentId', authCheck, adminCheck, deletePayment) // ลบการชำระเงิน
 
 module.exports = router

@@ -409,7 +409,7 @@ exports.updateBookingStatus = async (req, res) => {
                         }
                     }
                 })
-            } else if ((bookingStatus === 'PAID')) {
+            } else if (bookingStatus === 'PAID') {
                 await prisma.payment.update({
                     where: { bookingId: Number(id) },
                     data: { paymentStatus: 'PAID' }
@@ -426,6 +426,8 @@ exports.updateBookingStatus = async (req, res) => {
                 Payment: true
             }
         })
+
+
         res.status(200).json({
             ok: true,
             booking: booking

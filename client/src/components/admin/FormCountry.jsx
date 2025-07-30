@@ -145,14 +145,14 @@ const FormCountry = () => {
 
                     <form className='space-y-6 mt-8' onSubmit={handleSubmit}>
                         <div>
-                            <label className='block text-md font-semibold text-gray-700 mt-2 mb-2'>
+                            <label className='block text-md font-medium text-gray-700 mt-2 mb-2'>
                                 กรุณาเพิ่มประเทศ/Category
                             </label>
                             <input
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                className={`w-full px-3 py-1 border-2 border-blue-600 rounded
-                                ${editMode ? 'bg-gray-100 border-gray-400' : 'bg-white border-blue-600'}`}
+                                className={`w-full px-3 py-1 border-2 border-brand-pink rounded
+                                ${editMode ? 'bg-gray-100 border-gray-400' : 'bg-white border-brand-pink'}`}
                                 type='text'
                             />
                         </div>
@@ -190,7 +190,7 @@ const FormCountry = () => {
                     <form className='space-y-6' onSubmit={handleSearch}>
                         <div className='grid grid-cols-2 gap-6'>
                             <div>
-                                <label className='block text-md font-semibold text-gray-700 mt-2 mb-2'>
+                                <label className='block text-md font-medium text-gray-700 mt-2 mb-2'>
                                     เลขไอดี/ID No.
                                 </label>
                                 <input
@@ -198,12 +198,12 @@ const FormCountry = () => {
                                     type='text'
                                     value={formTemp.id}
                                     onChange={handleOnChange}
-                                    className='w-full px-3 py-1 border-2 border-blue-600 rounded'
+                                    className='w-full px-3 py-1 border-2 border-brand-pink rounded'
                                 />
                             </div>
 
                             <div>
-                                <label className='block text-md font-semibold text-gray-700 mt-2 mb-2'>
+                                <label className='block text-md font-medium text-gray-700 mt-2 mb-2'>
                                     พิมพ์ชื่อประเทศ/Country
                                 </label>
                                 <input
@@ -211,7 +211,7 @@ const FormCountry = () => {
                                     type='text'
                                     value={formTemp.name}
                                     onChange={handleOnChange}
-                                    className='w-full px-3 py-1 border-2 border-blue-600 rounded'
+                                    className='w-full px-3 py-1 border-2 border-brand-pink rounded'
                                 />
                             </div>
                         </div>

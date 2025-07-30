@@ -1,12 +1,13 @@
-import { getPaymentMethodList, getPaymentStatusList, listPayment } from "@/API/payment"
+import { getUserRoleList, listUsers } from "@/API/profile"
 import useAuthStore from "@/store/authStore"
 import { FileSearch, Loader } from "lucide-react"
 import { useEffect, useState } from "react"
+import { FaSearch } from "react-icons/fa"
 import { Link } from "react-router-dom"
 import Pagination from "../card/Pagination"
-import { FaSearch } from "react-icons/fa"
 
-const FormPayment = () => {
+
+const FormManage = () => {
     const token = useAuthStore((state) => state.token)
     const [loading, setLoading] = useState(false)
 
@@ -17,11 +18,11 @@ const FormPayment = () => {
     // Search Form
     const searchForm = {
         id: '',
-        userEmail: '',
+        email: '',
         name: '',
-        bookingId: '',
-        paymentStatus: '',
-        paymentMethod: ''
+        phone: '',
+        role: '',
+        enable: ''
     }
 
     const [form, setForm] = useState(searchForm)
@@ -29,50 +30,36 @@ const FormPayment = () => {
 
     const handleOnChange = (e) => {
         const { name, value } = e.target
-        setFormTemp((prevForm) => ({ // setFormTemp
+        setFormTemp((prevForm) => ({
             ...prevForm,
             [name]: value,
         }))
     }
 
-    // Drop down payment Status
-    const [paymentStatusList, setPaymentStatusList] = useState([])
-    const fetchPaymentStatus = async () => {
+    // Drop down role list 
+    const [roleList, setRoleList] = useState([])
+    const fetchRoleList = async () => {
         try {
-            const res = await getPaymentStatusList(token)
-            console.log('ดู fetchPaymentStatus', res)
-            setPaymentStatusList(res.data.data)
-            await fetchAllPayment(form) // ดึงข้อมูลการจองหลังจากได้ status แล้ว
+            const res = await getUserRoleList(token)
+            console.log('ดู fetchRoleList', res)
+            setRoleList(res.data.data)
+            await fetchAllUser(form) // ดึงข้อมูลการจองหลังจากได้ status แล้ว
         } catch (err) {
-            console.error('Error loading payment status', err)
+            console.error('Error loading role list', err)
         }
     }
 
-
-    // Drop down payment Method
-    const [paymentMethodList, setPaymentMethodList] = useState([])
-    const fetchPaymentMethod = async () => {
-        try {
-            const res = await getPaymentMethodList(token)
-            console.log('ดู fetchPaymentMethod', res)
-            setPaymentMethodList(res.data.data)
-            await fetchAllPayment(form) // ดึงข้อมูลการจองหลังจากได้ status แล้ว
-        } catch (err) {
-            console.error('Error loading payment method', err)
-        }
-    }
-
-    // Payment Table
-    const [allPayment, setAllPayment] = useState([])
-    const fetchAllPayment = async (form) => {
+    // User Table
+    const [allUser, setAllUser] = useState([])
+    const fetchAllUser = async (form) => {
         setLoading(true)
         try {
-            const res = await listPayment(token, currentPage, limit, form || {})
-            console.log('ดู listPayment ตรงนี้', res)
-            setAllPayment(res.data.data)
+            const res = await listUsers(token, currentPage, limit, form || {})
+            console.log('ดู fetchAllUser ตรงนี้', res)
+            setAllUser(res.data.data)
             setTotalPages(res.data.totalPage)
         } catch (err) {
-            console.log('Error fetching All Payment List', err)
+            console.log('Error fetching All User', err)
         } finally {
             setLoading(false)
         }
@@ -82,21 +69,20 @@ const FormPayment = () => {
         e.preventDefault()
         setCurrentPage(1)
         setForm(formTemp)
-        fetchAllPayment(formTemp)
+        fetchAllUser(formTemp)
     }
 
     const handleReset = () => {
         setForm(searchForm)
         setFormTemp(searchForm)
         setCurrentPage(1)
-        fetchAllPayment(searchForm)
+        fetchAllUser(searchForm)
     }
 
     useEffect(() => {
         if (token) {
-            fetchPaymentStatus()
-            fetchPaymentMethod()
-            fetchAllPayment(form)
+            fetchRoleList()
+            fetchAllUser(form)
         }
     }, [token, currentPage])
 
@@ -109,12 +95,12 @@ const FormPayment = () => {
                         <div className='bg-blue-600 w-12 h-12 flex items-center justify-center'>
                             <FileSearch className='w-6 h-6 text-white' />
                         </div>
-                        <h1 className='ml-3 text-lg font-medium text-gray-700'>ค้นหาแพ็คเกจทัวร์</h1>
+                        <h1 className='ml-3 text-lg font-medium text-gray-700'>ค้นหาผู้ใช้งาน</h1>
                     </div>
 
                     <div className='flex flex-row mt-4 gap-4'>
                         <div className='flex flex-col basis-1/4'>
-                            <label className='text-md mb-2'>เลขการชำระเงิน/Payment No.</label>
+                            <label className='text-md mb-2'>เลขผู้ใช้งาน/User No.</label>
                             <input
                                 value={formTemp.id}
                                 onChange={handleOnChange}
@@ -127,9 +113,9 @@ const FormPayment = () => {
                         <div className='flex flex-col basis-1/4'>
                             <label className='text-md mb-2'>อีเมล์ผู้ใช้/User Email</label>
                             <input
-                                value={formTemp.userEmail}
+                                value={formTemp.email}
                                 onChange={handleOnChange}
-                                name='userEmail'
+                                name='email'
                                 type='text'
                                 className='w-full px-2 py-1 border-2 rounded border-brand-pink'
                             />
@@ -147,27 +133,27 @@ const FormPayment = () => {
                         </div>
 
                         <div className='flex flex-col basis-1/4'>
-                            <label className='text-md mb-2'>เลขการจอง/Booking No.</label>
+                            <label className='text-md mb-2'>โทรศัพท์/Phone No.</label>
                             <input
-                                value={formTemp.bookingId}
+                                value={formTemp.phone}
                                 onChange={handleOnChange}
-                                name='bookingId'
+                                name='phone'
                                 type='text'
                                 className='w-full px-2 py-1 border-2 rounded border-brand-pink'
                             />
                         </div>
 
                         <div className='flex flex-col basis-1/4'>
-                            <label className='text-md mb-2'>สถานะการชำระเงิน/paymentStatus</label>
+                            <label className='text-md mb-2'>บทบาท/Role</label>
                             <select
-                                value={formTemp.paymentStatus}
-                                name='paymentStatus'
+                                value={formTemp.role}
+                                name='role'
                                 onChange={handleOnChange}
                                 className='w-full px-2 py-1 border-2 rounded border-brand-pink'
                             >
                                 <option value='' disabled>กรุณาเลือก</option>
                                 {
-                                    paymentStatusList.map((status) => (
+                                    roleList.map((status) => (
                                         <option key={status} value={status}>{status}</option>
                                     ))
                                 }
@@ -175,19 +161,17 @@ const FormPayment = () => {
                         </div>
 
                         <div className='flex flex-col basis-1/4'>
-                            <label className='text-md mb-2'>ช่องทางชำระเงิน/Payment Method</label>
+                            <label className='text-md mb-2'>สถานะบัญชี/Account Status?</label>
                             <select
-                                value={formTemp.paymentMethod}
-                                name='paymentMethod'
+                                value={formTemp.enable}
+                                name='enable'
                                 onChange={handleOnChange}
                                 className='w-full px-2 py-1 border-2 rounded border-brand-pink'
                             >
                                 <option value='' disabled>กรุณาเลือก</option>
-                                {
-                                    paymentMethodList.map((status) => (
-                                        <option key={status} value={status}>{status}</option>
-                                    ))
-                                }
+                                <option value={true}>เปิด</option>
+                                <option value={false}>ปิด</option>
+
                             </select>
                         </div>
                     </div>
@@ -226,37 +210,35 @@ const FormPayment = () => {
                         <table className='min-w-full text-sm text-left text-gray-600'>
                             <thead className='text-sm text-gray-700 uppercase bg-gray-200'>
                                 <tr>
-                                    <th className='px-4 py-2'>หมายเลขชำระเงิน</th>
-                                    <th className='px-4 py-2'>ชื่อ-นามสกุล</th>
+                                    <th className='px-4 py-2'>เลขผู้ใช้งาน</th>
+                                    <th className='px-4 py-2'>ชื่อ</th>
                                     <th className='px-4 py-2'>อีเมล์</th>
-                                    <th className='px-4 py-2'>เลขทัวร์</th>
-                                    <th className='px-4 py-2'>เลขการจอง</th>
-                                    <th className='px-4 py-2'>สถานะการจอง</th>
-                                    <th className='px-4 py-2'>จำนวนเงิน</th>
-                                    <th className='px-4 py-2'>สถานะการชำระเงิน</th>
-                                    <th className='px-4 py-2'>ช่องทางชำระเงิน</th>
-                                    <th className='px-4 py-2'>ธนาคาร</th>
+                                    <th className='px-4 py-2'>หมายเลขโทรศัพท์</th>
+                                    <th className='px-4 py-2'>บทบาท</th>
+                                    <th className='px-4 py-2'>สถานะบัญชี</th>
                                     <th className='px-4 py-2 text-center'>จัดการ</th>
                                 </tr>
                             </thead>
 
                             <tbody>
-                                {allPayment.length > 0 ? (
-                                    allPayment.map((item) => (
+                                {allUser.length > 0 ? (
+                                    allUser.map((item) => (
                                         <tr key={item.id} className='border-b hover:bg-gray-100'>
                                             <td className='px-4 py-2'>{item.id}</td>
-                                            <td className='px-4 py-2'>{item.booking?.user?.name} {item.booking?.user.surname}</td>
-                                            <td className='px-4 py-2'>{item.booking?.user.email}</td>
-                                            <td className='px-4 py-2'>{item.booking?.tourPackageId}</td>
-                                            <td className='px-4 py-2'>{item.bookingId}</td>
-                                            <td className='px-4 py-2'>{item.booking?.bookingStatus}</td>
-                                            <td className='px-4 py-2'>{item.amount}</td>
-                                            <td className='px-4 py-2'>{item.paymentStatus}</td>
-                                            <td className='px-4 py-2'>{item.paymentMethod}</td>
-                                            <td className='px-4 py-2'>{item.bankName}</td>
+                                            <td className='px-4 py-2'>{item.name}</td>
+                                            <td className='px-4 py-2'>{item.email}</td>
+                                            <td className='px-4 py-2'>{item.phone}</td>
+                                            <td className='px-4 py-2'>{item.role}</td>
+                                            <td className='px-4 py-2 text center'>
+                                                {item.enable ? (
+                                                    <span className='text-green-600 text-sm font-bold'>เปิด</span>
+                                                ) : (
+                                                    <span className='text-red-600 text-sm font-bold'>ปิด</span>
+                                                )}
+                                            </td>
                                             <td className='px-4 py-2 text-center'>
                                                 <Link
-                                                    to={`/admin/payment/${item.id}`}
+                                                    to={`/admin/manage/${item.id}`}
                                                     className='text-blue-600 hover:text-blue-800 inline-flex items-center gap-1'
                                                 >
                                                     <FaSearch />
@@ -267,7 +249,7 @@ const FormPayment = () => {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={11} className='text-center text-gray-500 font-semibold py-8'>
+                                        <td colSpan={7} className='text-center text-gray-500 font-semibold py-8'>
                                             ไม่พบข้อมูลแพ็คเกจที่คุณค้นหา
                                         </td>
                                     </tr>
@@ -287,4 +269,4 @@ const FormPayment = () => {
     )
 }
 
-export default FormPayment
+export default FormManage

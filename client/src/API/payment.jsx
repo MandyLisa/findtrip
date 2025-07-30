@@ -62,3 +62,12 @@ export const listPayment = async (token, page = 1, limit = 10, form = {}) => {
     })
 }
 
+
+export const getPaymentDetail = async (token, id) => {
+    return await axios.get(`/api/payment/admin/payment-details/${id}`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
+}
+

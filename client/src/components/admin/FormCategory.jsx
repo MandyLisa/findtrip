@@ -152,8 +152,8 @@ const FormCategory = () => {
                             <input
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                className={`w-full px-3 py-1 border-2 border-blue-600 rounded
-                                ${editMode ? 'bg-gray-100 border-gray-400' : 'bg-white border-blue-600'}`}
+                                className={`w-full px-3 py-1 border-2 border-brand-pink rounded
+                                ${editMode ? 'bg-gray-100 border-gray-400' : 'bg-white border-brand-pink'}`}
                                 type='text'
                             />
                         </div>
@@ -199,7 +199,7 @@ const FormCategory = () => {
                                     type='text'
                                     value={formTemp.id}
                                     onChange={handleOnChange}
-                                    className='w-full px-3 py-1 border-2 border-blue-600 rounded'
+                                    className='w-full px-3 py-1 border-2 border-brand-pink rounded'
                                 />
                             </div>
 
@@ -212,7 +212,7 @@ const FormCategory = () => {
                                     type='text'
                                     value={formTemp.name}
                                     onChange={handleOnChange}
-                                    className='w-full px-3 py-1 border-2 border-blue-600 rounded'
+                                    className='w-full px-3 py-1 border-2 border-brand-pink rounded'
                                 />
                             </div>
                         </div>

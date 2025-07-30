@@ -31,7 +31,7 @@ const FormBookingDetail = () => {
         setLoading(true)
         try {
             const res = await getBookingDetail(token, id)
-            // console.log('ดู fetchBookingDetail ตรงนี้ ', res)
+            console.log('ดู fetchBookingDetail ตรงนี้ ', res)
             setBooking(res.data.booking)
             
         } catch (error) {

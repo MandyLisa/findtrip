@@ -1,5 +1,6 @@
 import axios from 'axios'
 
+// user
 export const getUserProfile = async (token) => {
     return await axios.get('/api/user/profile', {
         headers: {
@@ -9,10 +10,59 @@ export const getUserProfile = async (token) => {
 }
 
 export const updateUserProfile = async (token, updatedUserData) => {
-    return await axios.put('/api/user/profile', updatedUserData,  {
+    return await axios.put('/api/user/profile', updatedUserData, {
         headers: {
             Authorization: `Bearer ${token}`
         }
     })
 }
+
+// Admin
+export const listUsers = async (token, page = 1, limit = 10, form = {}) => {
+    const params = {
+        page,
+        limit,
+        ...form
+    }
+    return await axios.get('/api/admin/users', {
+        headers: {
+            Authorization: `Bearer ${token}`
+        },
+        params
+    })
+}
+
+export const getUserRoleList = async (token) => {
+    return await axios.get('/api/admin/users/role-list', {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    })
+}
+
+
+export const getProfileByAdmin = async (token, id) => {
+    return await axios.get(`/api/admin/users/${id}`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
+}
+
+
+export const updateProfileByAdmin = async (token, id, role) => {
+    return await axios.put(`/api/admin/users/role/${id}`,
+        { role: role },
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+}
+
+
+
+
+
+
 
