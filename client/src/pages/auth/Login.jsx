@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 import useAuthStore from '../../store/authStore'
 import { validateField, validateLoginForm } from '@/utils/validateRegisterForm'
@@ -8,7 +8,7 @@ import Swal from 'sweetalert2'
 
 const Login = () => {
   const navigate = useNavigate()
-  const location = useLocation()
+  // const location = useLocation()
   const actionLogin = useAuthStore((state) => state.actionLogin)
   const user = useAuthStore((state) => state.user)
 
@@ -87,16 +87,14 @@ const Login = () => {
 
   // ใช้ location.state
   const roleRedirect = (role) => {
-    if (role.toLowerCase() === 'admin') {
+    console.log('roleRedirect============000000000 ', role)
+    if (role === 'ADMIN' || role === 'SUPER_ADMIN') {
       navigate('/admin')
     } else {
-      if (location.state?.fromRegister) { // เช็คจาก state ที่ส่งมาจากหน้าลงทะเบียน
-        navigate('/')
-      } else {
-        navigate('/')
-      }
+      navigate('/')
     }
   }
+
 
   return (
     <>
@@ -186,4 +184,5 @@ const Login = () => {
     </>
   )
 }
+
 export default Login

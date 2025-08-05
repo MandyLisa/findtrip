@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label'
 import { useNavigate } from 'react-router-dom'
 import UploadImage from './UploadImage'
 import UploadPDF from './UploadPDF'
-import { useParams } from 'react-router-dom' // อ่านค่าบน url
+import { useParams } from 'react-router-dom' 
 import useAuthStore from '../../store/authStore'
 import ConfirmDialog from '../ui/ConfirmDialog'
 import usePublicStore from '@/store/publicStore'

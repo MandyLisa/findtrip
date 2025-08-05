@@ -1,10 +1,14 @@
-import React from 'react'
+import AdminDashBoard from '@/components/admin/AdminDashBoard'
 
 const Dashboard = () => {
     return (
-        <div className='text-xl text-gray-600 font-bold'>
-            <h1>แพ็คเกจที่ใกล้เต็ม</h1>
-        </div>
+        <>
+            <div className='text-xl text-gray-600 font-bold'>
+            </div>
+            <div className='ml-2 my-4'>
+                <AdminDashBoard />
+            </div>
+        </>
     )
 }
 

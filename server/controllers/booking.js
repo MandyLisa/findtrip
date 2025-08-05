@@ -63,7 +63,7 @@ exports.getUserBookings = async (req, res) => {
 exports.getBookingById = async (req, res) => {
     try {
         const { id } = req.params
-        const isAdmin = req.user.role === 'ADMIN'
+        const isUser = req.user.role === 'USER'
         // console.log('ดู 000000==== ', isAdmin)
 
         const booking = await prisma.booking.findUnique({
@@ -83,8 +83,7 @@ exports.getBookingById = async (req, res) => {
         if (!booking) {
             return res.status(404).json({ message: 'Booking not found' })
         }
-
-        if (!isAdmin && booking.userId !== req.user.id) {
+        if (isUser && booking.userId !== req.user.id) {
             return res.status(403).json({ message: 'Access denied' })
         }
 

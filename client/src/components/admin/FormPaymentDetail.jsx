@@ -39,6 +39,8 @@ const FormPaymentDetail = () => {
         }
     }
 
+    
+
     const handleBack = () => {
         navigate(-1)
     }

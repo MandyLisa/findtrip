@@ -105,6 +105,8 @@ exports.updateUserRole = async (req, res) => {
         // 1. รับค่า ID และ role
         const { id } = req.params
         const { role } = req.body
+        console.log('======111111', id)
+        console.log('======222222', role)
 
         // 2. อัปเดตข้อมูลในฐานข้อมูล
         const user = await prisma.user.update({
@@ -115,7 +117,7 @@ exports.updateUserRole = async (req, res) => {
         res.status(200).json({
             ok: true,
             message: 'User role updated successfully',
-            data: user
+            user: user
         })
     } catch (err) {
         console.error('Error in updating user role', err)
@@ -125,18 +127,67 @@ exports.updateUserRole = async (req, res) => {
 
 // 4. เปลี่ยน status ลูกค้า
 exports.changeUserStatus = async (req, res) => {
+    console.log('เข้าฟังชั่นนี้ไหม changeUserStatus')
     try {
-        const { id, enable } = req.body
-        console.log(id, enable)
+        const { id } = req.params
+        const { enable } = req.body
+        // console.log('======111111',id)
+        // console.log('======222222',enable)
+
         const user = await prisma.user.update({ // รอให้การอัปเดตเสร็จสมบูรณ์ ก่อนทำงานต่อ ซึ่งจะได้ผลลัพธ์ที่ถูกอัปเดตแล้วเก็บในตัวแปร user
             where: { id: Number(id) }, // เงื่อนไขการค้นหา
             data: { enable: enable } // ข้อมูลที่จะอัปเดต ระบุฟิลด์และค่าที่ต้องการอัปเดต
         })
-        res.json(user)
+
+        res.status(200).json({
+            ok: true,
+            message: 'Change user status successfully',
+            user: user
+        })
     } catch (err) {
-        console.log(err)
-        res.status(500).json({ message: 'Server Error' })
+        console.log('Error change user status', err)
+        res.status(500).json({ message: 'Error change user status', err })
     }
 }
+
+// 5. show dashboard
+exports.getDashboardSummary = async (req, res) => {
+    try {
+        const [bookingCount, totalRevenueResult, userCount, tourPackageCount] = await Promise.all([
+            prisma.booking.count(),
+            prisma.payment.aggregate({
+                _sum: { amount: true }
+            }),
+            prisma.user.count(),
+            prisma.tourPackage.count(),
+        ])
+
+        const [recommendTours, almostFullTours, isActiveTours] = await Promise.all([
+            prisma.tourPackage.count({ where: { isRecommend: true } }),
+            prisma.tourPackage.count({ where: { isAlmostFull: true } }),
+            prisma.tourPackage.count({ where: { isActive: true } }),
+        ])
+
+
+        res.status(200).json({
+            totalBookings: bookingCount,
+            totalRevenue: totalRevenueResult._sum.amount || 0,
+            totalUsers: userCount,
+            totalTours: tourPackageCount,
+            tour: {
+                recommendTours,
+                almostFullTours,
+                isActiveTours
+            }
+        })
+    } catch (err) {
+        console.error('Error in Get Dashboard Summary:', err)
+        res.status(500).json({ message: 'Error in Get Dashboard Summary:', err })
+    }
+}
+
+
+
+
 
 

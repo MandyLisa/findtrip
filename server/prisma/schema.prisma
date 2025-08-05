@@ -16,6 +16,7 @@ datasource db {
 enum Role {
   USER
   ADMIN
+  SUPER_ADMIN
 }
 
 enum BookingStatus {
@@ -47,7 +48,7 @@ model User {
   name                String
   surname             String
   phone               String    @db.VarChar(20)
-  role                Role      @default(USER)
+  role                Role      @default(USER) // ทำงานฝั่งฐานข้อมูลเท่านั้น เมื่อมีการสร้างผู้ใช้ใหม่โดยไม่ได้ระบุ role → DB จะกำหนดให้เป็น "USER" ให้อัตโนมัติ
   enable              Boolean   @default(true) // เอาไว้เปิดปิดผู้ใช้งาน คือถ้าคุณสมัครปุ๊บ ก็สามารถเข้าใช้งานได้เลย
   address             String? // เป็นค่าว่างได้ด้วย เพราะบางทีผู้ใช้อาจจะยังไม่ได้กรอกที่อยู่ตั้งแต่แรก
   createdDate         DateTime  @default(now()) // เวลาเรามีข้อมูลลงฐานข้อมูล ครั้งแรก เค้าก็จะบันทึก time stamp เวลา ณ ปัจจุบันที่ลงฐานข้อมูลไว้

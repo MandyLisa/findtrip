@@ -66,7 +66,7 @@ exports.adminCheck = async (req, res, next) => {
             }
         })
 
-        if(!adminUser || adminUser.role !== 'ADMIN') {
+        if(!adminUser || adminUser.role == 'USER') {
             return res.status(403).json({ message: 'Admin Access Denied'})
         }
         // console.log('Admin Check', adminUser)

@@ -50,6 +50,17 @@ export const getProfileByAdmin = async (token, id) => {
 }
 
 
+export const updateAcountStatus = async (token, id, status) => {
+    return await axios.put(`/api/admin/users/status/${id}`,
+        { enable: status },
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+}
+
+
 export const updateProfileByAdmin = async (token, id, role) => {
     return await axios.put(`/api/admin/users/role/${id}`,
         { role: role },
@@ -58,6 +69,14 @@ export const updateProfileByAdmin = async (token, id, role) => {
                 Authorization: `Bearer ${token}`
             }
         })
+}
+
+export const fetchDashboardSummary = async (token) => {
+    return await axios.get('/api/admin/summary', {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
 }
 
 
