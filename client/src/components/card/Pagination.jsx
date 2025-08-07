@@ -45,7 +45,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
                 {/* ปุ่มสุดท้าย */}
                 <button
                     onClick={() => onPageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
+                    disabled={currentPage === totalPages || totalPages === 0}
                     className='px-3 py-1 rounded border bg-white hover:bg-gray-100 disabled:opacity-50'
                 >
                     ถัดไป

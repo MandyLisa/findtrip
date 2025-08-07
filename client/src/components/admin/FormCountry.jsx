@@ -6,6 +6,7 @@ import Pagination from '../card/Pagination'
 import useTourDataStore from '../../store/tourDataStore'
 import useAuthStore from '../../store/authStore'
 import ConfirmDialog from '../ui/ConfirmDialog'
+import { formatDate_Time } from '@/utils/formatDate'
 
 
 const FormCountry = () => {
@@ -267,8 +268,8 @@ const FormCountry = () => {
                                         <tr key={item.id} className='border-b hover:bg-gray-100'>
                                             <td className='px-4 py-2'>{item.id}</td>
                                             <td className='px-4 py-2'>{item.name}</td>
-                                            <td className='px-4 py-2'>{new Date(item.createdDate).toLocaleString()}</td>
-                                            <td className='px-4 py-2'>{new Date(item.updatedDate).toLocaleString()}</td>
+                                            <td className='px-4 py-2'>{formatDate_Time(item.createdDate)}</td>
+                                            <td className='px-4 py-2'>{formatDate_Time(item.updatedDate)}</td>
                                             <td className='px-4 py-2 text-center'>
                                                 <div className='flex justify-center gap-x-5'>
                                                     <button

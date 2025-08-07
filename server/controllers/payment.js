@@ -109,52 +109,6 @@ exports.uploadPaymentSlip = async (req, res) => {
     }
 }
 
-// user ดูสถานะการชำระเงิน (ตาม bookingId)
-exports.checkPaymentStatus = async (req, res) => {
-    try {
-        const { bookingId } = req.params
-
-        const payment = await prisma.payment.findUnique({
-            where: {
-                bookingId: parseInt(bookingId)
-            }
-        })
-
-        if (!payment) {
-            return res.status(404).json({ message: 'Payment not found!' })
-        }
-
-        res.status(200).json({
-            ok: true,
-            payment: payment
-        })
-
-    } catch (err) {
-        console.error('Error Check Payment Status', err)
-        res.status(500).json({ message: 'Error Check Payment Status', err})
-    }
-}
-
-// User ดูรายละเอียดการชำระเงินของตัวเอง
-exports.getPaymentDetails = async (req, res) => {
-    try {
-        const { paymentId } = req.params
-
-        const payment = await prisma.payment.findUnique({ where: { id: parseInt(paymentId) } })
-
-        if (!payment) {
-            return res.status(404).json({ message: 'Payment not found!' })
-        }
-
-        res.status(200).json({
-            ok: true,
-            payment: payment
-        })
-    } catch (err) {
-        console.error('Error fetching payment details', err)
-        res.status(500).json({ message: 'Error fetching payment details', err })
-    }
-}
 
 // Admin ดูรายการชำระเงินทั้งหมด
 exports.listPayments = async (req, res) => {

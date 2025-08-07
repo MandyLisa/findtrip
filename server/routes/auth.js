@@ -1,7 +1,6 @@
-// step import 
 const express = require('express')
 const router = express.Router()
-const { authCheck, adminCheck } = require('../middlewares/authCheck') // ตรวจสอบสิทธิ์
+const { authCheck, adminCheck } = require('../middlewares/authCheck') 
 const { register, login, currentUserAdmin, forgotPassword, verifyResetToken, resetPassword } 
 = require('../controllers/auth')
 
@@ -17,4 +16,4 @@ router.post('/current-admin',authCheck, adminCheck, currentUserAdmin)
 
 
 
-module.exports = router; // ส่งออก router ไปใช้ไฟล์อื่น
+module.exports = router // ส่งออก router ไปใช้ไฟล์อื่น

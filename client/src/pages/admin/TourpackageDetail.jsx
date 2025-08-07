@@ -3,14 +3,14 @@ import FormTourpackageDetail from '../../components/admin/FormTourpackageDetail'
 
 const TourpackageDetail = () => {
 
-    const { id } = useParams();
+    const { id } = useParams()
     const isEdit = Boolean(id)
 
     return (
         <>
             <div className="flex justify-between items-center">
                 <h1 className='text-lg font-bold'>
-                    {isEdit ? `แก้ไขแพ็กเกจ ID: ${id}` : 'สร้างแพ็กเกจใหม่'}
+                    {isEdit ? `แก้ไขแพ็กเกจทัวร์ ID: ${id}` : 'สร้างแพ็กเกจทัวร์ใหม่'}
                 </h1>
             </div>
 

@@ -12,7 +12,7 @@ const SearchCard = ({
   showCategory,
   showCountry,
   showRangePrice,
-  onSearch, // ฟังก์ชันที่จะถูกเรียกเมื่อกดค้นหา (มาจาก parent component) ต้องรับ prop นี้มาด้วย
+  onSearch
 }) => {
 
   // เรียกใช้งาน Global State (จาก Zustand store)
@@ -26,16 +26,22 @@ const SearchCard = ({
   const [country, setCountry] = useState('')
   const [priceRange, setPriceRange] = useState([MIN, MAX]) // เก็บช่วงราคา [ต่ำสุด, สูงสุด]
 
-  // ฟังก์ชันตรวจสอบว่าช่วงราคาเป็นค่า default หรือไม่
+  // ทำงาน ตอน component mount
+  useEffect(() => {
+    fetchCategories() // เรียก API ดึงข้อมูล
+    fetchCountries()
+  }, []) // ทำแค่ครั้งเดียวตอน component mount
+
+  // ตรวจสอบว่าผู้ใช้งานเลือกช่วงราคามาไหม ถ้าไม่ได้เลือกเป็น true
   const isPriceRangeDefault = () => {
-    return priceRange[0] === MIN && priceRange[1] === MAX
+    return priceRange[0] === MIN && priceRange[1] === MAX? true : false
   }
 
   // ฟังก์ชันสร้าง object สำหรับเงื่อนไขการค้นหา
   const buildSearchCriteria = () => {
     const searchTour = {}
 
-    // เพิ่ม category ถ้ามีการเลือก
+    // ถ้าผู้ใช้เลือกหมวดหมู่
     if (category) {
       searchTour.category = category
     }
@@ -45,7 +51,7 @@ const SearchCard = ({
       searchTour.country = country
     }
 
-    // เพิ่ม priceAdult ถ้าไม่ใช่ค่า default
+    // ถ้าผู้ใช้เลือกช่วงราคามา
     if (!isPriceRangeDefault()) {
       searchTour.priceAdult = {
         min: priceRange[0],
@@ -62,12 +68,6 @@ const SearchCard = ({
     // console.log('ค้นหาด้วย: ', searchTour)
     onSearch?.(searchTour) // เรียกใช้ฟังก์ชันจาก parent component
   }
-
-  // ทำงาน ตอน component mount
-  useEffect(() => {
-    fetchCategories() // เรียก API ดึงข้อมูล
-    fetchCountries()
-  }, []) // ทำแค่ครั้งเดียวตอน component mount
 
   // ฟังก์ชันรีเซ็ต
   const handleReset = () => {
@@ -86,10 +86,14 @@ const SearchCard = ({
           <label className='text-gray-800 font-xl'>เลือกหมวดหมู่</label>
           <select
             value={category}
-            onChange={(e) => setCategory(e.target.value)} // เมื่อค่าเปลี่ยน ให้ update state
+            // onChange={(e) => setCategory(e.target.value)} // เมื่อค่าเปลี่ยน ให้ update state
+            onChange={(e) => {
+              setCategory(e.target.value)
+              filterCountry(e.target.value)// ส่ง event ตรง ๆ
+            }}
             className='border-2 border-brand-pink rounded-md p-2 w-full text-gray-500'
           >
-            <option value=''> เลือกหมวดหมู่ </option>
+            <option value=''>เลือกหมวดหมู่</option>
             {categories.map((category) => ( // วนลูปแสดงหมวดหมู่ทั้งหมด
               <option key={category.id} value={category.id}>{category.name}</option>
             ))}
@@ -105,7 +109,7 @@ const SearchCard = ({
             onChange={(e) => setCountry(e.target.value)}
             className='border-2 border-brand-pink rounded-md p-2 w-full text-gray-500'
           >
-            <option>เลือกประเทศ</option>
+            <option value=''>เลือกประเทศ</option>
             {countries.map((country) => (
               <option key={country.id} value={country.id}>{country.name}</option>
             ))}

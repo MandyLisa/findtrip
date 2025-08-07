@@ -121,7 +121,7 @@ exports.list = async (req, res) => {
         const skip = (page - 1) * limit
 
         const { id, tourCode, categoryId, countryId, isRecommend, isActive } = req.query
-        console.log('ดู categoryId ======== id ', categoryId)
+        // console.log('ดู categoryId ======== id ', categoryId)
 
         // สร้างเงื่อนไข where แบบ dynamic
         const where = {}
@@ -496,42 +496,39 @@ exports.getListby = async (req, res) => { //
         res.status(500).json({ message: 'Server Error' })
     }
 }
-// โชว์ทัวร์ทั้งหมดเรียงตามราคาจากถูกสุด
-// {
-//   "sort": "priceAdult",
-//   "order": "asc",
-//   "limit": 10
-// }
 
 exports.handleQuery = async (req, res) => {
     try {
         const { search } = req.query
         const page = parseInt(req.query.page) || 1
         const limit = parseInt(req.query.limit) || 10
-        const skip = (page - 1) * limit
+        const skip = (page - 1) * limit // คำนวนว่าข้ามไปกี่ record
 
-
+        const where = {}
+        
+        where.isActive = true
+        
+        if (search) {
+            where.title = {
+                contains: search,
+            }
+        }
         const [tours, totalCount] = await Promise.all([
             prisma.tourPackage.findMany({
-                where: {
-                    isActive: true,
-                    title: {
-                        contains: search
-                    }
-                },
+                where: where, // ค้นหา ด้วยเงื่อนไข 
                 include: { // จำเป็น กรณีที่ต้องการข้อมูลจากตารางที่มีความสัมพันธ์กัน 
                     category: true,
                     country: true,
                     images: true
                 },
                 orderBy: {
-                    createdDate: "desc"
+                    createdDate: 'desc'
                 },
-                skip,
+                skip: skip,
                 take: limit,
             }),
             prisma.tourPackage.count({
-                where: { isActive: true },
+                where: where,
             })
         ])
         res.status(200).json({
@@ -539,7 +536,7 @@ exports.handleQuery = async (req, res) => {
             currentPage: page,
             totalPage: Math.ceil(totalCount / limit),
             totalCount
-        });
+        })
     } catch (err) {
         console.log(err)
         res.status(500).json({ message: 'Server Error' })
@@ -567,84 +564,14 @@ exports.handleTourCode = async (req, res, query) => {
     }
 }
 
-//  ฟังก์ชันย่อยของ searchFilters
-// const handlePrice = async (req, res, priceRange) => {
-//     try {
 
-//         const filters = {}
-
-//         if (priceRange.min != null) {
-//             filters.gte = priceRange.min
-//         }
-
-//         if (priceRange.max != null) {
-//             filters.lte = priceRange.max
-//         }
-
-//         const tourPackage = await prisma.tourPackage.findMany({
-//             where: {
-//                 priceAdult: filters
-//             },
-//             include: {
-//                 category: true,
-//                 country: true,
-//                 images: true
-//             }
-//         })
-//         res.status(200).json(tourPackage)
-//     } catch (err) {
-//         console.log(err)
-//         res.status(500).json({ message: 'Server Error' })
-//     }
-// }
-
-// const handleCategory = async (req, res, categoryId) => {
-//     try {
-//         const tourPackage = await prisma.tourPackage.findMany({
-//             where: {
-//                 categoryId: {
-//                     in: categoryId.map((id) => Number(id)) //loop ไปค้นหาใน category
-//                 }
-//             },
-//             include: {
-//                 category: true,
-//                 country: true,
-//                 images: true
-//             }
-//         })
-//         res.status(200).json(tourPackage)
-//     } catch (err) {
-//         console.log(err)
-//         res.status(500).json({ message: 'Server Error' })
-//     }
-// }
-
-// const handleCountry = async (req, res, countryId) => {
-//     try {
-//         const tourPackage = await prisma.tourPackage.findMany({
-//             where: {
-//                 countryId: {
-//                     in: countryId.map((id) => Number(id)) //loop ไปค้นหาใน country
-//                 }
-//             },
-//             include: {
-//                 category: true,
-//                 country: true,
-//                 images: true
-//             }
-//         })
-//         res.status(200).json(tourPackage)
-//     } catch (err) {
-//         console.log(err)
-//         res.status(500).json({ message: 'Server Error' })
-//     }
-// }
-
-exports.searchFilters = async (req, res) => { // รวมการค้นหา controller หลัก ที่รวม logic สำหรับ เงื่อนไขการค้นหาnpm start
+exports.searchFilters = async (req, res) => { 
     try {
+
         const { category, country, priceAdult, page = 1, limit = 10 } = req.body
-        const skip = (page - 1) * limit
-        const filters = {
+        const skip = (page - 1) * limit // ตัวคำนวน skip pagination ว่าจะต้อง skip ไปกี่ตัว
+
+        const filters = { // สร้างตัวแปรมารับเงื่อนไขในการค้นหา
             isActive: true
         }
 

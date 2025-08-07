@@ -41,7 +41,6 @@ const createForm = {
   tourPDF: null
 }
 
-
 //เรียกใช้ component นี้ที่หน้า pages TourpackageDetail.jsx
 const FormTourpackageDetail = () => {
 
@@ -70,6 +69,7 @@ const FormTourpackageDetail = () => {
   const fetchTourpackage = async (token, id) => {
     try {
       const res = await readTourpackage(token, id)
+      console.log('ดู fetch Tourpackage', res)
       const data = res.data
       setForm({
         ...data,
@@ -78,7 +78,7 @@ const FormTourpackageDetail = () => {
       })
       // console.log(data)
     } catch (err) {
-      console.log('Error fetch data ?', err)
+      console.log('Error fetch Tourpackage', err)
     }
   }
 
@@ -132,9 +132,7 @@ const FormTourpackageDetail = () => {
     toast.success('ล้างข้อมูลฟอร์มเรียบร้อยแล้ว')
   }
 
-
   const handleRemove = async (id) => {
-
     try {
       const res = await removeTourpackage(token, id)
       toast.success('ลบข้อมูลสำเร็จ')
@@ -538,6 +536,7 @@ const FormTourpackageDetail = () => {
                   ล้างข้อมูล
                 </button>
               )}
+              
               <div className='flex'>
                 <button
                   type='button'
@@ -545,7 +544,7 @@ const FormTourpackageDetail = () => {
                 hover:text-white'
                   onClick={handleBack}
                 >
-                  ยกเลิก
+                  ย้อนกลับ
                 </button>
                 <button
                   type='submit'

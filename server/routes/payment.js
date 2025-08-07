@@ -6,8 +6,6 @@ const uploadImage = require('../middlewares/uploadImage')
 const { authCheck, adminCheck } = require('../middlewares/authCheck')
 const { 
     uploadPaymentSlip,
-    checkPaymentStatus,
-    getPaymentDetails,
     listPayments,
     listPaymentStatus,
     listPaymentMethod,
@@ -20,8 +18,6 @@ const {
 
 // router.post('/select-method', authCheck, choosePaymentMethod) // เลือกวิธีการชำระเงิน
 router.post('/upload-slip/:bookingId', authCheck, uploadImage.single('slip'), uploadPaymentSlip)
-router.get('/status/:bookingId', authCheck, checkPaymentStatus) // ดูสถานะการชำระเงินของ booking ตัวเอง
-router.get('/detail/:paymentId', authCheck, getPaymentDetails)  // ดูข้อมูลการชำระเงินของ Booking ที่เราจองไป
 
 // admin 
 // @ Endpoint http://localhost:5000/api/payments

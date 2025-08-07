@@ -77,8 +77,8 @@ exports.login = async (req, res) => {
             return res.status(400).json({ message: 'รหัสผ่าน ไม่ถูกต้อง' })
         }
 
-        // step 4 create payload คือ data | สร้าง token จากข้อมูล user ที่พบ
-        const users = { // ข้อมูลที่อยากเก็บไว้ใน token
+        // step 4 create payload คือ data | ปั้นข้อมูลใหม่ เฉพาะข้อมูลที่อยากเก็บไว้ใน token
+        const users = { 
             id: user.id,
             username: user.username,
             email: user.email,
@@ -86,8 +86,7 @@ exports.login = async (req, res) => {
             role: user.role
         }
 
-
-        // step 5 Generate Token เป็น function จาก library jsonwebtoken ที่ใช้สร้าง JWT + 4 พารามิเตอร์หลัก ทำไมต้องสร้าง JWT?
+        // step 5 เอา object users ไปเข้ารหัส ด้วย secret ออกมาเป็น token
         const token = jwt.sign(users, process.env.SECRET, { expiresIn: '24h' })
         // process.env.SECRET คีย์ลับที่ใช้สำหรับการเข้ารหัส token 
         res.json({ users, token })

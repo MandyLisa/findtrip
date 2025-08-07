@@ -64,7 +64,6 @@ exports.getBookingById = async (req, res) => {
     try {
         const { id } = req.params
         const isUser = req.user.role === 'USER'
-        // console.log('ดู 000000==== ', isAdmin)
 
         const booking = await prisma.booking.findUnique({
             where: {

@@ -30,7 +30,7 @@ const SidebarAdmin = () => {
                         <span className='ml-4'>Hello Administrator</span>
                     </div>
                     <div className='flex justify-center items-center text-md'>
-                        <p className='mb-4'>สวัสดีค่ะ แอดมิน{user.name}</p>
+                        <p className='mb-4'>สวัสดีค่ะ แอดมิน {user.name}</p>
                     </div>
                 </div>
             ) : (

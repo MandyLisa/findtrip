@@ -13,17 +13,56 @@ import { Loader } from 'lucide-react'
 const Programs = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const { category } = useParams() // ดึง path param เช่น /programs/24
-  const [searchParams] = useSearchParams() // สำหรับการค้นหาด้วย title
-  const searchTitle = searchParams.get('title')
+  const { category } = useParams() // home ดึง path param เช่น /programs/24
+  const [searchParams] = useSearchParams() // home ค้นหาด้วย title อ่าน query string จาก URL
+  const searchTitle = searchParams.get('title') // home ค้นหาด้วย title ดึงค่าของ title มาใช้
 
+  const [filters, setFilters] = useState(null)
   const [allTours, setAllTours] = useState([])
   const [filterTours, setFilterTours] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const [filters, setFilters] = useState(null)
+  const [totalCount, setTotalCount] = useState(0)
   const [loading, setLoading] = useState(false)
   const limit = 10
+
+  useEffect(() => {
+    fetchTour()
+    // if (searchTitle || category || filters || (!searchTitle && !category && !filters)) {
+    //   fetchTour()
+    // }
+  }, [searchTitle, category, filters, currentPage]) // ติดตามสถานะของ state ตัวนั้นๆ เมื่อ...มีการเปลี่ยนแปลง function ที่อยู่ในนี้ ก็จะทำงาน 
+
+  const fetchTour = async () => {
+    setLoading(true)
+    try {
+      if (searchTitle) { // จากหน้า home
+        const res = await searchByTitle(searchTitle, currentPage, limit)
+        setFilterTours(res.data.data)
+        setTotalPages(res.data.totalPage)
+
+      } else if (category) { // จากหน้า home
+        const res = await searchFilters({ category: Number(category) }, currentPage, limit)
+        setFilterTours(res.data.data)
+        setTotalPages(res.data.totalPage)
+
+      } else if (filters) {
+        const res = await searchFilters(filters, currentPage, limit)
+        setFilterTours(res.data.data)
+        setTotalPages(res.data.totalPage)
+
+      } else {
+        const res = await getAllTours(currentPage, limit)
+        setAllTours(res.data.data)
+        setFilterTours(res.data.data)
+        setTotalPages(res.data.totalPage)
+      }
+    } catch (err) {
+      console.error('Error fetching data', err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
     if (location.state) {
@@ -32,53 +71,9 @@ const Programs = () => {
     }
   }, [location.state])
 
-  useEffect(() => {
-    const fetchTour = async () => {
-      setLoading(true)
-      try {
-        // console.log('ดูตรงนี้')
-        // console.log(searchTitle)
-        // console.log(category)
-        // console.log(filters)
-
-        if (searchTitle) {
-          const res = await searchByTitle(searchTitle, currentPage, limit)
-          setFilterTours(res.data.data)
-          setTotalPages(res.data.totalPage)
-
-        } else if (category) {
-          const res = await searchFilters({ category: Number(category) }, currentPage, limit)
-          setFilterTours(res.data.data)
-          setTotalPages(res.data.totalPage)
-
-        } else if (filters) {
-          const res = await searchFilters(filters, currentPage, limit)
-          setFilterTours(res.data.data)
-          setTotalPages(res.data.totalPage)
-
-        } else {
-          const res = await getAllTours(currentPage, limit)
-          setAllTours(res.data.data)
-          setFilterTours(res.data.data)
-          setTotalPages(res.data.totalPage)
-        }
-      } catch (err) {
-        console.error('Error fetching data', err)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    if (searchTitle || category || filters || (!searchTitle && !category && !filters)) {
-      fetchTour()
-    }
-
-  }, [searchTitle, category, filters, currentPage]) // ติดตามสถานะของ state ตัวนั้นๆ เมื่อ...มีการเปลี่ยนแปลง function ที่อยู่ในนี้ ก็จะทำงาน 
-
   const handleSearch = async (filters) => {
     try {
-      // console.log('ดูตรงนี้', filters)
-      navigate('/programs', { state: { filters, page: 1 } })
+      navigate('/programs', { state: { filters: filters, page: 1 } })
     } catch (err) {
       console.log('ค้นหาทัวร์ไม่สำเร็จ', err)
     }
@@ -118,7 +113,7 @@ const Programs = () => {
               <p className='text-gray-500 mt-4 items-center font-semibold'>กำลังโหลดข้อมูลทัวร์...กรุณารอสักครู่</p>
             </div>
           ) : (
-            filterTours.length === 0 ? (
+            filterTours.length === 0 ? ( // ถ้าไม่มีข้อมูล
               <p className='text-gray-500 mt-4 items-center font-semibold'>ไม่พบแพ็คเกจทัวร์ที่ค้นหา</p>
             ) : (
               <div className='flex flex-col'>

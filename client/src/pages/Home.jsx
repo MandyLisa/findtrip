@@ -1,18 +1,17 @@
-import Banner from "../components/Banner"
-import TextSearchBar from "../components/card/TextSearchBar"
-import Pre_Footer from "../components/Pre_Footer"
-import { Link, useNavigate } from "react-router-dom"
-import Whyus from "../components/Whyus"
-import Y_card from "../components/card/Y_card"
-import { useState, useEffect } from "react"
-import { getRecommend } from "../API/public"
-import CategoryHome from "../components/card/CategoryHome"
-import usePublicStore from "../store/publicStore"
-import { Loader } from "lucide-react"
+import Banner from '../components/Banner'
+import TextSearchBar from '../components/card/TextSearchBar'
+import Pre_Footer from '../components/Pre_Footer'
+import { Link, useNavigate } from 'react-router-dom'
+import Whyus from '../components/Whyus'
+import Y_card from '../components/card/Y_card'
+import { useState, useEffect } from 'react'
+import { getRecommend } from '../API/public'
+import CategoryHome from '../components/card/CategoryHome'
+import usePublicStore from '../store/publicStore'
+import { Loader } from 'lucide-react'
 
 
 const Home = () => {
-
   const navigate = useNavigate()
   const categories = usePublicStore((state) => state.categories)
   const fetchCategories = usePublicStore((state) => state.fetchCategories)
@@ -21,8 +20,8 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(false)
 
   // ปุ่ม search
-  const handleSearch = (filters) => {
-    const param = new URLSearchParams(filters).toString()
+  const handleSearch = (title) => {
+    const param = new URLSearchParams(title).toString()
     navigate(`/programs?${param}`)
   }
 
@@ -54,13 +53,12 @@ const Home = () => {
     )
   }
 
-
   return (
     <div>
       <Banner />
       <div className='flex justify-center p-8'>
-        <TextSearchBar
-          onSearch={handleSearch}
+        <TextSearchBar 
+          onSearch={handleSearch} // ส่ง f ไป TextSearchBar ผ่าน prop ชื่อ onSearch
         />
       </div>
 

@@ -9,13 +9,13 @@ import useAuthStore from '@/store/authStore'
 const Register = () => {
 
   const navigate = useNavigate()
-  const user = useAuthStore((state) => state.user)
+  // const user = useAuthStore((state) => state.user)
 
-  useEffect(() => {
-    if (user) { 
-      navigate('/', { replace: true })
-    }
-  }, [user, navigate])
+  // useEffect(() => {
+  //   if (user) { 
+  //     navigate('/', { replace: true })
+  //   }
+  // }, [user, navigate])
 
   const [form, setForm] = useState({
     username: '',
@@ -29,8 +29,8 @@ const Register = () => {
 
   const [errors, setErrors] = useState({})
 
-  const handleOnChange = (e) => {
-    const { name, value } = e.target
+  const handleOnChange = (e) => { // ทุกช่องที่มี input
+    const { name, value } = e.target // เอาค่าที่ผู้ใช้กรอกมาเซตใส่ฟอร์ม
     setForm({
       ...form,
       [name]: value
@@ -48,7 +48,7 @@ const Register = () => {
     const { errors: validationErrors, isValid } = validateRegisterForm(form)
     setErrors(validationErrors)
 
-    if (!isValid) return // ถ้าผ่านค่อยส่งข้อมูลไป backend
+    if (!isValid) return 
 
     try {
       const res = await axios.post('/api/auth/register', form)
@@ -189,6 +189,7 @@ const Register = () => {
                 placeholder='Password'
                 value={form.password}
                 onChange={handleOnChange}
+                autoComplete='off'
               />
               {errors.password && (
                 <p className='text-red-500 text-sm mt-1'>{errors.password}</p>
@@ -206,6 +207,7 @@ const Register = () => {
                 placeholder='Confirmed Password'
                 value={form.confirmPassword}
                 onChange={handleOnChange}
+                autoComplete='off'
               />
               {errors.confirmPassword && (
                 <p className='text-red-500 text-sm mt-1'>{errors.confirmPassword}</p>

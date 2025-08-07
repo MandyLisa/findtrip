@@ -21,8 +21,8 @@ export const searchFilters = async (filters, page = 1, limit = 10) => {
   })
 }
 
-export const searchByTitle = async (search, page = 1, limit = 10) => {
-  return axios.get(`/api/public/title?search=${search}&page=${page}&limit=${limit}`)
+export const searchByTitle = async (searchTitle, page = 1, limit = 10) => {
+  return axios.get(`/api/public/title?search=${searchTitle}&page=${page}&limit=${limit}`)
 }
 
 

@@ -168,7 +168,6 @@ exports.getDashboardSummary = async (req, res) => {
             prisma.tourPackage.count({ where: { isActive: true } }),
         ])
 
-
         res.status(200).json({
             totalBookings: bookingCount,
             totalRevenue: totalRevenueResult._sum.amount || 0,

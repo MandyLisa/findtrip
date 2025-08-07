@@ -150,11 +150,7 @@ const FormTourpackage = () => {
                                 }
                             </select>
                         </div>
-                    </div>
 
-
-                    {/* ทัวร์แนะนำ และ สถานะทัวร์ */}
-                    <div className='flex flex-row mt-4 gap-4'>
                         <div className='flex flex-col basis-1/4'>
                             <label className='text-md mb-2'>ทัวร์แนะนำ/isRecommend?</label>
                             <select
@@ -184,6 +180,8 @@ const FormTourpackage = () => {
                             </select>
                         </div>
                     </div>
+
+
 
 
                     {/* ปุ่ม Search */}

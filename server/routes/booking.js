@@ -12,7 +12,7 @@ router.get('/:id', authCheck, getBookingById) // ดูรายละเอี�
 
 // 2. สำหรับ Admin ใช้งาน 
 router.get('/admin/all', authCheck, adminCheck, listBookings) // ดูการจองทั้งหมด
-router.get('/admin/list-status/booking', authCheck, adminCheck, listBookingStatus) // ดูการจองทั้งหมด
+router.get('/admin/list-status/booking', authCheck, adminCheck, listBookingStatus) // drop down
 router.patch('/admin/:id/status', authCheck, adminCheck, updateBookingStatus) // อัปเดตสถานะการจอง
 
 

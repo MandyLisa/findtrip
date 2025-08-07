@@ -48,24 +48,9 @@ app.use(cors({ // เพราะ Postman ไม่ได้อยู่ใน b
 readdirSync('./routes').forEach((file) => {
     const routeName = path.parse(file).name; // ดึงเฉพาะชื่อไฟล์
     console.log(`Loading route: ${routeName}`); // ตรวจสอบว่า auth ถูกโหลด
-    app.use(`/api/${routeName}`, require(`./routes/${file}`));
-});
-// readdirSync('./routes').map((item) => {
-//     console.log(`Loading route: ${item}`);
-//     app.use('/api', require('./routes/' + item));
-// });
+    app.use(`/api/${routeName}`, require(`./routes/${file}`))
+})
 
-// พิมพ์แค่ 2 บรรทัดนี้ เหมือนจะยาก แต่พิมพ์แค่ครั้งเดียวใช้ทั้ง project 
-
-
-// step 3 router
-// app.post('/api',(req,res)=> {
-//     // code
-//     const { username,password } = req.body
-//     console.log(username,password)
-//     res.send('WTF Ohhh')
-//     // ใช้ส่งข้อมูลจากเซิร์ฟเวอร์ไปยัง Client เช่น เว็ปบราวเซอร์
-// })
 
 
 // step 2 start server

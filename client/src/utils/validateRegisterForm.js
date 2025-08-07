@@ -12,7 +12,7 @@ export const validateLoginForm = (form) => {
 
     return {
         errors: newError,
-        isValid: Object.keys(newError).length === 0
+        isValid: Object.keys(newError).length === 0 // ถ้าไม่มี error ผ่าน
     }
 }
 

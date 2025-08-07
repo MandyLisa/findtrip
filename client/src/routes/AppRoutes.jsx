@@ -31,10 +31,10 @@ import PaymentDetail from '@/pages/admin/PaymentDetail'
 import ManageDetail from '@/pages/admin/ManageDetail'
 
 
-const router = createBrowserRouter([ // หน้าที่เป็น guest เข้าได้
+const router = createBrowserRouter([ // กำหนด routing ให้ React เมื่อผู้ใช้เข้ามาที่ URL จะให้แสดง Component อะไร
     {
         path: '/',
-        element: <Layout />, // parent เมื่อไฟล์ Layout มีอะไร ลูกๆ ก็จะมีด้วย
+        element: <Layout />, // route ทั้งหมดที่เป็น children จะถูก "ห่อ" ด้วย Layout 
         children: [
             { index: true, element: <Home /> }, // path เดียวกันกับตัวแม่ด้านบน
             { path: 'programs/:category?', element: <Programs /> },

@@ -8,7 +8,6 @@ import Swal from 'sweetalert2'
 
 const Login = () => {
   const navigate = useNavigate()
-  // const location = useLocation()
   const actionLogin = useAuthStore((state) => state.actionLogin)
   const user = useAuthStore((state) => state.user)
 
@@ -47,7 +46,7 @@ const Login = () => {
     const { errors: validationErrors, isValid } = validateLoginForm(form)
     setErrors(validationErrors)
 
-    if (!isValid) return // อยู่ที่เดิม ถ้า validate ไม่ผ่าน
+    if (!isValid) return //  ถ้า validate ไม่ผ่าน อยู่ที่เดิม
 
     try {
       const res = await actionLogin(form)
@@ -85,16 +84,13 @@ const Login = () => {
     }
   }
 
-  // ใช้ location.state
   const roleRedirect = (role) => {
-    console.log('roleRedirect============000000000 ', role)
     if (role === 'ADMIN' || role === 'SUPER_ADMIN') {
       navigate('/admin')
     } else {
       navigate('/')
     }
   }
-
 
   return (
     <>

@@ -10,16 +10,13 @@ import useAuthStore from '../store/authStore'
 const MainNav = () => { // ใช้ global state จะได้ไม่ต้องส่ง props หากัน
     const user = useAuthStore((state) => state.user)
     const actionLogout = useAuthStore((state) => state.actionLogout)
-    const navigate = useNavigate
+    const navigate = useNavigate()
     const [showDropdown, setShowDropdown] = useState(false)
 
     const handleLogout = () => {
         actionLogout()
-        navigate('/') // กลับหน้าแรกหลัง logout
+        navigate('/login')
     }
-
-    // console.log(user)
-    // console.log(user.name)
 
     return (
         <>

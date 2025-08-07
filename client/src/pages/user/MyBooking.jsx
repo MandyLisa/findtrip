@@ -25,12 +25,12 @@ const MyBooking = () => {
 
   // กำหนด tabs และ mapping กับสถานะ
   const tabs = [
-    { key: 'รายการทั้งหมด', label: 'รายการทั้งหมด', status: 'ALL' },
-    { key: 'รอชำระเงิน', label: 'รอชำระเงิน', status: 'DRAFT' },
-    { key: 'รอตรวจสอบ', label: 'รอตรวจสอบ', status: 'PENDING' },
-    { key: 'ชำระเงินสำเร็จ', label: 'ชำระเงินสำเร็จ', status: 'PAID' },
-    { key: 'ชำระเงินไม่สำเร็จ', label: 'ชำระเงินไม่สำเร็จ', status: 'FAILED' },
-    { key: 'ยกเลิกการจอง', label: 'ยกเลิกการจอง', status: 'CANCELLED' }
+    { key: 'ALL', label: 'รายการทั้งหมด', status: 'ALL' },
+    { key: 'DRAFT', label: 'รอชำระเงิน', status: 'DRAFT' },
+    { key: 'PENDING', label: 'รอตรวจสอบ', status: 'PENDING' },
+    { key: 'PAID', label: 'ชำระเงินสำเร็จ', status: 'PAID' },
+    { key: 'FAILED', label: 'ชำระเงินไม่สำเร็จ', status: 'FAILED' },
+    { key: 'CANCELLED', label: 'ยกเลิกการจอง', status: 'CANCELLED' }
   ]
 
   const handleTabClick = (status) => {
@@ -48,11 +48,15 @@ const MyBooking = () => {
   // Fetch Booking
   const [allBookings, setAllBookings] = useState([])
 
+  // Fetch ข้อมูลจากหลังบ้าน
+  useEffect(() => {
+    fetchBookingData(activeStatus)
+  }, [token, currentPage])
+
   const fetchBookingData = async (bookingStatus) => {
     try {
       setLoading(true)
       const res = await getUserBookings(token, currentPage, limit, bookingStatus)
-      console.log('ดู fetchBookingData', res)
       setAllBookings(res.data.booking)
       setTotalPages(res.data.totalPage)
     } catch (error) {
@@ -61,16 +65,6 @@ const MyBooking = () => {
       setLoading(false)
     }
   }
-
-  // Fetch ข้อมูลจากหลังบ้าน
-  useEffect(() => {
-    fetchBookingData(activeStatus)
-  }, [token, currentPage])
-
-
-  const filteredBookings = activeStatus === 'ALL'
-    ? allBookings
-    : allBookings.filter((booking) => booking.bookingStatus === activeStatus)
 
   return (
     <div className='flex flex-col xl:flex-row gap-4 lg:gap-6 h-full max-h-full overflow-hidden'>
@@ -110,10 +104,10 @@ const MyBooking = () => {
               <Loader className='animate-spin text-brand-pink w-10 h-10 mb-2' />
               <p className='text-center text-gray-500 mt-8'>กำลังโหลดข้อมูล...กรุณารอสักครู่</p>
             </div>
-          ) : filteredBookings.length === 0 ? (
+          ) : allBookings.length === 0 ? (
             <p className='text-center text-gray-500 mt-8'>ไม่มีรายการจองในสถานะนี้</p>
           ) : (
-            filteredBookings.map((booking) => (
+            allBookings.map((booking) => (
               <div className='mt-0' key={booking.id}>
                 <UserBookingCard
                   data={booking}

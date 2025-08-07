@@ -1,6 +1,6 @@
 import { getBookingDetail, updateBookingStatus } from '@/API/booking'
 import useAuthStore from '@/store/authStore'
-import { formatDateRange } from '@/utils/formatDate'
+import { formatDate_Time, formatDateRange } from '@/utils/formatDate'
 import { Loader } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -124,9 +124,9 @@ const FormBookingDetail = () => {
                 <p className='text-md mt-6 font-semibold'>สถานะการชำระเงิน</p>
                 <p className='text-md mt-2'>{booking?.Payment?.paymentStatus ?? '-'}</p>
                 <p className='text-md mt-6 font-semibold'>วันที่สร้างการจอง</p>
-                <p className='text-md mt-2'>{booking?.createdDate}</p>
+                <p className='text-md mt-2'>{formatDate_Time(booking?.createdDate)}</p>
                 <p className='text-md mt-6 font-semibold'>วันที่อัพเดตล่าสุด</p>
-                <p className='text-md mt-2'>{booking?.updatedDate}</p>
+                <p className='text-md mt-2'>{formatDate_Time(booking?.updatedDate)}</p>
             </div>
             <div className='flex mt-8'>
                 <button

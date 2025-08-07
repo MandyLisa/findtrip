@@ -10,7 +10,7 @@ const authStore = (set) => ({
     actionLogin: async (form) => {
         const res = await axios.post('/api/auth/login', form)
         // console.log(res)
-        set({ // ข้อมูลที่กลับมาจากหลังบ้าน ก็จะเข้ามาอยู่ในตัวแปรที่เราเซ็ตสเตทไว้
+        set({ // เอาข้อมูลที่กลับมาจากหลังบ้าน เซ้ตเข้ามาอยู่ในตัวแปร
             user: res.data.users,
             token: res.data.token
         })
