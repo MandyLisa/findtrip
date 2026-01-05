@@ -1,30 +1,25 @@
 const jwt = require('jsonwebtoken')
 const prisma = require('../config/prisma')
-// เอา token ที่หน้าบ้านส่งมา มา verify ดูว่าใช้ตัวจริงหรือเปล่า
-// เพราะฉะนั้น path ไหนที่มีความ secure คุณต้อง log in เท่านั้น
-// เราก็จะใส่ authCheck เข้าไป
-exports.authCheck = async (req, res, next) => {
-    // console.log('2222222222')
-    try {
-        // verify token ที่ส่งมาจากหน้าบ้าน
-        const headerToken = req.headers.authorization
-        // console.log('เข้ามาตรงนี้หรือเปล่า =', headerToken) // log ตรงนี้เลย
 
-        // ส่ง request โดยไม่มี token
+exports.authCheck = async (req, res, next) => {
+    try {                                                                                                                                                                                   
+        const headerToken = req.headers.authorization // verify token ที่ส่งมาจากหน้าบ้าน
+        // console.log('เข้าตรงนี้หรือเปล่านะ =', headerToken)
+
         if (!headerToken) {
             return res.status(401).json({ message: 'No Token Authorization' })
         }
 
-        const token = headerToken.split(' ')[1]
+        const token = headerToken.split(' ')[1]  
+        // console.log('เช็ค token ที่ได้หลัง split ', token)
 
-        // เอา token ที่ส่งมา มาถอดรหัสด้วย jwt
         const decode = jwt.verify(token, process.env.SECRET)
-        req.user = decode
-        // console.log(decode)
+        req.user = decode 
+        // console.log('0000000', decode)
 
         const user = await prisma.user.findFirst({
             where: {
-                id: req.user.id // ใช้ id จาก token โดยตรง
+                id: req.user.id // ใช้ id จาก token 
             },
             select: {
                 id: true,
@@ -62,14 +57,14 @@ exports.adminCheck = async (req, res, next) => {
                 id: id
             },
             select: {
-                role: true // เลือกเฉพาะ field ที่จำเป็น
+                role: true 
             }
         })
 
         if(!adminUser || adminUser.role == 'USER') {
             return res.status(403).json({ message: 'Admin Access Denied'})
         }
-        // console.log('Admin Check', adminUser)
+        console.log('adminCheck', adminUser)
 
         next()
     } catch (err) {

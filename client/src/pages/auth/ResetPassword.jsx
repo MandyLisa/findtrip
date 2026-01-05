@@ -32,7 +32,7 @@ const ResetPassword = () => {
 
             try {
                 const res = await verifyResetToken(token)
-                console.log('ดู Token valid', res.data)
+                // console.log('ดู Token valid', res.data)
                 setIsTokenValid(true)
 
             } catch (error) {
@@ -121,7 +121,7 @@ const ResetPassword = () => {
 
         try {
             const res = await resetPassword({ token, newPassword: formData.newPassword })
-            console.log('ดู Reset Password', res.data)
+            // console.log('ดู Reset Password', res.data)
 
             setIsSuccess(true)
             Swal.fire({

@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label'
 import { useNavigate } from 'react-router-dom'
 import UploadImage from './UploadImage'
 import UploadPDF from './UploadPDF'
-import { useParams } from 'react-router-dom' 
+import { useParams } from 'react-router-dom'
 import useAuthStore from '../../store/authStore'
 import ConfirmDialog from '../ui/ConfirmDialog'
 import usePublicStore from '@/store/publicStore'
@@ -41,7 +41,6 @@ const createForm = {
   tourPDF: null
 }
 
-//เรียกใช้ component นี้ที่หน้า pages TourpackageDetail.jsx
 const FormTourpackageDetail = () => {
 
   const { id } = useParams()
@@ -52,7 +51,7 @@ const FormTourpackageDetail = () => {
   const fetchCountries = usePublicStore((state) => state.fetchCountries)
 
 
-  const [form, setForm] = useState(createForm) // 24.20 / EP.12 6.30
+  const [form, setForm] = useState(createForm)
   const [editMode, setEditMode] = useState(false)
 
   useEffect(() => {
@@ -82,11 +81,11 @@ const FormTourpackageDetail = () => {
     }
   }
 
-  // 26.45 เอาไว้เก็บ input ที่มาจากการพิมพ์ใน กล่องข้อความ
+
   const handleOnChange = (e) => {
     // console.log(e.target.name, e.target.value)
     setForm({
-      ...form, // 38.08 คัดลอกข้อมูลเดิม และจะเพิ่ม properties ตัวต่อไป
+      ...form, // คัดลอกข้อมูลเดิม และจะเพิ่ม properties ตัวต่อไป
       [e.target.name]: e.target.value
     })
   }
@@ -123,13 +122,6 @@ const FormTourpackageDetail = () => {
       const message = err?.response?.data?.error
       toast.error(message || 'เกิดข้อผิดพลาดบางอย่าง')
     }
-  }
-
-  const [formKey, setFormKey] = useState(0)
-  const handleReset = () => {
-    setForm(createForm)
-    setFormKey((prev) => prev + 1)
-    toast.success('ล้างข้อมูลฟอร์มเรียบร้อยแล้ว')
   }
 
   const handleRemove = async (id) => {
@@ -376,7 +368,7 @@ const FormTourpackageDetail = () => {
                 }
               />
               <Label htmlFor='isActive' className='text-md'>
-                 {form.isActive ? 'เปิดการขาย' : 'ปิดการขาย'}
+                {form.isActive ? 'เปิดการขาย' : 'ปิดการขาย'}
               </Label>
             </div>
           </div>
@@ -483,7 +475,7 @@ const FormTourpackageDetail = () => {
               <p className='w-full mt-6'>อัพโหลดไฟล์รูปภาพ/Upload Images<span className='text-red-500'>*</span></p>
               <div className='mt-4 space-y-2'>
                 <UploadImage
-                  key={formKey}
+                  // key={formKey}
                   form={form}
                   setForm={setForm}
                 />
@@ -511,7 +503,7 @@ const FormTourpackageDetail = () => {
 
             {/* Control Button */}
             <div className='flex justify-between mt-8'>
-              {editMode ? (
+              {editMode && (
                 <ConfirmDialog
                   title='ยืนยันการลบรายการทัวร์นี้?'
                   description='คุณแน่ใจใช่ไหมว่าต้องการลบรายการทัวร์นี้? การลบนี้จะไม่สามารถย้อนกลับได้'
@@ -527,32 +519,24 @@ const FormTourpackageDetail = () => {
                     ลบรายการ
                   </button>
                 </ConfirmDialog>
-              ) : (
-                <button
-                  type='button'
-                  className='p-2 bg-orange-500 text-white rounded-md hover:bg-orange-600'
-                  onClick={handleReset}
-                >
-                  ล้างข้อมูล
-                </button>
               )}
-              
-              <div className='flex'>
-                <button
-                  type='button'
-                  className='p-2 mr-6 bg-white text-brand-pink border-2 border-brand-pink rounded-md hover:bg-brand-pink
+            </div>
+
+            <div className='flex justify-end'>
+              <button
+                type='button'
+                className='p-2 mr-6 bg-white text-brand-pink border-2 border-brand-pink rounded-md hover:bg-brand-pink
                 hover:text-white'
-                  onClick={handleBack}
-                >
-                  ย้อนกลับ
-                </button>
-                <button
-                  type='submit'
-                  className='p-2 bg-brand-pink text-white rounded-md hover:bg-pink-600'
-                >
-                  บันทึกรายการ
-                </button>
-              </div>
+                onClick={handleBack}
+              >
+                ย้อนกลับ
+              </button>
+              <button
+                type='submit'
+                className='p-2 bg-brand-pink text-white rounded-md hover:bg-pink-600'
+              >
+                บันทึกรายการ
+              </button>
             </div>
           </div>
         </div>

@@ -7,7 +7,7 @@ const usePublicStore = create((set) => ({
   tourDetail: null,
   isLoading: false, 
 
-  fetchCategories: async () => { // นี่คือการเขียน Axios call โดยตรงใน store
+  fetchCategories: async () => { // เขียน Axios call โดยตรงใน store
     try {
       const res = await axios.get('/api/public/category')
       // console.log('ดู fetchCategories ตรงนี้', res)

@@ -40,7 +40,7 @@ const ForgotPassword = () => {
         try {
             // เรียก API ส่งอีเมล์รีเซ็ตรหัสผ่าน
             const res = await forgotPassword(email)
-            // console.log('ส่ง forgotPassword สำเร็จ: ', res.data)
+            // console.log('ส่ง forgotPassword สำเร็จ: ', res)
 
             setIsEmailSent(true)
             Swal.fire({

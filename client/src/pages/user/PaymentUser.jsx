@@ -35,17 +35,15 @@ const PaymentUser = () => {
     }
   }, [token, bookingId, bookingFromUserBookingCard])
 
-  // API call to Backend for fetch
   const fetchBookingDetail = async () => {
     try {
       setLoading(true) // ตั้งค่า loading เป็น true ก่อนเริ่ม fetch
-      const res = await getBookingDetail(token, bookingId)
-      // console.log('ดูตรงนี้', res)
+      const res = await getBookingDetail(token, bookingId) // เรียก API fetch booking
       setBooking(res.data.booking) // อัปเดตลงใน state
     } catch (error) {
-      console.error('Failed to fetch booking: ', error) // จัดการข้อผิดพลาดในการ fetch
+      console.error('Failed to fetch booking: ', error) 
     } finally {
-      setLoading(false) // ไม่ว่าจะสำเร็จหรือล้มเหลว ให้ตั้ง loading เป็น false เสมอ
+      setLoading(false) 
     }
   }
 
@@ -55,20 +53,15 @@ const PaymentUser = () => {
   // choose payment method
   const handleSelectPaymentMethod = (method) => {
     setPaymentMethod(method)
-    // setErrors({})
   }
 
-  // API call to Backend for cancel booking
+  
   const handleCancelBooking = async () => {
     try {
       const res = await cancelBooking(token, bookingId) // เรียก API ยกเลิกการจอง
-      console.log('res.data.booking ================== ', res.data.booking)
-      console.log('booking ============= ',booking)
-
-      setBooking(res.data.booking) // อัปเดตสถานะการจองใน UI
-
+      setBooking(res.data.booking) 
       toast.success('ยกเลิกการจองเรียบร้อยแล้ว')
-      navigate(`/user/mybookings`) // ไปยังหน้าการจองของฉัน
+      navigate(`/user/mybookings`) 
     } catch (error) {
       console.error(error)
       toast.error('เกิดข้อผิดพลาดในการยกเลิกการจอง')
@@ -93,7 +86,6 @@ const PaymentUser = () => {
       <div className='items-center justify-center font-semibold'>ไม่พบข้อมูลการจอง</div>
     )
   }
-
 
   return (
     <div>
@@ -126,13 +118,7 @@ const PaymentUser = () => {
         <div className='bg-green-100 text-green-700 border border-green-400 rounded-md p-4 my-4 flex flex-col gap-3'>
           <div className='flex items-center gap-2'>
             <CheckCircle className='w-5 h-5 text-green-600' />
-            <span>ชำระเงินสำเร็จ! การจองของท่านได้รับการยืนยันแล้ว</span>
-            <button
-              onClick={() => navigate(`/user/payment-receipt/${booking.id}`)} // เปลี่ยน path ตามหน้าใบเสร็จของคุณ
-              className='bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md w-fit'
-            >
-              ดูใบเสร็จ
-            </button>
+            <span>ชำระเงินสำเร็จ! การจองของท่านได้รับการยืนยันแล้ว กรุณาดูที่การจองของฉัน</span>
           </div>
         </div>
       )}

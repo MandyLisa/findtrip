@@ -28,9 +28,6 @@ const Programs = () => {
 
   useEffect(() => {
     fetchTour()
-    // if (searchTitle || category || filters || (!searchTitle && !category && !filters)) {
-    //   fetchTour()
-    // }
   }, [searchTitle, category, filters, currentPage]) // ติดตามสถานะของ state ตัวนั้นๆ เมื่อ...มีการเปลี่ยนแปลง function ที่อยู่ในนี้ ก็จะทำงาน 
 
   const fetchTour = async () => {

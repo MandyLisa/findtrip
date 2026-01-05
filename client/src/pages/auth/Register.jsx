@@ -1,21 +1,13 @@
 // rafce > React Arrow Function Component Export
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import axios from 'axios'
 import { Link, useNavigate } from 'react-router-dom'
 import { validateField, validateRegisterForm } from '@/utils/validateRegisterForm'
 import Swal from 'sweetalert2'
-import useAuthStore from '@/store/authStore'
 
 const Register = () => {
 
   const navigate = useNavigate()
-  // const user = useAuthStore((state) => state.user)
-
-  // useEffect(() => {
-  //   if (user) { 
-  //     navigate('/', { replace: true })
-  //   }
-  // }, [user, navigate])
 
   const [form, setForm] = useState({
     username: '',
@@ -29,8 +21,8 @@ const Register = () => {
 
   const [errors, setErrors] = useState({})
 
-  const handleOnChange = (e) => { // ทุกช่องที่มี input
-    const { name, value } = e.target // เอาค่าที่ผู้ใช้กรอกมาเซตใส่ฟอร์ม
+  const handleOnChange = (e) => { 
+    const { name, value } = e.target 
     setForm({
       ...form,
       [name]: value
@@ -48,10 +40,11 @@ const Register = () => {
     const { errors: validationErrors, isValid } = validateRegisterForm(form)
     setErrors(validationErrors)
 
-    if (!isValid) return 
+    if (!isValid) return
 
     try {
       const res = await axios.post('/api/auth/register', form)
+    //   console.log('TEST ', res)
 
       await Swal.fire({
         title: 'สำเร็จ!',
@@ -69,11 +62,17 @@ const Register = () => {
       })
 
     } catch (err) {
-      if (err.status == '401') {
-        setErrors(prev => ({ ...prev, username: err.response.data.message }))
-      } else if (err.status == '402') {
-        setErrors(prev => ({ ...prev, email: err.response.data.message }))
-      }
+    //   console.log('TEST ', err)
+      if (err.response && err.response.status === 409) {
+        const { field, message } = err.response.data
+        setErrors(prev => ({ ...prev, [field]: message }))
+      } else {
+        Swal.fire({
+            title: 'ลงทะเบียนไม่สำเร็จ',
+            text: errMsg, 
+            confirmButtonText: 'ตกลง'
+        })
+      }   
     }
   }
 
@@ -91,12 +90,12 @@ const Register = () => {
               ชื่อบัญชี
             </label>
             <input
-              type='text'
-              name='username'
-              className='w-full border border-gray-300 p-2 rounded-lg focus:ring-2'
-              placeholder='Username กรอกเป็นภาษาอังกฤษ'
-              value={form.username}
-              onChange={handleOnChange}
+              type='text' // → กำหนดชนิดของ input 
+              name='username' // → กำหนดชื่อฟิลด์ (ใช้ระบุว่า input นี้เก็บข้อมูลอะไร)
+              className='w-full border border-gray-300 p-2 rounded-lg focus:ring-2' // → ช่องกรอกข้อมูล
+              placeholder='Username กรอกเป็นภาษาอังกฤษ' // → ข้อความตัวอย่างที่แสดงในช่องก่อนผู้ใช้พิมพ์
+              value={form.username} // → ค่าที่ผู้ใช้พิมพ์
+              onChange={handleOnChange} // → ฟังก์ชันที่ทำงาน เมื่อผู้ใช้พิมพ์เข้ามาในช่องนี้
             />
             {errors.username && (
               <p className='text-red-500 text-sm mt-1'>{errors.username}</p>

@@ -18,7 +18,7 @@ export const validateLoginForm = (form) => {
 
 // สำหรับ Register Form
 export const validateRegisterForm = (form) => {
-    const newError = {}
+    const newError = {} // ฟอร์มผ่านเกณฑ์ทุกช่อง จะไม่มี key อยู่
 
     // Username validation
     const usernameRegex = /^[a-zA-Z0-9._]{4,}$/
@@ -70,12 +70,12 @@ export const validateRegisterForm = (form) => {
     }
 
     return {
-        errors: newError,
-        isValid: Object.keys(newError).length === 0
+        errors: newError, // object ที่เก็บ error ของแต่ละฟิลด์ในฟอร์ม
+        isValid: Object.keys(newError).length === 0 // ถ้าฟอร์มถูกต้อง ไม่มี error 
     }
 }
 
-// สำหรับการ validation แต่ละฟิลด์แยก (สำหรับ real-time validation)
+// สำหรับการ validation แต่ละฟิลด์แยก (สำหรับ real-time validation) ตอนที่ผู้ใช้กำลังพิมพ์ฟอร์ม
 export const validateField = (name, value, form = {}) => {
     switch (name) {
         case 'identifier': // สำหรับ login
@@ -110,7 +110,7 @@ export const validateField = (name, value, form = {}) => {
                 return !value.trim() ? 'กรุณากรอกรหัสผ่าน' : ''
             }
 
-            // สำหรับ register - เช็ค format เข้มงวด
+            // สำหรับหน้า register - เช็ค format เข้มงวด
             const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[\W_]).{8,}$/
             if (!value.trim()) return 'กรุณากรอกรหัสผ่าน'
             if (!passwordRegex.test(value)) return 'รหัสผ่านต้องมีอย่างน้อย 8 ตัว รวมถึง ตัวอักษร ตัวเลข และอักขระพิเศษ'

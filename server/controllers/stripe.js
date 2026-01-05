@@ -30,7 +30,6 @@ exports.createStripePayment = async (req, res) => {
             }
         })
 
-
         if (existingPayment) {
             return res.status(400).json({ message: 'Payment for this booking has already been processed' })
         }
@@ -65,7 +64,7 @@ exports.createStripePayment = async (req, res) => {
 
         // ส่ง clientSecret กลับไปให้ Frontend เพื่อเริ่มต้น Stripe Embedded Checkout
         res.status(201).json({ clientSecret: session.client_secret })
-        console.log('ขั้นตอนสุดท้ายของ createStripePayment =========')
+        // console.log('ขั้นตอนสุดท้ายของ createStripePayment =========')
 
     } catch (error) {
         console.log('Error createStripePayment', error)
@@ -75,10 +74,8 @@ exports.createStripePayment = async (req, res) => {
 
 exports.stripeCheckoutStatus = async (req, res) => {
     try {
-
         const { sessionId } = req.params
         const userId = req.user.id 
-
 
         if (!sessionId) {
             return res.status(400).json({ message: 'Session ID is required' })
@@ -86,7 +83,7 @@ exports.stripeCheckoutStatus = async (req, res) => {
 
         // 1. ดึงข้อมูล Session จาก Stripe API เพื่อยืนยันสถานะการชำระเงินที่ฝั่ง Stripe
         const session = await stripe.checkout.sessions.retrieve(sessionId)
-        console.log('ได้ session ================ กลับมาไหม ', session)
+        // console.log('session ================ ', session)
 
         // 2. ตรวจสอบว่า session นี้เป็นของผู้ใช้คนปัจจุบันจริงหรือไม่ (จาก metadata)
         const sessionBookingId = Number(session.metadata.bookingId)
@@ -106,7 +103,7 @@ exports.stripeCheckoutStatus = async (req, res) => {
                 where: { id: sessionBookingId }
             })
 
-            console.log('ได้ booking ================ อะไร ', booking)
+            // console.log('booking ================ ', booking)
 
             if (!booking) {
                 console.error(`Booking not found for payment confirmation: ${sessionBookingId}`)
@@ -122,7 +119,6 @@ exports.stripeCheckoutStatus = async (req, res) => {
                 // ถ้ามี Payment record อยู่แล้ว (อาจจะอยู่ในสถานะ PENDING จากการโอนเงิน หรือเคยสร้างไว้ก่อน)
                 // ให้อัปเดตสถานะและข้อมูลที่เกี่ยวข้องกับการชำระเงินด้วยบัตร
                 if (payment.paymentStatus === 'PAID') {
-                    // ป้องกันการอัปเดตซ้ำ ถ้าสถานะเป็น PAID อยู่แล้ว
                     console.log(`Payment for booking ${booking.id} already PAID.`)
                     return res.status(200).json({ message: 'Payment already confirmed.', paymentStatus: 'PAID', booking: booking })
                 }
@@ -151,14 +147,13 @@ exports.stripeCheckoutStatus = async (req, res) => {
                         transactionId: session.id,
                         paymentDate: new Date(),
                         amount: session.amount_total / 100,
-                        // อาจจะใช้ uuidv4() ถ้าคุณต้องการรันเลข transactionId ภายในของคุณด้วย
                         // transactionId: uuidv4(),
                     },
                     include: { booking: true }
                 })
             }
 
-            console.log('Existing Payment record updated to PAID: ============', payment)
+            // console.log('Existing Payment record updated to PAID: ============', payment)
             // 5. update DB bookingStatus ให้เป็น PAID (เมื่อชำระเงินสำเร็จ)
             const updatedBooking = await prisma.booking.update({
                 where: {
@@ -168,13 +163,7 @@ exports.stripeCheckoutStatus = async (req, res) => {
                     bookingStatus: 'PAID'
                 }
             })
-
-            console.log('111111111111111111111 ============')
-
             await sendPaymentSuccessEmail(req.user.email, payment.id)
-
-             console.log('22222222222222222222 ============')
-
 
             res.status(200).json({
                 message: 'Payment Complete',

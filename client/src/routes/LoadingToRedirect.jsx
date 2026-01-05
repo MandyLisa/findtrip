@@ -24,7 +24,7 @@ const LoadingToRedirect = () => {
         }, []) // ใส่ array กัน infinities loop
 
     if (redirect) {
-        return <Navigate to={'/'} />
+        return <Navigate to={'/login'} />
     }
 
     return (

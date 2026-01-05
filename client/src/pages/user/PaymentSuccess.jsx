@@ -7,11 +7,10 @@ import useAuthStore from '../../store/authStore'
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams() // สำหรับ Bank Transfer (booking_id, paymentMethod, bankName)
-  const sessionId = searchParams.get('session_id')// <-- เปลี่ยนตรงนี้
+  const sessionId = searchParams.get('session_id')// 
   // const { sessionId } = useParams() // สำหรับ Credit Card (sessionId)
   const navigate = useNavigate()
   const token = useAuthStore((state) => state.token)
-  // console.log('ดู token หน่อย 55',token)
 
   const [paymentStatus, setPaymentStatus] = useState('กำลังตรวจสอบสถานะ...')
   const [statusIcon, setStatusIcon] = useState(null) // icon ที่จะแสดง
@@ -20,11 +19,10 @@ const PaymentSuccess = () => {
 
   useEffect(() => {
     if (!token) return
-
     if (sessionId) {
-      verifyStripePayment() // <<<< Logic สำหรับ Credit Card
+      verifyStripePayment() // <<<< สำหรับ Credit Card
     } else if (searchParams.get('booking_id') && searchParams.get('paymentMethod') === 'BANK_TRANSFER') {
-      handleBankTransferSuccess() // <<<< Logic สำหรับ Bank Transfer
+      handleBankTransferSuccess() // <<<< สำหรับ Bank Transfer
     } else {
       toast.error('ไม่พบข้อมูลการชำระเงินที่ถูกต้อง')  // ถ้าไม่มีข้อมูลที่จำเป็น
       navigate('/user/payment', { replace: true }) // ตรงนี้ทำเพื่อ? อาจจะพาไปหน้า error หรือหน้าจ่ายเงินอีกครั้ง
@@ -33,7 +31,6 @@ const PaymentSuccess = () => {
 
   // Logic สำหรับ Credit Card
   const verifyStripePayment = async () => {
-
     if (!token || !sessionId) return
 
     setPaymentStatus('กำลังยืนยันการชำระเงินด้วยบัตรเครดิต...')
@@ -46,9 +43,9 @@ const PaymentSuccess = () => {
         setPaymentStatus('การชำระเงินสำเร็จ!')
         setMessage('เราได้รับยอดชำระของคุณแล้ว การจองของคุณได้รับการยืนยันแล้ว')
         setStatusIcon(<CheckCircle className='w-16 h-16 text-green-500 mx-auto mb-4' />)
-        setBookingDisplayInfo(response.data.booking)
-        console.log('bookingDisplayInfo ที่ได้ = ', response.data.booking)
-
+        if (response.data.booking) {
+          setBookingDisplayInfo(response.data.booking)
+        }
       } else {
         setPaymentStatus('การชำระเงินยังไม่สำเร็จ')
         setMessage('การชำระเงินของคุณอาจมีปัญหา โปรดตรวจสอบสถานะการจองได้ที่ การจองของฉัน')
@@ -64,11 +61,6 @@ const PaymentSuccess = () => {
     }
   }
 
-  useEffect(() => {
-    console.log('Component rendered')
-  }, [])
-
-
   // Logic สำหรับ Bank Transfer 
   const handleBankTransferSuccess = () => {
     const bookingId = searchParams.get('booking_id')
@@ -77,9 +69,6 @@ const PaymentSuccess = () => {
     setMessage(`เราได้รับสลิปการโอนเงินของคุณสำหรับการจอง ID: ${bookingId} ผ่าน${bankName}แล้ว กรุณารอการตรวจสอบ ภายใน 24 ชม.`)
     setStatusIcon(<Clock className='w-16 h-16 text-blue-500 mx-auto mb-4' />) // icon สำหรับรอตรวจสอบ
     setBookingDisplayInfo({ id: bookingId, paymentMethod: 'โอนเงินผ่านธนาคาร', bankName: bankName })
-    // ไม่ต้องเรียก API เพิ่มเติม เพราะ processBankTransferPayment ได้จัดการการอัปโหลดไปแล้ว
-    // และ Backend จะปรับสถานะ Booking เป็น 'AWAITING_REVIEW' (หรือคล้ายกัน) หลังจากได้รับสลิป
-    // ซึ่งแอดมินจะต้องเข้าไปตรวจสอบและอนุมัติด้วยตนเอง
   }
 
   return (
@@ -87,7 +76,6 @@ const PaymentSuccess = () => {
       {statusIcon}
       <h1 className='text-3xl font-bold mb-3'>{paymentStatus}</h1>
       <p className='text-gray-700 text-lg mb-6'>{message}</p>
-
       {bookingDisplayInfo && (
         <div className='bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6 text-left'>
           <p className='font-semibold text-gray-800 text-xl mb-2 items-center'>รายละเอียดการจอง:</p>

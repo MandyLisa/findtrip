@@ -5,7 +5,7 @@ const { register, login, currentUserAdmin, forgotPassword, verifyResetToken, res
 = require('../controllers/auth')
 
 // Admin
-// @Endpoint http://localhost:5000/api/register
+// @Endpoint http://localhost:5000/api/
 router.post('/register',register)
 router.post('/login',login)
 router.post('/forgot-password', forgotPassword) // ส่งอีเมลรีเซ็ตรหัสผ่าน
@@ -16,4 +16,4 @@ router.post('/current-admin',authCheck, adminCheck, currentUserAdmin)
 
 
 
-module.exports = router // ส่งออก router ไปใช้ไฟล์อื่น
+module.exports = router

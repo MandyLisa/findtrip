@@ -1,4 +1,4 @@
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { CalendarClock, Loader } from 'lucide-react'
 import { formatDateRange } from '../utils/formatDate'
@@ -10,7 +10,7 @@ import useAuthStore from '../store/authStore'
 import ContactPopup from '../components/card/ContactPopup'
 
 const TourDetail = () => {
-  const { id } = useParams() // รับ id มาจาก url
+  const { id } = useParams() // ดึงค่า parameter จาก url
   const navigate = useNavigate()
   const fetchTourDetail = usePublicStore((state) => state.fetchTourDetail)
   const tourDetail = usePublicStore((state) => state.tourDetail)

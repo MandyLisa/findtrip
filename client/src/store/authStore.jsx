@@ -9,12 +9,11 @@ const authStore = (set) => ({
 
     actionLogin: async (form) => {
         const res = await axios.post('/api/auth/login', form)
-        // console.log(res)
         set({ // เอาข้อมูลที่กลับมาจากหลังบ้าน เซ้ตเข้ามาอยู่ในตัวแปร
             user: res.data.users,
             token: res.data.token
         })
-        return res //ส่งออกไปบอกฝั่งผู้ใช้ เพื่อ redirect ไปหน้าอื่นต่อ
+        return res
     },
 
     actionLogout: () => {
@@ -35,12 +34,12 @@ const authStore = (set) => ({
 })
 
 
-// 2 ประกาศตัวแปรมาอีกตัวเพื่อใช้ authStore และ usePersist เพื่อให้ตอน refresh ข้อมูลของผู้ใช้ไม่หาย
-const useAuthStore = create(persist(authStore, {
-    name: 'authStore',
+// persist คือตัวจำข้อมูล เก็บไว้ใน store แล้วบันทึกลง localStorage ให้
+const useAuthStore = create(persist(authStore, { // เป็นฟังก์ชันหลักของ zustand ที่ใช้สำหรับสร้าง store
+    name: 'authStore', // ชื่อ Key ที่ใช้ในการจัดเก็บใน Storage
     storage: createJSONStorage(() => localStorage)
 }))
 
 
-// 3. export ออกไปให้หน้าอื่นใช้งาน
+// ส่งออก store ออกไปให้ component อื่นใช้งาน
 export default useAuthStore

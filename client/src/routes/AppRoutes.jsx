@@ -31,18 +31,18 @@ import PaymentDetail from '@/pages/admin/PaymentDetail'
 import ManageDetail from '@/pages/admin/ManageDetail'
 
 
-const router = createBrowserRouter([ // กำหนด routing ให้ React เมื่อผู้ใช้เข้ามาที่ URL จะให้แสดง Component อะไร
+const router = createBrowserRouter([ // กำหนด routing  ให้ React เมื่อผู้ใช้เข้ามาที่ URL ตามด้านล่าง จะให้แสดง Component อะไร
     {
         path: '/',
-        element: <Layout />, // route ทั้งหมดที่เป็น children จะถูก "ห่อ" ด้วย Layout 
+        element: <Layout />, // route ทั้งหมดที่เป็น children จะถูก "ห่อ" ด้วย Layout
         children: [
             { index: true, element: <Home /> }, // path เดียวกันกับตัวแม่ด้านบน
             { path: 'programs/:category?', element: <Programs /> },
             { path: 'about', element: <AboutUs /> },
             { path: 'tourdetail/:id', element: <TourDetail /> },
             { path: 'login', element: <Login /> },
-            { path: 'register', element: <Register /> }, // เมื่อมาที่ url path นี้ ให้แสดงที่ component ไหน
-            { path: 'forgot-password', element: <ForgotPassword /> }, // เมื่อมาที่ url path นี้ ให้แสดงที่ component ไหน
+            { path: 'register', element: <Register /> }, 
+            { path: 'forgot-password', element: <ForgotPassword /> }, 
             { path: 'reset-password/:token', element: <ResetPassword /> }, 
           
         ]

@@ -1,6 +1,10 @@
+/* มีการตั้งค่า TailwindCSS + theme ของโปรเจกต์ */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* เป็นคำสั่งบอก Tailwind ให้ นำ style พื้นฐานมาใส่ */
 
 @layer base {
   :root {

@@ -4,8 +4,8 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-generator client {
-  provider = "prisma-client-js"
+generator client { // สร้าง Prisma Client สำหรับใช้ query database ผ่าน JavaScript
+  provider = "prisma-client-js" // generator ตัวนี้จะใช้ Prisma Client JS
 }
 
 datasource db {
@@ -41,18 +41,16 @@ enum PaymentStatus {
 
 // เริ่มสร้าง Datasource เพื่อเรียกใช้งาน
 model User {
-  id                  Int       @id @default(autoincrement()) // ออโต้เลขอัตโนมัติ เวลาเพิ่มฐานข้อมูลลงไปใหม่
-  email               String    @unique @db.VarChar(255)
-  username            String    @unique
-  password            String //? หมายถึงสามารถเป็นค่าว่างได้ ซึ่งเดี๋ยวเราจะเอาไปต่อยอดตรง log in google ถ้า login ผ่าน google ไม่ต้องเก็บ password เรามีการ authen เช็คกับ google ตลอดเวลา
-  name                String
-  surname             String
+  id                  Int       @id @default(autoincrement()) // ออโต้เลขอัตโนมัติ เวลาเพิ่มฐานข้อมูลใหม่ลงไป
+  email               String    @unique @db.VarChar(255) // กำหนดเป็น String ห้ามซ้ำใน DB
+  username            String    @unique // กำหนดเป็น String ห้ามซ้ำใน DB
+  password            String 
   phone               String    @db.VarChar(20)
-  role                Role      @default(USER) // ทำงานฝั่งฐานข้อมูลเท่านั้น เมื่อมีการสร้างผู้ใช้ใหม่โดยไม่ได้ระบุ role → DB จะกำหนดให้เป็น "USER" ให้อัตโนมัติ
+  role                Role      @default(USER) // ทำงานฝั่ง DB เมื่อมีการสร้างผู้ใช้ใหม่โดยไม่ได้ระบุ role → DB จะกำหนดให้เป็น "USER" อัตโนมัติ
   enable              Boolean   @default(true) // เอาไว้เปิดปิดผู้ใช้งาน คือถ้าคุณสมัครปุ๊บ ก็สามารถเข้าใช้งานได้เลย
   address             String? // เป็นค่าว่างได้ด้วย เพราะบางทีผู้ใช้อาจจะยังไม่ได้กรอกที่อยู่ตั้งแต่แรก
-  createdDate         DateTime  @default(now()) // เวลาเรามีข้อมูลลงฐานข้อมูล ครั้งแรก เค้าก็จะบันทึก time stamp เวลา ณ ปัจจุบันที่ลงฐานข้อมูลไว้
-  updatedDate         DateTime  @updatedAt // เมื่อมีการแก้ไข เค้าก็จะ stamp เวลาปัจจุบัน ที่มีการแก้ไข ไปเรื่อยๆ ตามจำนวนที่เราอัพเดต
+  createdDate         DateTime  @default(now()) // บันทึก time stamp เวลาลงฐานข้อมูลครั้งแรก 
+  updatedDate         DateTime  @updatedAt // เมื่อมีการแก้ไข จะ stamp เวลาปัจจุบันไปเรื่อยๆ ตามจำนวนที่เราอัพเดต
   resetPasswordToken  String?   @db.VarChar(64)
   resetPasswordExpire DateTime?
   booking             Booking[] @relation("UserToBookings") // หนึ่ง User สามารถมีการจองได้หลายครั้ง 
@@ -86,8 +84,8 @@ model TourPackage {
   booking         Booking[] @relation("TourPackageToBookings")
   images          Image[]
   tourPDF         TourPDF?
-  category        Category? @relation(fields: [categoryId], references: [id]) // ไม่มี onDelete
-  country         Country?  @relation(fields: [countryId], references: [id]) // ไม่มี onDelete
+  category        Category? @relation(fields: [categoryId], references: [id]) 
+  country         Country?  @relation(fields: [countryId], references: [id])
 }
 
 model Category {
@@ -138,10 +136,10 @@ model Image {
 model TourPDF {
   id            Int         @id @default(autoincrement())
   tourPackageId Int         @unique // FK ที่อ้างถึง TourPackage.id
-  asset_id      String // Cloudinary asset_id
-  public_id     String // Cloudinary public_id (ใช้สำหรับลบไฟล์)
-  url           String // URL ปกติที่ cloudinary ให้มา
-  secure_url    String // URL แบบ https
+  asset_id      String      // Cloudinary asset_id
+  public_id     String      // Cloudinary public_id (ใช้สำหรับลบไฟล์)
+  url           String      // URL ปกติที่ cloudinary ให้มา
+  secure_url    String      // URL แบบ https
   createdDate   DateTime    @default(now())
   updatedDate   DateTime    @updatedAt
   tourPackage   TourPackage @relation(fields: [tourPackageId], references: [id], onDelete: Cascade) // เมื่อ TourPackage ถูกลบ PDF ที่มีการเชื่อมโยงกับ tourPackageId ก็จะถูกลบไปด้วย
@@ -155,12 +153,12 @@ model Payment {
   paymentStatus PaymentStatus @default(PENDING)
   transactionId String?
   paymentDate   DateTime?
-  secure_url    String? // URL แบบ https
-  public_id     String? // Cloudinary public_id (ใช้สำหรับลบไฟล์)
+  secure_url    String?       // URL แบบ https
+  public_id     String?     
   bankName      String?
   createdDate   DateTime      @default(now())
   updatedDate   DateTime      @updatedAt
-  booking       Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade) // เมื่อลบ Booking → Payment ที่เชื่อมโยงจะถูกลบตาม อัตโนมัติด้วย
+  booking       Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade) // เมื่อลบ Booking → Payment ที่เชื่อมโยงจะถูกลบด้วย
 }
 
 // เหตุผลที่ควรใช้ onDelete: Cascade

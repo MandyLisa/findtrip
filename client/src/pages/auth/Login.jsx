@@ -12,7 +12,7 @@ const Login = () => {
   const user = useAuthStore((state) => state.user)
 
   useEffect(() => {
-    if (user) { // ถ้ามี user แล้วไม่ต้องอยู่ที่หน้า login
+    if (user) { // มีค่าหรือไม่
       navigate('/', { replace: true })
     }
   }, [user, navigate])
@@ -22,7 +22,7 @@ const Login = () => {
     password: ''
   })
 
-  // state เพื่อเก็บค่าฟอร์ม และ error แต่ละฟิลด์
+  // state เพื่อเก็บค่า error แต่ละฟิลด์
   const [errors, setErrors] = useState({})
 
   // อัปเดตค่าที่ผู้ใช้พิมพ์
@@ -40,16 +40,17 @@ const Login = () => {
 
 
   const handleSubmit = async (e) => {
-    e.preventDefault() // ป้องกันการรีโหลดหน้าเว็บอัตโนมัติ
+    e.preventDefault() 
 
     // ตรวจสอบ validation
     const { errors: validationErrors, isValid } = validateLoginForm(form)
     setErrors(validationErrors)
 
-    if (!isValid) return //  ถ้า validate ไม่ผ่าน อยู่ที่เดิม
+    if (!isValid) return
 
     try {
       const res = await actionLogin(form)
+    //   console.log('TEST ', res)
       const role = res.data.users.role
 
       // ใช้ SweetAlert2
@@ -72,7 +73,6 @@ const Login = () => {
     } catch (error) {
       console.log(error)
       const errMsg = error.response?.data?.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ'
-
 
       Swal.fire({
         title: 'เข้าสู่ระบบไม่สำเร็จ',

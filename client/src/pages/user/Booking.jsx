@@ -13,8 +13,7 @@ import useAuthStore from '@/store/authStore'
 const BookingUser = () => {
   const navigate = useNavigate()
   const { id } = useParams()
-  const token = useAuthStore((state) => state.token)
-  // console.log(token)
+  const token = useAuthStore((state) => state.token) // แนบตอนเรียก API ไปสร้างการจอง
 
   const fetchTourDetail = usePublicStore((state) => state.fetchTourDetail)
   const tourDetail = usePublicStore((state) => state.tourDetail)
@@ -32,7 +31,6 @@ const BookingUser = () => {
   const decrement = (setter, value, min = 0) => {
     if (value > min) setter(value - 1)
   }
-
   const decrementAdult = () => setAdultCount(prev => prev > 1 ? prev - 1 : prev)
   const decrementChild = () => setChildCount(prev => prev > 0 ? prev - 1 : prev)
 
@@ -43,8 +41,8 @@ const BookingUser = () => {
 
   // คำนวณราคาทุกครั้งที่ค่าเปลี่ยน
   useEffect(() => {
-    // step เช็คว่าข้อมูล tourDetail โหลดเสร็จแล้วหรือยัง
-    if (!tourDetail) return
+    
+    if (!tourDetail) return // เช็คว่าข้อมูล tourDetail โหลดเสร็จแล้วหรือยัง
 
     // step ดึงราคาจาก tourDetail
     const pricePerAdult = tourDetail.priceAdult || 0
@@ -80,26 +78,19 @@ const BookingUser = () => {
         singleStayCount,
       }
       const res = await createBooking(token, data)
-      // console.log("Booking created: ", res)
       const bookingId = res.data.booking.id
-      // console.log(bookingId) 
       navigate(`/user/payments/${bookingId}`)
       toast.success('สร้างการจองสำเร็จ!')
+
     } catch (error) {
       console.error('Booking error:', error)
-      // ตรวจสอบสถานะ HTTP ของ Error
-      if (error.response && error.response.status === 409) {
-        // ถ้าเป็น Error 409 (Conflict) ที่เกิดจากการจองซ้ำ
+      if (error.response && error.response.status === 409) { // ถ้าเป็น Error 409 (Conflict) ที่เกิดจากการจองซ้ำ        
         const existingBookingId = error.response.data.bookingId // ดึง bookingId เดิมจาก Backend
-        // console.log('ดู existingBookingId ==========', existingBookingId)
-        toast.info('คุณมีรายการจองที่กำลังดำเนินการสำหรับทัวร์นี้อยู่แล้ว!')
-        
-        if (existingBookingId) { // อาจจะ Redirect ไปที่หน้า PaymentUser เดิมเพื่อดำเนินการต่อ
-          navigate(`/user/payments/${existingBookingId}`)
-        } else { // ถ้า Backend ไม่ได้ส่ง bookingId เดิมมา ให้แจ้งเตือนเฉยๆ      
-          toast.error('เกิดข้อผิดพลาด: การจองซ้ำซ้อน โปรดตรวจสอบรายการจองของคุณได้ที่ การจองของฉัน')
-        }
-      } else { // สำหรับ Error อื่นๆ
+        toast.info('คุณมีรายการจองที่กำลังดำเนินการสำหรับทัวร์นี้อยู่แล้ว!')       
+        if (existingBookingId) { 
+          navigate(`/user/payments/${existingBookingId}`) // Redirect ไปที่หน้า PaymentUser เดิมเพื่อดำเนินการต่อ
+        } 
+      } else {
         toast.error('เกิดข้อผิดพลาดในการสร้างการจอง')
       }
     } finally {

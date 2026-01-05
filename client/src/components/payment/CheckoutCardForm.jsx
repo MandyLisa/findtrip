@@ -9,11 +9,8 @@ const CheckoutCardForm = ({ token, bookingId }) => {
         try {
             // Step 1: สร้าง stripe session
             const response = await createStripePayment(token, bookingId)
-            // console.log('Backend response data:', response.data)
-
             // step 2: ตรวจสอบว่า clientSecret มีอยู่จริง และเป็น string ก่อน return
             if (response.data && typeof response.data.clientSecret === 'string') {
-                // console.log('Client secret received:', response.data.clientSecret)
                 return response.data.clientSecret
             } else {
                 console.error('Client secret is missing or not a string in backend response')
@@ -26,7 +23,6 @@ const CheckoutCardForm = ({ token, bookingId }) => {
         } 
     }
     const options = { fetchClientSecret } // มันคือค่าที่ return จาก response.data.clientSecret ส่งไปให้ตัว Embedded
-
     return (
         <div id='checkout'>
             {stripePromise && options && (

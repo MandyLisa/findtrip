@@ -14,7 +14,6 @@ const AdminDashBoard = () => {
         totalTours: 0,
         tour: {
             recommendTours: 0,
-            almostFullTours: 0,
             isActiveTours: 0
         }
     })
@@ -84,11 +83,6 @@ const AdminDashBoard = () => {
                     <div className="bg-white shadow rounded-xl p-10 text-center">
                         <h2 className="text-xl font-semibold text-gray-700">จำนวนทัวร์แนะนำ</h2>
                         <p className="text-3xl mt-2 text-blue-600">{data.tour.recommendTours}</p>
-                    </div>
-
-                    <div className="bg-white shadow rounded-xl p-10 text-center">
-                        <h2 className="text-xl font-semibold text-gray-700">จำนวนทัวร์ใกล้เต็ม</h2>
-                        <p className="text-3xl mt-2 text-blue-600">{data.tour.almostFullTours}</p>
                     </div>
 
                     <div className="bg-white shadow rounded-xl p-10 text-center">

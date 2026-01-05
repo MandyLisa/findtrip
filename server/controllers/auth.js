@@ -1,34 +1,39 @@
 const prisma = require('../config/prisma')
-const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const crypto = require('crypto')
 const { sendPasswordResetEmail } = require('../utils/email')
 
 exports.register = async (req, res) => {
     try {
-        // รับข้อมูลจาก front-end ตรง request body
+       
         const { username, email, password, name, surname, phone } = req.body
 
         // step 1 check username or email in Database
-        const existingUser = await prisma.user.findFirst({ // คำสั่งเข้าไปค้นหาในระบบฐานข้อมูล เพื่อเช็คว่า มี username หรือ email นี้ลงทะเบียนไปแล้วหรือยัง
+        const existingUser = await prisma.user.findFirst({ 
             where: {
                 OR: [
-                    { username: username }, // username สีขาวคือชื่อ feild ใน DB
+                    { username: username },
                     { email: email }
                 ]
             }
         })
-        // step 2 ถ้ามีในระบบแล้ว
-        if (existingUser) { // ถ้ามี username หรือ อีเมล์ นี้ในระบบแล้ว ให้แจ้ง
+        // step 2 ถ้ามี username หรือ อีเมล์  ในระบบแล้ว
+        if (existingUser) { 
             if (existingUser.username === username) {
-                return res.status(401).json({ message: username + ' มีในระบบแล้ว กรุณาใช้ชื่ออื่น' })
+                return res.status(409).json({
+                    field: 'username',
+                    message: username + ' มีในระบบแล้ว กรุณาใช้ชื่ออื่น' 
+                })
             }
             if (existingUser.email === email) {
-                return res.status(402).json({ message: email + ' มีในระบบแล้ว กรุณาใช้อีเมลอื่น' })
+                return res.status(409).json({ 
+                    field: 'email',
+                    message: email + ' มีในระบบแล้ว กรุณาใช้อีเมลอื่น' 
+                })
             }
         }
 
-        // step 3: Hash Password เข้ารหัสผ่าน ประกาศ ตัวแปร = await ไปก่อน เพราะไม่รู้ว่าทำงานนานหรือเปล่า ตัวแรกคือpassword ที่รับมาจากผู้ใช้, เลข 10 คือเลขเกลือ อัครมั่วที่จะเอาไปปนแล้ว generate มาเป็น password ใส่เลขอะไรก็ได้
+        // step 3: Hash Password เข้ารหัสผ่าน 
         const hashPassword = await bcrypt.hash(password, 10)
 
         // step 4: Register
@@ -42,6 +47,8 @@ exports.register = async (req, res) => {
                 phone: phone
             }
         })
+        
+        delete newUser.password // ลบ key บางตัว ที่ไม่ต้องการส่งไปให้หน้าบ้าน 
 
         return res.status(201).json({ message: 'ลงทะเบียนสำเร็จ', user: newUser })
 
@@ -54,10 +61,10 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
     try {
         // step 1:  รับค่า username หรือ email และ password จากผู้ใช้
-        const { identifier, password } = req.body // รับค่า identifier (username หรือ email) และ password
+        const { identifier, password } = req.body 
 
-        // step 2: ค้นหาผู้ใช้จาก username หรือ email
-        const user = await prisma.user.findFirst({ // ค้นหา ในฐานข้อมูลว่ามี username หรือ email นี้ไหม
+        // ค้นหาผู้ใช้จาก username หรือ email
+        const user = await prisma.user.findFirst({ 
             where: {
                 OR: [
                     { username: identifier }, // ค้นหา username ด้วย indentifier
@@ -70,14 +77,14 @@ exports.login = async (req, res) => {
             return res.status(401).json({ message: 'ชื่อบัญชี หรือ อีเมล์ ไม่ถูกต้อง' })
         }
 
-        // step 3 check password (compare) ถอดรหัสด้วย bcrypt 
-        const isMatch = await bcrypt.compare(password, user.password) // compare password จาก req.body ที่ผู้ใช้กรอกเข้ามา กับ user.password ที่มา จากฐานข้อมูล
+        // step 2 check password (compare) ถอดรหัสด้วย bcrypt 
+        const isMatch = await bcrypt.compare(password, user.password)
 
         if (!isMatch) { // ถ้า passworld ไม่ตรงกัน
             return res.status(400).json({ message: 'รหัสผ่าน ไม่ถูกต้อง' })
         }
 
-        // step 4 create payload คือ data | ปั้นข้อมูลใหม่ เฉพาะข้อมูลที่อยากเก็บไว้ใน token
+        // step 4 create payload คือ data 
         const users = { 
             id: user.id,
             username: user.username,
@@ -97,7 +104,7 @@ exports.login = async (req, res) => {
     }
 }
 
-// ฟังก์ชั่นนี้มักถูกเรียกใช้หลังจากผู้ใช้ล็อกอินสำเร็จ เพื่อนำข้อมูลไปแสดงผลหรือตรวจสอบสิทธิ์ในการเข้าถึงฟีเจอร์ต่างๆ ของระบบ
+// ฟังก์ชั่นนี้จะถูกเรียกใช้หลังจากผู้ใช้ล็อกอินสำเร็จ เพื่อนำข้อมูลไปแสดงผลหรือตรวจสอบสิทธิ์ในการเข้าถึงฟีเจอร์ต่างๆ ของระบบ
 exports.currentUserAdmin = async (req, res) => {
     try {
         const user = await prisma.user.findUnique({
