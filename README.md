@@ -69,7 +69,6 @@
 | GET | `/api/tourpackage/detail/:id` | ดูรายละเอียดแพ็กเกจ (สำหรับ Admin) | Admin |
 | GET | `/api/tourpackage` | แสดงรายการทัวร์ทั้งหมด | Admin |
 | DELETE | `/api/tourpackage/:id` | ลบแพ็กเกจทัวร์ | Admin |
-### 🖼️ Images & Files API
 | POST | `/api/tourpackage/images` | อัปโหลดรูปภาพ | Admin |
 | DELETE | `/api/tourpackage/remove-images` | ลบรูปภาพ | Admin |
 | POST | `/api/tourpackage/upload-pdf` | อัปโหลดไฟล์ PDF | Admin |
