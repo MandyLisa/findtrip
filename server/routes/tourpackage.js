@@ -6,11 +6,9 @@ const { create, update, remove, list, read, createImages, removeImages, createPD
       = require('../controllers/tourpackage')
 
 
-// Admin
 // @Endpoint http://localhost:5000/api/tourpackage/
 router.post('/images', authCheck, adminCheck, createImages) // อัพโหลดรูป
 router.delete('/remove-images', authCheck, adminCheck, removeImages) // ลบรูป
-
 router.post('/upload-pdf', authCheck, adminCheck, upload.single('pdf'),  createPDF) // อัพโหลด PDF
 
 router.post('/', authCheck, adminCheck, create) // เพิ่ม package

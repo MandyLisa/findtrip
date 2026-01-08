@@ -5,7 +5,7 @@ const router = express.Router()
 const { authCheck }  = require('../middlewares/authCheck') // ตรวจสอบการเข้าสู่ระบบก่อน
 const { createStripePayment, stripeCheckoutStatus } = require('../controllers/stripe')
   
-
+// @Endpoint http://localhost:5000/api/stripe
 router.post('/user/create-checkout-session', authCheck, createStripePayment) 
 router.post('/user/checkout-status/:sessionId', authCheck, stripeCheckoutStatus) 
 

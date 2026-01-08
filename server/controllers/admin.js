@@ -154,18 +154,18 @@ exports.changeUserStatus = async (req, res) => {
 exports.getDashboardSummary = async (req, res) => {
     try {
         const [bookingCount, totalRevenueResult, userCount, tourPackageCount] = await Promise.all([
-            prisma.booking.count(),
-            prisma.payment.aggregate({
+            prisma.booking.count(), // นับจำนวนการจองทั้งหมดในฐานข้อมูล
+            prisma.payment.aggregate({ // คำนวณยอดรวมเงินทั้งหมดจากฟิลด์ amount ในตาราง payment
                 _sum: { amount: true }
             }),
-            prisma.user.count(),
-            prisma.tourPackage.count(),
+            prisma.user.count(), // นับจำนวนผู้ใช้งาน (Member) ทั้งหมด
+            prisma.tourPackage.count(), // นับจำนวนแพ็กเกจทัวร์ทั้งหมดที่มีในระบบ
         ])
 
         const [recommendTours, almostFullTours, isActiveTours] = await Promise.all([
-            prisma.tourPackage.count({ where: { isRecommend: true } }),
-            prisma.tourPackage.count({ where: { isAlmostFull: true } }),
-            prisma.tourPackage.count({ where: { isActive: true } }),
+            prisma.tourPackage.count({ where: { isRecommend: true } }), // นับทัวร์ที่ตั้งค่าเป็น "แนะนำ"
+            prisma.tourPackage.count({ where: { isAlmostFull: true } }), // นับทัวร์ที่ตั้งค่าเป็น "ใกล้เต็ม"
+            prisma.tourPackage.count({ where: { isActive: true } }), // นับทัวร์ที่เปิดใช้งาน (Active) อยู่
         ])
 
         res.status(200).json({

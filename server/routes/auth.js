@@ -4,8 +4,8 @@ const { authCheck, adminCheck } = require('../middlewares/authCheck')
 const { register, login, currentUserAdmin, forgotPassword, verifyResetToken, resetPassword } 
 = require('../controllers/auth')
 
-// Admin
-// @Endpoint http://localhost:5000/api/
+
+// @Endpoint http://localhost:5000/api/auth
 router.post('/register',register)
 router.post('/login',login)
 router.post('/forgot-password', forgotPassword) // ส่งอีเมลรีเซ็ตรหัสผ่าน

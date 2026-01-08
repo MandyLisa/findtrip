@@ -3,20 +3,30 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 
 
-const authStore = (set) => ({ 
+const authStore = (set) => ({
+
     user: null,
     token: null,
 
     actionLogin: async (form) => {
+        console.log('actionLogin CALLED 1 ', form) // เช็คว่า login ถูกเรียกจริงไหม
+
         const res = await axios.post('/api/auth/login', form)
-        set({ // เอาข้อมูลที่กลับมาจากหลังบ้าน เซ้ตเข้ามาอยู่ในตัวแปร
+        console.log('LOGIN RESPONSE 2 ', res.data) // response มี user / token ไหม
+
+        set({ // เอาข้อมูลที่ตอบกลับจาก server เซ็ตเข้ามาอยู่ในตัวแปร
             user: res.data.users,
             token: res.data.token
         })
+
+        console.log('Zustand set() CALLED (user & token ถูก set แล้ว) 3 ') // set() ถูกเรียกจริงหรือเปล่า
         return res
+        
     },
 
     actionLogout: () => {
+        console.log('actionLogout CALLED 4 ')
+
         set({
             user: null,
             token: null
@@ -37,7 +47,7 @@ const authStore = (set) => ({
 // persist คือตัวจำข้อมูล เก็บไว้ใน store แล้วบันทึกลง localStorage ให้
 const useAuthStore = create(persist(authStore, { // เป็นฟังก์ชันหลักของ zustand ที่ใช้สำหรับสร้าง store
     name: 'authStore', // ชื่อ Key ที่ใช้ในการจัดเก็บใน Storage
-    storage: createJSONStorage(() => localStorage)
+    storage: createJSONStorage(() => localStorage) // user และ token ไม่หายตอน refresh
 }))
 
 

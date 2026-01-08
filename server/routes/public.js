@@ -5,6 +5,7 @@ const { listAllCountry } = require('../controllers/country')
 const { handleQuery, getTourDeatail, getRecommend, getAllTours,
         getListby, searchFilters, getPackageAvailable  } = require('../controllers/tourpackage')
 
+// @Endpoint http://localhost:5000/api/public
 router.get('/category', listAllCategory)
 router.get('/country', listAllCountry)
 router.get('/recommend', getRecommend);

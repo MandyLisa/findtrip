@@ -14,7 +14,8 @@ const AdminDashBoard = () => {
         totalTours: 0,
         tour: {
             recommendTours: 0,
-            isActiveTours: 0
+            isActiveTours: 0,
+            isAlmostFull: 0
         }
     })
 
@@ -51,30 +52,30 @@ const AdminDashBoard = () => {
     }
 
     return (
-        <div className="flex flex-col items-center justify-center bg-gray-100 p-6">
-            <h1 className="text-6xl font-bold text-brand-pink mb-10">
+        <div className="flex flex-col items-center justify-center bg-gray-100 p-1">
+            <h1 className="text-5xl font-bold text-brand-pink mb-6">
                 WELCOME TO DASHBOARD FINDTRIP
             </h1>
 
             <div className="grid grid-cols-4 gap-6 w-full max-w-10xl mt-4 h-40">
                 <div className="bg-white shadow rounded-xl p-10 text-center">
                     <h2 className="text-xl font-semibold text-gray-700">การจองทั้งหมด</h2>
-                    <p className="text-3xl mt-2 text-blue-600">{data.totalBookings}</p>
+                    <p className="text-3xl font-semibold mt-2 text-blue-600">{data.totalBookings}</p>
                 </div>
 
                 <div className="bg-white shadow rounded-xl p-10 text-center">
                     <h2 className="text-xl font-semibold text-gray-700">ยอดขายรวม</h2>
-                    <p className="text-3xl mt-2 text-blue-600">{Number(data.totalRevenue).toLocaleString()} ฿</p>
+                    <p className="text-3xl font-semibold mt-2 text-blue-600">{Number(data.totalRevenue).toLocaleString()} ฿</p>
                 </div>
 
                 <div className="bg-white shadow rounded-xl p-10 text-center">
                     <h2 className="text-xl font-semibold text-gray-700">จำนวนผู้ใช้งาน</h2>
-                    <p className="text-3xl mt-2 text-blue-600">{data.totalUsers}</p>
+                    <p className="text-3xl font-semibold mt-2 text-blue-600">{data.totalUsers}</p>
                 </div>
 
                 <div className="bg-white shadow rounded-xl p-10 text-center">
                     <h2 className="text-xl font-semibold text-gray-700">จำนวนทัวร์ทั้งหมด</h2>
-                    <p className="text-3xl mt-2 text-blue-600">{data.totalTours}</p>
+                    <p className="text-3xl font-semibold mt-2 text-blue-600">{data.totalTours}</p>
                 </div>
             </div>
 
@@ -82,15 +83,27 @@ const AdminDashBoard = () => {
                 <div className="grid grid-cols-4 gap-6 w-full max-w-10xl mt-4 h-40">
                     <div className="bg-white shadow rounded-xl p-10 text-center">
                         <h2 className="text-xl font-semibold text-gray-700">จำนวนทัวร์แนะนำ</h2>
-                        <p className="text-3xl mt-2 text-blue-600">{data.tour.recommendTours}</p>
+                        <p className="text-3xl font-semibold mt-2 text-blue-600">{data.tour.recommendTours}</p>
                     </div>
 
                     <div className="bg-white shadow rounded-xl p-10 text-center">
                         <h2 className="text-xl font-semibold text-gray-700">จำนวนทัวร์ที่เปิดขาย</h2>
-                        <p className="text-3xl mt-2 text-blue-600">{data.tour.isActiveTours}</p>
+                        <p className="text-3xl font-semibold mt-2 text-blue-600">{data.tour.isActiveTours}</p>
                     </div>
+                    
+                    <div className="bg-white shadow rounded-xl p-10 text-center">
+                        <h2 className="text-xl font-semibold text-gray-700">จำนวนทัวร์ที่ปิดการขาย</h2>
+                        <p className="text-3xl font-semibold mt-2 text-blue-600">{data.tour.isActiveTours}</p>
+                    </div>
+
+                    <div className="bg-white shadow rounded-xl p-10 text-center">
+                        <h2 className="text-xl font-semibold text-gray-700">จำนวนทัวร์ใกล้เต็ม</h2>
+                        <p className="text-3xl font-semibold mt-2 text-blue-600">{data.tour.isAlmostFull}</p>
+                    </div>
+
                 </div>
             )}
+            
         </div>
     )
 }

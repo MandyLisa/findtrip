@@ -1,5 +1,6 @@
 const prisma = require('../config/prisma')
 const jwt = require('jsonwebtoken')
+const bcrypt = require('bcryptjs')
 const crypto = require('crypto')
 const { sendPasswordResetEmail } = require('../utils/email')
 
@@ -81,7 +82,7 @@ exports.login = async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password)
 
         if (!isMatch) { // ถ้า passworld ไม่ตรงกัน
-            return res.status(400).json({ message: 'รหัสผ่าน ไม่ถูกต้อง' })
+            return res.status(400).json({ message: 'ชื่อบัญชี หรือ อีเมล์ ไม่ถูกต้อง' })
         }
 
         // step 4 create payload คือ data 
@@ -94,12 +95,18 @@ exports.login = async (req, res) => {
         }
 
         // step 5 เอา object users ไปเข้ารหัส ด้วย secret ออกมาเป็น token
-        const token = jwt.sign(users, process.env.SECRET, { expiresIn: '24h' })
         // process.env.SECRET คีย์ลับที่ใช้สำหรับการเข้ารหัส token 
-        res.json({ users, token })
+        const token = jwt.sign(users, process.env.SECRET, { expiresIn: '24h' })
+       
+        // res.json({ users:users, token })
+        return res.status(200).json({ 
+            message: 'เข้าสู่ระบบสำเร็จ', 
+            users: users,
+            token: token
+        })
 
     } catch (err) {
-        console.log(err)
+        console.error(err)
         return res.status(500).json({ message: 'Server Error' })
     }
 }

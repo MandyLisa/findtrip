@@ -4,6 +4,8 @@ const { authCheck, adminCheck }  = require('../middlewares/authCheck')
 const { getUserBookings, getBookingById, createBooking, cancelBooking,
         listBookings, updateBookingStatus, listBookingStatus } = require('../controllers/booking')
 
+
+// @Endpoint http://localhost:5000/api/booking
 // 1. สำหรับ User ใช้งาน
 router.post('/', authCheck, createBooking) // สร้างการจองใหม่
 router.get('/', authCheck, getUserBookings) // ดูการจองของตัวเอง
