@@ -2,30 +2,34 @@ import Footer from '@/components/Footer'
 import MainNav from '@/components/MainNav'
 import useAuthStore from '@/store/authStore'
 import { useEffect, useState } from 'react'
-import { Navigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 const LoadingToRedirect = () => {
     const [count, setCount] = useState(3) // ค่าเริ่มต้นนับถอยหลัง 3 วิ
-    const [redirect, setRedirect] = useState(false) // ถ้าเป็น true ค่อยสั่ง redirect
+    const navigate = useNavigate() 
     const actionLogout = useAuthStore((state) => state.actionLogout)
 
-        useEffect(() => {
-            const interval = setInterval(() => {
-                setCount((currentCount) => {
-                    if (currentCount === 1) {
-                        clearInterval(interval)
-                        actionLogout()
-                        setRedirect(true)
-                    }
-                    return currentCount - 1 // คืนค่า ปัจจุบัน -1
-                })
-            }, 1000)
-            return () => clearInterval(interval) // เคลียร์ข้อมูลทั้งหมดก่อนที่จะทำงานรอบใหม่
-        }, []) // ใส่ array กัน infinities loop
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCount((currentCount) => {
+                if (currentCount === 1) {
+                    clearInterval(interval)
+                    return 0
+                }
+                return currentCount - 1 // คืนค่า ปัจจุบัน -1
+            })
+        }, 1000)
 
-    if (redirect) {
-        return <Navigate to={'/login'} />
-    }
+        return () => clearInterval(interval) // เคลียร์ข้อมูลทั้งหมดก่อนที่จะทำงานรอบใหม่
+    }, [])
+
+    // ใช้ useEffect แยกต่างหากเพื่อจัดการกับการ Redirect และ Logout
+    useEffect(() => {
+        if (count === 0) {
+            actionLogout() // ล้างข้อมูลใน Store
+            navigate('/login') // เปลี่ยนไปหน้า login
+        }
+    }, [count, navigate, actionLogout])
 
     return (
         <>

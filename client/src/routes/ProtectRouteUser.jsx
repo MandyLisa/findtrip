@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { currentUser } from '../API/auth'
 import LoadingToRedirect from './LoadingToRedirect'
 import useAuthStore from '../store/authStore'
+import AuthCheckedLoading from '@/components/ui/authCheckedLoading'
 
 
 const ProtectRouteUser = ({ element }) => {
@@ -11,13 +12,22 @@ const ProtectRouteUser = ({ element }) => {
 
     useEffect(() => {
         if (user && token) { // ยืนยันตัวตนกับ server
-            currentUser(token)
-                .then((res) => setOk(true))
-                .catch((err) => setOk(false))
+            currentUser(token) 
+                .then((res) => {
+                    // console.log('Respone from backend:', res.data.role)
+                    setOk(true)
+                })  
+                .catch((err) => {
+                    // console.log('Error from backend:', err)
+                    setOk(false)
+                })
         }
 
     }, [])
-    if (ok === null) return null
+
+    if (ok === null) {
+        return <AuthCheckedLoading role={user?.role} />
+    }
 
     return ok ? element : <LoadingToRedirect />
 }

@@ -9,24 +9,23 @@ const authStore = (set) => ({
     token: null,
 
     actionLogin: async (form) => {
-        console.log('actionLogin CALLED 1 ', form) // เช็คว่า login ถูกเรียกจริงไหม
+        // console.log('actionLogin CALLED 1 ', form)
 
         const res = await axios.post('/api/auth/login', form)
-        console.log('LOGIN RESPONSE 2 ', res.data) // response มี user / token ไหม
+        // console.log('LOGIN RESPONSE 2 ', res) 
 
         set({ // เอาข้อมูลที่ตอบกลับจาก server เซ็ตเข้ามาอยู่ในตัวแปร
             user: res.data.users,
             token: res.data.token
         })
 
-        console.log('Zustand set() CALLED (user & token ถูก set แล้ว) 3 ') // set() ถูกเรียกจริงหรือเปล่า
+        // console.log('Zustand set() CALLED (user & token ถูก set แล้ว))
         return res
         
     },
 
     actionLogout: () => {
-        console.log('actionLogout CALLED 4 ')
-
+        // console.log('actionLogout CALLED 4 ')
         set({
             user: null,
             token: null

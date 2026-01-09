@@ -54,7 +54,7 @@ exports.register = async (req, res) => {
         return res.status(201).json({ message: 'ลงทะเบียนสำเร็จ', user: newUser })
 
     } catch (err) {
-        console.log(err)
+        console.err(err)
         return res.status(500).json({ message: 'Server Error', err })
     }
 }
@@ -96,7 +96,7 @@ exports.login = async (req, res) => {
 
         // step 5 เอา object users ไปเข้ารหัส ด้วย secret ออกมาเป็น token
         // process.env.SECRET คีย์ลับที่ใช้สำหรับการเข้ารหัส token 
-        const token = jwt.sign(users, process.env.SECRET, { expiresIn: '24h' })
+        const token = jwt.sign(users, process.env.SECRET, { expiresIn: '24h' }) // test '15s'
        
         // res.json({ users:users, token })
         return res.status(200).json({ 
@@ -107,7 +107,7 @@ exports.login = async (req, res) => {
 
     } catch (err) {
         console.error(err)
-        return res.status(500).json({ message: 'Server Error' })
+        return res.status(500).json({ message: 'Server Error', err })
     }
 }
 

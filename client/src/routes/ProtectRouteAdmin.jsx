@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { currentAdmin } from '../API/auth'
 import LoadingToRedirect from './LoadingToRedirect'
 import useAuthStore from '../store/authStore'
-import AdminLoading from '@/components/ui/adminLoading'
+import AuthCheckedLoading from '@/components/ui/authCheckedLoading'
 
 
 const ProtectRouteAdmin = ({ element }) => {
@@ -13,13 +13,20 @@ const ProtectRouteAdmin = ({ element }) => {
     useEffect(() => {
         if (user && token) {
             currentAdmin(token)
-                .then((res) => setOk(true))
-                .catch((err) => setOk(false))
+                .then((res) => {
+                    // console.log('Respone from backend:', res.data.role)
+                    setOk(true)
+                })
+                .catch((err) => {
+                    // console.log('Error from backend:', err)
+                    setOk(false)
+                })
         }
 
     }, [])
+
     if (ok === null) {
-        return <AdminLoading />
+        return <AuthCheckedLoading role={user?.role} />
     }
 
     return ok ? element : <LoadingToRedirect />
