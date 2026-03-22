@@ -9,123 +9,124 @@ import { Loader } from 'lucide-react'
 
 
 const MyBooking = () => {
-  const navigate = useNavigate()
-  const { token, user: authUser } = useAuthStore()
-  const [loading, setLoading] = useState(true)
+    const navigate = useNavigate()
+    const { token, user: authUser } = useAuthStore()
+    const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    if (!token) {
-      navigate('/login')
-      return
+    useEffect(() => {
+        if (!token) {
+            navigate('/login')
+            return
+        }
+    }, [token])
+
+    // Tabs
+    const [activeStatus, setActiveStatus] = useState('ALL')
+
+    // กำหนด tabs และ mapping กับสถานะ
+    const tabs = [
+        { key: 'ALL', label: 'รายการทั้งหมด', status: 'ALL' },
+        { key: 'DRAFT', label: 'รอชำระเงิน', status: 'DRAFT' },
+        { key: 'PENDING', label: 'รอตรวจสอบ', status: 'PENDING' },
+        { key: 'PAID', label: 'ชำระเงินสำเร็จ', status: 'PAID' },
+        { key: 'FAILED', label: 'ชำระเงินไม่สำเร็จ', status: 'FAILED' },
+        { key: 'CANCELLED', label: 'ยกเลิกการจอง', status: 'CANCELLED' }
+    ]
+
+    const handleTabClick = (status) => {
+        setActiveStatus(status)
+        setCurrentPage(1)
+        fetchBookingData(status)
+        // console.log(`ดึงข้อมูลสำหรับสถานะ: ${status}`) 
     }
-  }, [token])
 
-  // Tabs
-  const [activeStatus, setActiveStatus] = useState('ALL')
+    // Pagination
+    const [totalPages, setTotalPages] = useState(1)
+    const [currentPage, setCurrentPage] = useState(1)
+    const limit = 10
 
-  // กำหนด tabs และ mapping กับสถานะ
-  const tabs = [
-    { key: 'ALL', label: 'รายการทั้งหมด', status: 'ALL' },
-    { key: 'DRAFT', label: 'รอชำระเงิน', status: 'DRAFT' },
-    { key: 'PENDING', label: 'รอตรวจสอบ', status: 'PENDING' },
-    { key: 'PAID', label: 'ชำระเงินสำเร็จ', status: 'PAID' },
-    { key: 'FAILED', label: 'ชำระเงินไม่สำเร็จ', status: 'FAILED' },
-    { key: 'CANCELLED', label: 'ยกเลิกการจอง', status: 'CANCELLED' }
-  ]
+    // Fetch Booking
+    const [allBookings, setAllBookings] = useState([])
 
-  const handleTabClick = (status) => {
-    setActiveStatus(status)
-    setCurrentPage(1)
-    fetchBookingData(status)
-    // console.log(`ดึงข้อมูลสำหรับสถานะ: ${status}`) 
-  }
+    // Fetch ข้อมูลจากหลังบ้าน
+    useEffect(() => {
+        fetchBookingData(activeStatus)
+    }, [token, currentPage])
 
-  // Pagination
-  const [totalPages, setTotalPages] = useState(1)
-  const [currentPage, setCurrentPage] = useState(1)
-  const limit = 10
-
-  // Fetch Booking
-  const [allBookings, setAllBookings] = useState([])
-
-  // Fetch ข้อมูลจากหลังบ้าน
-  useEffect(() => {
-    fetchBookingData(activeStatus)
-  }, [token, currentPage])
-
-  const fetchBookingData = async (bookingStatus) => {
-    try {
-      setLoading(true)
-      const res = await getUserBookings(token, currentPage, limit, bookingStatus)
-      setAllBookings(res.data.booking)
-      setTotalPages(res.data.totalPage)
-    } catch (error) {
-      console.log('Error fetching Booking Data', error)
-    } finally {
-      setLoading(false)
+    const fetchBookingData = async (bookingStatus) => {
+        if (!token) return
+        try {
+            setLoading(true)
+            const res = await getUserBookings(token, currentPage, limit, bookingStatus)
+            setAllBookings(res.data.booking)
+            setTotalPages(res.data.totalPage)
+        } catch (error) {
+            console.log('Error fetching Booking Data', error)
+        } finally {
+            setLoading(false)
+        }
     }
-  }
 
-  return (
-    <div className='flex flex-col xl:flex-row gap-4 lg:gap-6 h-full max-h-full overflow-hidden'>
-      <UserSidebar />
+    return (
+        <div className='flex flex-col xl:flex-row gap-4 lg:gap-6 h-full max-h-full overflow-hidden'>
+            <UserSidebar />
 
-      {/* Right Content */}
-      <div className='flex-1 bg-white rounded-lg shadow-sm border overflow-hidden flex flex-col'>
-        {/* Header */}
-        <div className='p-4 lg:p-6 flex-1'>
-          <h1 className='text-2xl font-bold text-gray-800'>การจองของฉัน</h1>
-        </div>
+            {/* Right Content */}
+            <div className='flex-1 bg-white rounded-lg shadow-sm border overflow-hidden flex flex-col'>
+                {/* Header */}
+                <div className='p-4 lg:p-6 flex-1'>
+                    <h1 className='text-2xl font-bold text-gray-800'>การจองของฉัน</h1>
+                </div>
 
-        {/* Tabs */}
-        <div className='p-4 lg:p-6 flex-1'>
-          <div className='flex flex-wrap justify-center gap-4'>
-            {tabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => handleTabClick(tab.status)}
-                className={
-                  `px-4 py-2 rounded-full text-sm font-medium transition-colors 
+                {/* Tabs */}
+                <div className='p-4 lg:p-6 flex-1'>
+                    <div className='flex flex-wrap justify-center gap-4'>
+                        {tabs.map((tab) => (
+                            <button
+                                key={tab.key}
+                                onClick={() => handleTabClick(tab.status)}
+                                className={
+                                    `px-4 py-2 rounded-full text-sm font-medium transition-colors 
                   ${activeStatus === tab.status
-                    ? 'bg-brand-pink text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
+                                        ? 'bg-brand-pink text-white'
+                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                    }`}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
 
-        {/* Filters Booking Cards */}
-        <div className='p-6 lg:p-12'>
-          {loading ? (
-            <div className='flex flex-col items-center justify-center mt-16'>
-              <Loader className='animate-spin text-brand-pink w-10 h-10 mb-2' />
-              <p className='text-center text-gray-500 mt-8'>กำลังโหลดข้อมูล...กรุณารอสักครู่</p>
+                {/* Filters Booking Cards */}
+                <div className='p-6 lg:p-12'>
+                    {loading ? (
+                        <div className='flex flex-col items-center justify-center mt-16'>
+                            <Loader className='animate-spin text-brand-pink w-10 h-10 mb-2' />
+                            <p className='text-center text-gray-500 mt-8'>กำลังโหลดข้อมูล...กรุณารอสักครู่</p>
+                        </div>
+                    ) : allBookings.length === 0 ? (
+                        <p className='text-center text-gray-500 mt-8'>ไม่มีรายการจองในสถานะนี้</p>
+                    ) : (
+                        allBookings.map((booking) => (
+                            <div className='mt-0' key={booking.id}>
+                                <UserBookingCard
+                                    data={booking}
+                                />
+                            </div>
+                        ))
+                    )}
+                </div>
+                <div className='mb-8'>
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={(page) => setCurrentPage(page)}
+                    />
+                </div>
             </div>
-          ) : allBookings.length === 0 ? (
-            <p className='text-center text-gray-500 mt-8'>ไม่มีรายการจองในสถานะนี้</p>
-          ) : (
-            allBookings.map((booking) => (
-              <div className='mt-0' key={booking.id}>
-                <UserBookingCard
-                  data={booking}
-                />
-              </div>
-            ))
-          )}
         </div>
-        <div className='mb-8'>
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={(page) => setCurrentPage(page)}
-          />
-        </div>
-      </div>
-    </div>
-  )
+    )
 }
 
 export default MyBooking

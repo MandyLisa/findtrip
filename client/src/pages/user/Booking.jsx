@@ -66,7 +66,7 @@ const BookingUser = () => {
   }, [tourDetail, adultCount, childCount, singleStayCount])
 
   // คำนวณที่นั่งที่เหลือสำหรับการแสดงผล
-  const availableSeats = tourDetail ? tourDetail.maxSeats - tourDetail.sold : 0
+  const availableSeats = (tourDetail?.maxSeats ?? 0) - (tourDetail?.sold ?? 0)
 
   const handleClickBooking = async () => {
     setIsLoading(true)
@@ -116,7 +116,7 @@ const BookingUser = () => {
         {tourDetail.title}
       </div>
       <div className='flex flex-wrap text-xl py-4 text-gray-700 gap-2'>
-        <p>{tourDetail.country.name} |</p>
+        <p>{tourDetail.country?.name} |</p>
         <p>{tourDetail.duration} |</p>
         <p>{formatDateRange(tourDetail.startDate, tourDetail.endDate)} |</p>
         <p>{tourDetail.airline}</p>

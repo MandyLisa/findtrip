@@ -1,35 +1,31 @@
-import { useState, useEffect } from 'react'
-import { currentAdmin } from '../API/auth'
-import LoadingToRedirect from './LoadingToRedirect'
+import { useEffect } from 'react'
 import useAuthStore from '../store/authStore'
-import AuthCheckedLoading from '@/components/ui/authCheckedLoading'
+import { Navigate } from 'react-router-dom'
+import { isTokenExpired } from '@/utils/auth'
 
 
 const ProtectRouteAdmin = ({ element }) => {
-    const [ok, setOk] = useState(null)  // ไว้เก็บสถานะว่าคนนี้ใช่ admin รึเปล่า
     const user = useAuthStore((state) => state.user) // ดึงข้อมูล user จาก store ว่ามีการ login ค้างไว้ไหม
     const token = useAuthStore((state) => state.token)
+    const actionLogout = useAuthStore((state) => state.actionLogout)
+
+    const isExpired = token && isTokenExpired(token) // เช็คว่า token หมดอายุหรือยัง
 
     useEffect(() => {
-        if (user && token) {
-            currentAdmin(token)
-                .then((res) => {
-                    // console.log('Respone from backend:', res.data.role)
-                    setOk(true)
-                })
-                .catch((err) => {
-                    // console.log('Error from backend:', err)
-                    setOk(false)
-                })
+        if (isExpired) {
+            actionLogout()
         }
+    }, [isExpired, actionLogout])
 
-    }, [])
-
-    if (ok === null) {
-        return <AuthCheckedLoading role={user?.role} />
+    if (!token || !user || isExpired) { // ไม่มี token user หรือ token หมดอายุ → เด้งไป /login
+        return <Navigate to='/login' replace />
     }
 
-    return ok ? element : <LoadingToRedirect />
+    if (user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN') { //ถ้า role ไม่ใช่ ADMIN → เด้ง /login
+        return <Navigate to='/login' replace />
+    }
+
+    return element
 }
 
 export default ProtectRouteAdmin

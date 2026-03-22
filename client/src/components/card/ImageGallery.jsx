@@ -1,25 +1,29 @@
-import ImageGallery from 'react-image-gallery';
-import 'react-image-gallery/styles/css/image-gallery.css';
+import ImageGallery from 'react-image-gallery'
+import 'react-image-gallery/styles/css/image-gallery.css'
 
 const TourImageGallery = ({ images }) => {
-    
-    const imageSlide = images.map((img) => {
+
+    const imageSlide = images?.map((img) => {
         // console.log('Image ID',img.id); 
         // console.log('Image URL',img.url); 
         return {
             original: img.url,
             thumbnail: img.url,
-        };
-    });
+        }
+    }) || [] // ถ้า images เป็น undefined หรือ null ให้ใช้ array ว่างแทน
+
+    if (imageSlide.length === 0) {
+        return <div className='animate-pulse bg-gray-200 h-96 w-full text-center rounded-lg'>กำลังโหลดรูปภาพ...</div>
+    }
 
     return (
-        <div className="h-full w-full">
+        <div className='h-full w-full'>
             <ImageGallery
                 items={imageSlide}
                 showFullscreenButton={false}
                 showPlayButton={false}
-                thumbnailPosition="bottom"
-                additionalClass="tour-image-gallery"
+                thumbnailPosition='bottom'
+                additionalClass='tour-image-gallery'
             />
             <style>{`
                 .tour-image-gallery .image-gallery {
@@ -42,7 +46,7 @@ const TourImageGallery = ({ images }) => {
                 }
             `}</style>
         </div>
-    );
-};
+    )
+}
 
-export default TourImageGallery;
+export default TourImageGallery

@@ -10,23 +10,23 @@ import CategoryHome from '../components/card/CategoryHome'
 import usePublicStore from '../store/publicStore'
 import { Loader } from 'lucide-react'
 
-
-const Home = () => {
-  const navigate = useNavigate()
-  const categories = usePublicStore((state) => state.categories)
+// Part 1 : ประกาศตัวแปรที่ใช้ในหน้า Home
+const Home = () => { // เริ่มต้นสร้าง Page Component
+  const navigate = useNavigate() // React ดึงคำสั่งนำทาง 
+  const categories = usePublicStore((state) => state.categories) // ดึง Global State มาเตรียมไว้
   const fetchCategories = usePublicStore((state) => state.fetchCategories)
 
-  const [recommendTours, setRecommendTours] = useState([])
+  const [recommendTours, setRecommendTours] = useState([]) // สร้าง State ไว้เก็บข้อมูลทัวร์แนะนำที่ดึงมาจาก API 
   const [isLoading, setIsLoading] = useState(false)
 
-  // ปุ่ม search
-  const handleSearch = (title) => {
+  // PART 2 : เตรียมฟังชั่นคุม logic ในหน้านี้ 
+  const handleSearch = (title) => { // รับค่าจาก TextSearchBar (ผ่าน prop onSearch) เมื่อผู้ใช้กดค้นหา  
     const param = new URLSearchParams(title).toString()
     navigate(`/programs?${param}`)
   }
 
   const fetchTourRecommend = async () => {
-    setIsLoading(true)
+    setIsLoading(true) // toggle
     try {
       const res = await getRecommend()
       // console.log(res)
@@ -58,7 +58,7 @@ const Home = () => {
       <Banner />
       <div className='flex justify-center p-8'>
         <TextSearchBar 
-          onSearch={handleSearch} // ส่ง f ไป TextSearchBar ผ่าน prop ชื่อ onSearch
+          onSearch={handleSearch} // ส่ง f ไป TextSearchBar(child) ผ่าน prop ชื่อ onSearch
         />
       </div>
 

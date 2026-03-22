@@ -7,6 +7,7 @@ import useTourDataStore from '../../store/tourDataStore'
 import useAuthStore from '../../store/authStore'
 import { FileSearch, Loader } from 'lucide-react'
 import usePublicStore from '@/store/publicStore'
+import { SEAT_STATUS_CONFIG } from '@/constants/tourStatus'
 
 
 const FormTourpackage = () => {
@@ -19,6 +20,7 @@ const FormTourpackage = () => {
     const fetchCategories = usePublicStore((state) => state.fetchCategories)
     const fetchCountries = usePublicStore((state) => state.fetchCountries)
     const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(null) // เพิ่มตัวนี้เพื่อเก็บข้อความ Error
 
 
     const totalPages = useTourDataStore((state) => state.totalPages)
@@ -33,8 +35,9 @@ const FormTourpackage = () => {
         countryId: '',
         isRecommend: '',
         isActive: '',
-
+        seatStatus: ''
     }
+
     const [form, setForm] = useState(searchForm)
     const [formTemp, setFormTemp] = useState(searchForm)
 
@@ -49,17 +52,19 @@ const FormTourpackage = () => {
     // List Tourpackage
     const fetchAllTourPackage = async (form) => {
         setLoading(true)
+        setError(null) // เคลียร์ Error เก่าทิ้ง ก่อนเริ่มดึงข้อมูลใหม่
         try {
             const res = await getTourpackage(token, currentPage, limit, form || {})
         } catch (err) {
             console.log('Error fetching All TourPackage', err)
+            setError('ไม่สามารถดึงข้อมูลได้ กรุณาลองใหม่อีกครั้ง') // เก็บข้อความ Error ไว้ใน State เพื่อเอาไปโชว์ที่หน้าจอ
         } finally {
-            setLoading(false)
+            setLoading(false) // Clean up สถานะ Loading
         }
     }
 
     const handleSearch = async (e) => {
-        e.preventDefault() // ถ้ากดแล้วมันรีเฟรช
+        e.preventDefault() 
         setCurrentPage(1)
         setForm(formTemp)
         fetchAllTourPackage(formTemp)
@@ -179,9 +184,22 @@ const FormTourpackage = () => {
 
                             </select>
                         </div>
+                        <div className='flex flex-col basis-1/4'>
+                            <label className='text-md mb-2'>สถานะที่นั่ง/seatStatus?</label>
+                            <select
+                                value={formTemp.seatStatus}
+                                name='seatStatus'
+                                onChange={handleOnChange}
+                                className='w-full px-2 py-1 border-2 rounded border-brand-pink'
+                            >
+                                <option value='' disabled>กรุณาเลือก</option>
+                                <option value='AVAILABLE'>ว่าง</option>
+                                <option value='NEARLY_FULL'>ใกล้เต็ม</option>
+                                <option value='FULL'>เต็ม</option>
+                                <option value='CLOSED'>ปิด</option>
+                            </select>
+                        </div>
                     </div>
-
-
 
 
                     {/* ปุ่ม Search */}
@@ -221,22 +239,34 @@ const FormTourpackage = () => {
                         <Loader className='animate-spin text-brand-pink w-10 h-10 mb-2' />
                         <p className='text-center text-gray-500 mt-2'>กำลังโหลดข้อมูล...กรุณารอสักครู่</p>
                     </div>
+
+                ) : error ? (
+                    <div className='flex flex-col items-center justify-center py-12'>
+                        <p className='text-center text-red-600 font-semibold'>เกิดข้อผิดพลาด: {error}</p>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className='mt-2 underline'
+                        >
+                            ลองใหม่อีกครั้ง
+                        </button>
+                    </div>
                 ) : (
                     <>
                         <table className='min-w-full text-sm text-left text-gray-600'>
                             <thead className='text-sm text-gray-700 uppercase bg-gray-200'>
                                 <tr>
-                                    <th className='px-4 py-2'>ไอดี</th>
+                                    <th className='px-4 py-2'>เลขไอดี</th>
                                     <th className='px-4 py-2'>ชื่อทัวร์แพ็คเกจ</th>
                                     <th className='px-4 py-2'>รหัสทัวร์</th>
                                     <th className='px-4 py-2'>จำนวน</th>
                                     <th className='px-4 py-2'>ขายแล้ว</th>
                                     <th className='px-4 py-2'>คงเหลือ</th>
+                                    <th className='px-4 py-2'>สถานะที่นั่ง</th>
                                     <th className='px-4 py-2'>ราคาผู้ใหญ่</th>
                                     <th className='px-4 py-2'>ทัวร์แนะนำ</th>
                                     <th className='px-4 py-2'>วันที่เดินทาง</th>
                                     <th className='px-4 py-2'>วันที่สิ้นสุด</th>
-                                    <th className='px-4 py-2'>สถานะ</th>
+                                    <th className='px-4 py-2'>สถานะทัวร์</th>
                                     <th className='px-4 py-2'>ประเภท/ทวีป</th>
                                     <th className='px-4 py-2'>ประเทศ</th>
                                     <th className='px-4 py-2 text-center'>จัดการ</th>
@@ -252,12 +282,17 @@ const FormTourpackage = () => {
                                             <td className='px-4 py-2'>{item.tourCode}</td>
                                             <td className='px-4 py-2'>{item.maxSeats}</td>
                                             <td className='px-4 py-2'>{item.sold}</td>
-                                            <td className='px-4 py-2'>{item.maxSeats - item.sold}</td>
+                                            <td className='px-4 py-2'>{item.remainingSeats}</td>
+                                            <td className='px-4 py-2 font-bold'>
+                                                <span className={SEAT_STATUS_CONFIG[item.seatStatus]?.color || 'text-gray-600'}>
+                                                    {SEAT_STATUS_CONFIG[item.seatStatus]?.label || 'ไม่ระบุ'}
+                                                </span>
+                                            </td>
                                             <td className='px-4 py-2'>{item.priceAdult}</td>
                                             <td className='px-4 py-2'>{item.isRecommend ? '⭐แนะนำ' : '-'}</td>
                                             <td className='px-4 py-2'>{formatThaiDate(item.startDate)}</td>
                                             <td className='px-4 py-2'>{formatThaiDate(item.endDate)}</td>
-                                            <td className='px-4 py-2 text center'>
+                                            <td className='px-4 py-2 text-center'>
                                                 {item.isActive ? (
                                                     <span className='text-green-600 text-sm font-bold'>เปิด</span>
                                                 ) : (
@@ -279,7 +314,7 @@ const FormTourpackage = () => {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={14} className='text-center text-gray-500 font-semibold py-8'>
+                                        <td colSpan={16} className='text-center text-gray-500 font-semibold py-8'>
                                             ไม่พบข้อมูลแพ็คเกจที่คุณค้นหา
                                         </td>
                                     </tr>

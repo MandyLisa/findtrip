@@ -20,7 +20,7 @@ const SidebarAdmin = () => {
 
     return (
         <div className='bg-brand-pink w-72 text-white flex flex-col h-screen'>
-            <div className='h-20 flex justify-center items-center flex-col'>
+            <div className='h-20 flex justify-center items-center flex-col border-pink-200'>
                 <img src={logo1} alt='Logo' className='h-10 w-auto' />
             </div>
             {user ? (
@@ -140,8 +140,19 @@ const SidebarAdmin = () => {
                     <LogOut className='mr-2' />
                     Logout/ออกจากระบบ
                 </button>
-
             </nav>
+            
+             <nav className='px-4 py-4 space-y-4 border-t border-pink-200'>
+                <NavLink
+                    to={'/'}
+                    end
+                    className='text-pink-100 px-4 py-2 bg-brand-pink hover:text-white rounded flex items-center'
+                >
+                    <LayoutDashboard className='mr-2' />
+                    Go to User/ไปยังหน้าผู้ใช้
+                </NavLink>
+             </nav>
+
         </div>
     )
 }

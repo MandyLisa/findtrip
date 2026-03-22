@@ -251,7 +251,16 @@ const FormPayment = () => {
                                             <td className='px-4 py-2'>{item.bookingId}</td>
                                             <td className='px-4 py-2'>{item.booking?.bookingStatus}</td>
                                             <td className='px-4 py-2'>{item.amount}</td>
-                                            <td className='px-4 py-2'>{item.paymentStatus}</td>
+                                            <td className='px-4 py-2 font-bold'>
+                                                {item.paymentStatus === 'PENDING' && <span className='text-blue-500'>PENDING</span>}
+                                                {item.paymentStatus === 'PAID' && <span className='text-green-600'>PAID</span>}
+                                                {item.paymentStatus === 'FAILED' && <span className='text-orange-700'>FAILED</span>}
+                                                {item.paymentStatus === 'CANCELLED' && <span className='text-red-500'>CANCELLED</span>}
+                                                {/* Fallback Case */}
+                                                {!['DRAFT', 'PENDING', 'PAID', 'FAILED', 'CANCELLED'].includes(item.paymentStatus) && (
+                                                    <span className='text-gray-400'>{item.paymentStatus || 'ไม่มีสถานะ'}</span>
+                                                )}
+                                            </td>
                                             <td className='px-4 py-2'>{item.paymentMethod}</td>
                                             <td className='px-4 py-2'>{item.bankName}</td>
                                             <td className='px-4 py-2 text-center'>

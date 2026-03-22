@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 import useAuthStore from '../../store/authStore'
@@ -7,27 +7,22 @@ import Swal from 'sweetalert2'
 
 
 const Login = () => {
-    const navigate = useNavigate()
+    const navigate = useNavigate() // ถูกใช้ใน handleSubmit
     const actionLogin = useAuthStore((state) => state.actionLogin)
     const user = useAuthStore((state) => state.user)
+    const token = useAuthStore((state) => state.token)
+
+    useEffect(() => {
+        // ถ้ามี user อยู่แล้ว (เช่น เข้ามาหน้า login ทั้งที่มี token ค้างอยู่) ค่อยดีดออก
+        if (user && token) {
+            redirectByRole(user.role)
+        }
+    }, []) // รันแค่รอบเดียวตอน Mount หรือตอน user/token เปลี่ยนจังหวะสำเร็จเท่านั้น
 
     const [form, setForm] = useState({
         identifier: '', // รับได้ทั้ง email และ username
         password: ''
     })
-
-    useEffect(() => {
-        if (!user) return
-
-        if (user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') {
-            // console.log('TEST Role 1 ', user.role)
-            navigate('/admin', { replace: true })
-        } else {
-            // console.log('TEST Role 3 ', user.role)
-            navigate('/', { replace: true })
-        }
-    }, [user, navigate])
-
 
     // state เพื่อเก็บค่า error แต่ละฟิลด์
     const [errors, setErrors] = useState({})
@@ -45,9 +40,19 @@ const Login = () => {
         setErrors(prev => ({ ...prev, [name]: fieldError }))
     }
 
+    const redirectByRole = (role) => {
+        if (role === 'ADMIN' || role === 'SUPER_ADMIN') {
+            navigate('/admin', { replace: true })
+        } else {
+            navigate('/', { replace: true })
+        }
+    }
+
+    const [loading, setLoading] = useState(false)
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        setLoading(true) // เริ่มโหลด
 
         // ตรวจสอบ validation
         const { errors: validationErrors, isValid } = validateLoginForm(form)
@@ -59,33 +64,29 @@ const Login = () => {
             const res = await actionLogin(form)
             // console.log('TEST Login === ', res)
 
-            // ใช้ SweetAlert2
             await Swal.fire({
                 title: 'เข้าสู่ระบบสำเร็จ!',
                 text: `ยินดีต้อนรับ ${res.data.users.name}`,
                 icon: 'success',
                 confirmButtonText: 'ตกลง',
                 confirmButtonColor: '#ec4899',
-                showClass: {
-                    popup: 'animate__animated animate__fadeInDown'
-                },
-                hideClass: {
-                    popup: 'animate__animated animate__fadeOutUp'
-                }
             })
 
-        } catch (error) {
-            console.log(error)
-            const errMsg = error.response?.data?.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ ไม่สามารถติดต่อเซิร์ฟเวอร์ได้'
-            console.log('Error Message:', errMsg)
+            const role = res.data.users.role
+            redirectByRole(role) // สั่ง redirects หลังจาก login สำเร็จ โดยดูจาก role ของ user
 
-            Swal.fire({
+        } catch (error) {
+            const errMsg = error.response?.data?.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ ไม่สามารถติดต่อเซิร์ฟเวอร์ได้'
+
+            await Swal.fire({
                 title: 'เข้าสู่ระบบไม่สำเร็จ',
                 text: errMsg,
                 icon: 'error',
                 confirmButtonText: 'ลองอีกครั้ง',
                 confirmButtonColor: '#dc2626'
             })
+        } finally {
+            setLoading(false) // จบโหลด
         }
     }
 
@@ -140,9 +141,10 @@ const Login = () => {
 
                             {/* Submit Button */}
                             <button
+                                disabled={loading} // ถ้าโหลดอยู่ ให้กดไม่ได้
                                 type='submit'
                                 className='w-full bg-brand-pink text-white py-2 rounded-lg hover:bg-pink-600 font-medium mt-6'>
-                                เข้าสู่ระบบ
+                                {loading ? 'กำลังตรวจสอบ...' : 'เข้าสู่ระบบ'}
                             </button>
 
                             {/* Links */}

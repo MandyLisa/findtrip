@@ -26,11 +26,10 @@ const SearchCard = ({
   const [country, setCountry] = useState('')
   const [priceRange, setPriceRange] = useState([MIN, MAX]) // เก็บช่วงราคา [ต่ำสุด, สูงสุด]
 
-  // ทำงาน ตอน component mount
   useEffect(() => {
     fetchCategories() // เรียก API ดึงข้อมูล
     fetchCountries()
-  }, []) // ทำแค่ครั้งเดียวตอน component mount
+  }, []) 
 
   // ตรวจสอบว่าผู้ใช้งานเลือกช่วงราคามาไหม ถ้าไม่ได้เลือกเป็น true
   const isPriceRangeDefault = () => {
@@ -89,7 +88,7 @@ const SearchCard = ({
             // onChange={(e) => setCategory(e.target.value)} // เมื่อค่าเปลี่ยน ให้ update state
             onChange={(e) => {
               setCategory(e.target.value)
-              filterCountry(e.target.value)// ส่ง event ตรง ๆ
+            //   filterCountry(e.target.value)// ส่ง event ตรง ๆ
             }}
             className='border-2 border-brand-pink rounded-md p-2 w-full text-gray-500'
           >

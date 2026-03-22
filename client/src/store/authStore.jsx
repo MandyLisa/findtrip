@@ -10,18 +10,19 @@ const authStore = (set) => ({
 
     actionLogin: async (form) => {
         // console.log('actionLogin CALLED 1 ', form)
+        try {
+            const res = await axios.post('/api/auth/login', form)  // console.log('LOGIN RESPONSE 2 ', res) 
+            set({ // เอาข้อมูลที่ตอบกลับจาก server เซ็ตเข้ามาอยู่ในตัวแปร
+                user: res.data.users,
+                token: res.data.token
+            })
+            // console.log('Zustand set() CALLED (user & token ถูก set แล้ว))
+            return res // ส่งค่ากลับเมื่อสำเร็จ
+        } catch (error) {
+            console.error('Error in actionLogin:', error)
+            throw error // โยน error ออกไปให้ component ที่เรียกใช้ฟังก์ชันนี้จัดการต่อ
 
-        const res = await axios.post('/api/auth/login', form)
-        // console.log('LOGIN RESPONSE 2 ', res) 
-
-        set({ // เอาข้อมูลที่ตอบกลับจาก server เซ็ตเข้ามาอยู่ในตัวแปร
-            user: res.data.users,
-            token: res.data.token
-        })
-
-        // console.log('Zustand set() CALLED (user & token ถูก set แล้ว))
-        return res
-        
+        }
     },
 
     actionLogout: () => {

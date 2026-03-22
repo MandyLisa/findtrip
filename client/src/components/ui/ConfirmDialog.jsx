@@ -9,7 +9,7 @@ import {
     AlertDialogDescription,
     AlertDialogCancel,
     AlertDialogAction
-} from '@/components/ui/alert-dialog' // <--- บรรทัดนี้จะทำงานได้แล้ว!
+} from '@/components/ui/alert-dialog' 
 
 
 const ConfirmDialog = ({

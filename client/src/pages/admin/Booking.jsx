@@ -1,6 +1,5 @@
 import FormBooking from '@/components/admin/FormBooking'
 
-
 const Booking = () => {
   return (
     <>

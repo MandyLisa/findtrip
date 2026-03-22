@@ -14,9 +14,7 @@ const TourDetail = () => {
   const navigate = useNavigate()
   const fetchTourDetail = usePublicStore((state) => state.fetchTourDetail)
   const tourDetail = usePublicStore((state) => state.tourDetail)
-  // console.log('ดูตรงนี้ ',tourDetail)
   const token = useAuthStore((state) => state.token)
-  // console.log('ดู Token', token)
   const isLoading = usePublicStore((state) => state.isLoading)
   const [isContactPopupOpen, setIsContactPopupOpen] = useState(false)
 
@@ -71,7 +69,7 @@ const TourDetail = () => {
           <p className='text-lg font-bold'>{tourDetail.title} </p>
           <p className='font-semibold'>รหัสทัวร์ ({tourDetail.tourCode})</p>
 
-          <p className='py-1 px-2 mt-6'>ประเทศ : {tourDetail.country.name}</p>
+          <p className='py-1 px-2 mt-6'>ประเทศ : {tourDetail.country?.name}</p>
           <span className='flex items-center flex-wrap'>
             <p className='py-1 px-2'>
               ระยะเวลา : <CalendarClock className='inline-block text-gray-600' /> {tourDetail.duration}</p>
@@ -124,7 +122,7 @@ const TourDetail = () => {
       <div className='px-4'>
         <h1 className='text-2xl sm:text-3xl font-medium text-items-center mt-8'>{tourDetail.title}</h1>
         <div className='flex flex-wrap gap-x-2 mt-4 text-md sm:text-lg'>
-          <p className='text-lg mr-2'>{tourDetail.country.name} |</p>
+          <p className='text-lg mr-2'>{tourDetail.country?.name} |</p>
           <p className='text-lg mr-2'>{tourDetail.duration} |</p>
           <p className='text-lg mr-2'>{formatDateRange(tourDetail.startDate, tourDetail.endDate)} |</p>
           <p className='text-lg mr-2'>{tourDetail.airline} |</p>

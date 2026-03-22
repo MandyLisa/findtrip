@@ -23,10 +23,11 @@ const CheckoutCardForm = ({ token, bookingId }) => {
         } 
     }
     const options = { fetchClientSecret } // มันคือค่าที่ return จาก response.data.clientSecret ส่งไปให้ตัว Embedded
+    // Embedded Checkout ต้องการ Checkout Session client secret เพื่อโหลดหน้าจ่ายเงินของ Checkout ภายในเว็บของเรา
     return (
         <div id='checkout'>
-            {stripePromise && options && (
-                <EmbeddedCheckoutProvider
+            {stripePromise && options && ( 
+                <EmbeddedCheckoutProvider //Stripe Checkout แบบฝังในหน้า (Embedded Checkout)
                     stripe={stripePromise}
                     options={options}
                 >

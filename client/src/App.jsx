@@ -10,14 +10,14 @@ const App = () => {
     <>
       <AppRoutes /> {/* จุด root ของแอปทั้งหมด */}
 
-      <ToastContainer // แจ้งเตือนแบบสวยงามแทน alert() แบบเดิม โดยใช้ React-toastify
+      <ToastContainer // กำหนด global UI Toaster ของ react-toastify
         position='top-center' 
         autoClose={3000} 
         hideProgressBar 
         closeOnClick 
         pauseOnHover 
-        toastClassName='text-center text-lg p-6 bg-white shadow-lg rounded-xl' // จัดข้อความใน toast ให้อยู่ กึ่งกลางแนวนอน
-        bodyClassName='flex justify-center items-center' // เนื้อหาใน toast อยู่กึ่งกลางทั้งแนวนอนและแนวตั้ง
+        toastClassName='text-center text-lg p-6 bg-white shadow-lg rounded-xl' 
+        bodyClassName='flex justify-center items-center' 
         style={{
           position: 'fixed',
           top: '20%',

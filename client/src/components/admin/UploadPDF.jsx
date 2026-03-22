@@ -22,8 +22,8 @@ const UploadPDF = ({ form, setForm }) => {
 
         setIsLoading(true)
 
-        const formData = new FormData()
-        // formData.append('pdf', filePDF)
+        const formData = new FormData() //เรียกใช้ FormData เพื่อส่งไฟล์ PDF ผ่าน API ไปยัง backend (เก็บได้ทั้งไฟล์และข้อมูลอื่น ๆ ในรูปแบบ key-value) 
+
         formData.append('upload_preset', 'your_unsigned_preset') // unsigned preset
         formData.append('resource_type', 'raw') // สำหรับ PDF
         formData.append('pdf', filePDF)

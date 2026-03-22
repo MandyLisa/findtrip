@@ -18,7 +18,7 @@ import 'react-datepicker/dist/react-datepicker.css'
 import { th } from 'date-fns/locale'
 import { validateTourForm } from '@/utils/validateTourForm'
 
-const createForm = {
+const createInitialForm = () => ({
   title: '',
   tourCode: '',
   categoryId: '',
@@ -39,7 +39,7 @@ const createForm = {
   isActive: true,
   images: [],
   tourPDF: null
-}
+})
 
 const FormTourpackageDetail = () => {
 
@@ -51,7 +51,7 @@ const FormTourpackageDetail = () => {
   const fetchCountries = usePublicStore((state) => state.fetchCountries)
 
 
-  const [form, setForm] = useState(createForm)
+  const [form, setForm] = useState(() => createInitialForm())
   const [editMode, setEditMode] = useState(false)
 
   useEffect(() => {
@@ -61,6 +61,10 @@ const FormTourpackageDetail = () => {
       if (id) {
         fetchTourpackage(token, id)
         setEditMode(true)
+      } else {
+        // โหมดสร้างใหม่: ต้องรีเซ็ตฟอร์มให้เป็นค่าว่างเสมอ (กันภาพจากทัวร์ก่อนหน้าค้าง)
+        setEditMode(false)
+        setForm(createInitialForm())
       }
     }
   }, [token, id])

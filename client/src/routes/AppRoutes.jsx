@@ -39,7 +39,7 @@ const router = createBrowserRouter([ // กำหนด routing  ให้ React
             { index: true, element: <Home /> }, // path เดียวกันกับตัวแม่ด้านบน
             { path: 'programs/:category?', element: <Programs /> },
             { path: 'about', element: <AboutUs /> },
-            { path: 'tourdetail/:id', element: <TourDetail /> },
+            { path: 'tourdetail/:id', element: <TourDetail /> }, // test 57
             { path: 'login', element: <Login /> },
             { path: 'register', element: <Register /> }, 
             { path: 'forgot-password', element: <ForgotPassword /> }, 

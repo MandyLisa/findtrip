@@ -35,8 +35,10 @@ const useTourDataStore = create((set) => ({
         }
     },
 
-    getTourpackage: async (token, page = 1, limit = 10 , form = {}) => {
+    getTourpackage: async (token, page = 1, limit = 10, form = {}) => {
         try {
+            
+            set({ tourpackages: [] }) // เคลียร์ข้อมูลเก่า ก่อนโหลดใหม่
             const res = await listTourpackage(token, page, limit, form)
             // console.log('ดู getTourpackage', res)
             set({

@@ -2,14 +2,14 @@ import { create } from 'zustand'
 import axios from 'axios'
 
 const usePublicStore = create((set) => ({
-  categories: [],
+  categories: [], // ค่าเริ่มต้น 
   countries: [],
   tourDetail: null,
   isLoading: false, 
 
-  fetchCategories: async () => { // เขียน Axios call โดยตรงใน store
+  fetchCategories: async () => { 
     try {
-      const res = await axios.get('/api/public/category')
+      const res = await axios.get('/api/public/category') // เขียน Axios call โดยตรงใน store
       // console.log('ดู fetchCategories ตรงนี้', res)
       set({ categories: res.data.data })
     } catch (error) {
@@ -29,11 +29,11 @@ const usePublicStore = create((set) => ({
 
   fetchTourDetail: async (id) => {
     try {
-      set({ isLoading: true })
+      set({ tourDetail: {}, isLoading: true }) // ล้างข้อมูลเก่าก่อน และตั้ง loading
       const res = await axios.get(`/api/public/tourdetail/${id}`)
-      // console.log('ดู fetchTourDetail ตรงนี้', res)
+    //   console.log('ดู fetchTourDetail ตรงนี้', res)
       set({
-        tourDetail: res.data,
+        tourDetail: res.data.data,
         isLoading: false
       })
     } catch (error) {

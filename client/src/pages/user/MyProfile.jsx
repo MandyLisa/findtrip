@@ -25,7 +25,7 @@ const MyProfile = () => {
 
 
     useEffect(() => {
-        if (!token) {
+        if (!token) { // ถ้าไม่มี token ให้ไปหน้า login
             navigate('/login')
             return
         }
@@ -71,7 +71,7 @@ const MyProfile = () => {
                     [fieldToUpdate]: editedValue
                 }))
 
-                // // อัพเดตข้อมูล user ใน Zustand store
+                //  อัพเดตข้อมูล user ใน Zustand store
                 if (authUser) {
                     actionUpdateUser({ [fieldToUpdate]: editedValue })
                 }
