@@ -37,7 +37,7 @@ exports.authCheck = async (req, res, next) => {
         }
         next()
     } catch (err) {
-        console.log("ตรวจพบ Error ใน authCheck:", err.name, err.message) // เพิ่มบรรทัดนี้
+        console.log('ตรวจพบ Error ใน authCheck:', err.name, err.message) // เพิ่มบรรทัดนี้
         if (err.name === 'JsonWebTokenError') {
             return res.status(401).json({ message: 'Invalid token' });
           }

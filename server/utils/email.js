@@ -1,6 +1,6 @@
 const prisma = require('../config/prisma')
 require('dotenv').config() // คำสั่งนี้จะโหลดค่าต่างๆ ที่เก็บไว้ในไฟล์ .env ให้สามารถใช้งานได้ในโค้ด
-const nodemailer = require('nodemailer')
+const nodemailer = require('nodemailer') // นำเข้า Nodemailer เพื่อสั่งให้มันทำงานตามเหตุการณ์
 
 // 4. ตั้งค่า Nodemailer สามารถใช้ค่าจาก .env ได้ทันที
 const transporter = nodemailer.createTransport({
@@ -14,6 +14,9 @@ const transporter = nodemailer.createTransport({
 
 exports.sendBookingConfirmationEmail = async (toEmail, bookingId) => {
     try {
+        console.log("--- DEBUG EMAIL START ---")
+        console.log("1. Received toEmail from controller:", toEmail)
+        console.log("2. Received bookingId:", bookingId)
         // 1. ดึงข้อมูล booking พร้อม tour package และ user
         const booking = await prisma.booking.findUnique({
             where: { id: bookingId },
@@ -25,7 +28,20 @@ exports.sendBookingConfirmationEmail = async (toEmail, bookingId) => {
 
         if (!booking) throw new Error('Booking not found')
 
+        // 📌 จุดสำคัญ: ตรวจสอบว่าใน Database ผู้ใช้คนนี้มีอีเมลไหม
+        console.log("3. User Email from DB:", booking.user?.email)
+
         const { tourPackage, user } = booking
+
+        // ถ้า toEmail ที่รับมาเป็น undefined 
+        // ให้ไปใช้ user.email จากฐานข้อมูลที่เรา include มาแทน
+        const recipient = toEmail || booking.user?.email
+
+        if (!recipient) {
+            throw new Error('No email address found for this user')
+        }
+
+        console.log("4. Final Recipient:", recipient)
 
         const paymentLink = `http://localhost:5173/user/payments/${bookingId}`
 
@@ -51,10 +67,12 @@ exports.sendBookingConfirmationEmail = async (toEmail, bookingId) => {
 
         await transporter.sendMail({
             from: `'findtrip' <${process.env.EMAIL_USER}>`,
-            to: toEmail,
+            to: recipient,
             subject: `ยืนยันการจองแพ็คเกจทัวร์ของคุณ ${user.name || ''}`,
             html: htmlContent,
         })
+
+        console.log("--- DEBUG EMAIL END ---")
 
     } catch (error) {
         console.error('Error in sendBookingConfirmationEmail: ', error.message)

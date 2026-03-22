@@ -16,7 +16,7 @@ exports.uploadPaymentSlip = async (req, res) => {
         const { bookingId } = req.params // <-- ดึงจาก URL
         const { bankName } = req.body
         const slipFile = req.file // ดึงไฟล์ที่อัปโหลด
-        const userId = req.user.id; // ดึง userId จาก token
+        const userId = req.user.id // ดึง userId จาก token
 
         if (!slipFile) {
             return res.status(400).json({ message: 'No slip file uploaded' })
@@ -51,7 +51,7 @@ exports.uploadPaymentSlip = async (req, res) => {
             folder: 'findtrip2025/slips'
         })
 
-        console.log('ได้ result ไหม ========== ', result)
+        // console.log('ได้ result ไหม ========== ', result)
 
         // 3. ตรวจสอบว่ามี Payment record สำหรับ booking นี้อยู่แล้วหรือไม่
         let payment = await prisma.payment.findUnique({
@@ -59,8 +59,7 @@ exports.uploadPaymentSlip = async (req, res) => {
         })
 
         if (payment) {
-            // **ถ้ามี Payment record อยู่แล้ว: ให้อัปเดตข้อมูล**
-            // (เช่น กรณีที่ผู้ใช้อัปโหลดสลิปซ้ำ หรือเปลี่ยนใจเลือกธนาคารใหม่)
+            // **ถ้ามี Payment record อยู่แล้ว: ให้อัปเดตข้อมูล** (เช่น กรณีที่ผู้ใช้อัปโหลดสลิปซ้ำ หรือเปลี่ยนใจเลือกธนาคารใหม่)
             const updatedPayment = await prisma.payment.update({
                 where: { bookingId: numericBookingId },
                 data: {
@@ -73,11 +72,14 @@ exports.uploadPaymentSlip = async (req, res) => {
                     amount: booking.totalPrice // ใช้ totalPrice จาก booking
                 }
             })
-            console.log('Payment record updated:', updatedPayment)
-            res.status(200).json({ message: 'Payment slip uploaded and payment updated successfully', payment: updatedPayment })
+            // console.log('Payment record updated:', updatedPayment)
+            res.status(200).json({ 
+                message: 'Payment slip uploaded and payment updated successfully', 
+                payment: updatedPayment 
+            })
 
         } else {
-            // **ถ้ายังไม่มี Payment record: ให้สร้างขึ้นมาใหม่**
+            // **ถ้ายังไม่มี Payment record ให้สร้างขึ้นมาใหม่**
             const newPayment = await prisma.payment.create({
                 data: {
                     bookingId: booking.id, // ใช้ booking.id จากที่ดึงมา
@@ -91,8 +93,11 @@ exports.uploadPaymentSlip = async (req, res) => {
                     transactionId: `BANK-${Date.now()}-${booking.id}` // สร้าง transactionId ง่ายๆ สำหรับการโอน
                 }
             })
-            console.log('New Payment record created:', newPayment)
-            res.status(201).json({ message: 'Payment slip uploaded and new payment created successfully', payment: newPayment })
+            // console.log('New Payment record created:', newPayment)
+            res.status(201).json({ 
+                message: 'Payment slip uploaded and new payment created successfully', 
+                payment: newPayment 
+            })
         }
         // 4. อัปเดตสถานะ Booking ให้เป็น 'PENDING'
         const updatedBooking = await prisma.booking.update({
@@ -105,10 +110,9 @@ exports.uploadPaymentSlip = async (req, res) => {
 
     } catch (err) {
         console.error('Error uploading payment slip:', err)
-        res.status(500).json({ message: 'Error uploading payment slip', err })
+        res.status(500).json({ message: 'Error uploading payment slip' })
     }
 }
-
 
 // Admin ดูรายการชำระเงินทั้งหมด
 exports.listPayments = async (req, res) => {
@@ -188,7 +192,7 @@ exports.listPayments = async (req, res) => {
         })
     } catch (err) {
         console.log('Error fetching all payment', err)
-        res.status(500).json({ message: 'Error fetching all payment', err })
+        res.status(500).json({ message: 'Error fetching all payment' })
     }
 }
 
@@ -204,7 +208,7 @@ exports.listPaymentStatus = async (req, res) => {
 
     } catch (err) {
         console.error('Error in listPaymentStatus', err)
-        res.status(500).json({ message: 'Error in listPaymentStatus', err })
+        res.status(500).json({ message: 'Error in listPaymentStatus' })
     }
 }
 
@@ -220,7 +224,7 @@ exports.listPaymentMethod = async (req, res) => {
 
     } catch (err) {
         console.error('Error in listPaymentMethod', err)
-        res.status(500).json({ message: 'Error in listPaymentMethod', err })
+        res.status(500).json({ message: 'Error in listPaymentMethod' })
     }
 }
 
@@ -250,14 +254,14 @@ exports.getPaymentDetailByAdmin = async (req, res) => {
 
     } catch (err) {
         console.error('Error in get Payment Deatil', err)
-        res.status(500).json({ message: 'Error in get Payment Deatil', err })
+        res.status(500).json({ message: 'Error in get Payment Deatil' })
     }
 }
 
 // Admin ยืนยันการชำระเงินและอัพเดตสถานะให้ลค.
 exports.updatePayment = async (req, res) => {
     try {
-        const { paymentId } = req.params;
+        const { paymentId } = req.params
 
         // 1. ตรวจสอบว่า paymentId ที่แอดมินเลือกมีอยู่ในระบบหรือไม่
         const payment = await prisma.payment.findUnique({
@@ -311,7 +315,7 @@ exports.updatePayment = async (req, res) => {
         })
     } catch (err) {
         console.error(err)
-        res.status(500).json({ message: 'Server Error', err })
+        res.status(500).json({ message: 'Server Error' })
     }
 }
 

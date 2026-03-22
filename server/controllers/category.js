@@ -1,31 +1,31 @@
 const prisma = require('../config/prisma')
-// funtion ใช้สร้างหมวดหมู่ใหม่ในระบบ โดยใช้ prisma เชื่อมต่อกับฐานข้อมูลใน My SQL
-
+// ใช้ prisma เชื่อมต่อกับฐานข้อมูลใน My SQL
 
 // Admin
-exports.create = async (req, res) => { // ใช้ async/await เพราะมีการทำงานกับฐานข้อมูลที่ต้องรอผลลัพธ์
-    try { // try-catch ดักจับ ประมวลผล และจัดการข้อผิดพลาด
-        const { name } = req.body //ดึงข้อมูลทั้งหมด จาก request body
+exports.create = async (req, res) => { 
+    try { 
+        const { name } = req.body //ดึงข้อมูล จาก req.body
 
-        //  Validate ต้องมีเพราะผู้ใช้อาจข้ามการดักหน้าบ้านได้ (เช่น ใช้ Postman ยิง API โดยตรง)
+        //  Validate ต้องมี เพราะผู้ใช้อาจข้ามการดักจากหน้าบ้านได้ (เช่น ใช้ Postman ยิง API โดยตรง)
         if (!name || name.trim() === '') {
-            return res.status(400).json({ message: 'Category name is required' });
+            return res.status(400).json({ message: 'Category name is required' })
         }
+
+        const normalizedName = name.trim()
 
         const newCategory = await prisma.category.create({ // สร้าง record ใหม่ในตาราง category 
-            data: { name }// name: ชื่อหมวดหมู่ที่รับมาจาก request
+            data: { name: normalizedName }// ชื่อที่รับมาจาก request
         })
 
-        res.status(201).json(newCategory) // ส่งข้อมูลหมวดหมู่ที่เพิ่งสร้างกลับไปยัง client
+        res.status(201).json(newCategory) 
 
-    } catch (err) { // ถ้ามีข้อผิดพลาดเกิดขึ้นระหว่างการทำงาน
-        console.log(err) // จะแสดง error ใน console (สำหรับ debugging)
+    } catch (error) { 
+        console.log(error) 
 
-        // Prisma errors code ระบุ ข้อมูลซ้ำในฟิลด์ unique
-        if (err.code === 'P2002') {
-            return res.status(400).json({ message: 'Duplicate category name' });
+        if (error.code === 'P2002') {  // รหัส Prisma Error ดัก duplicate จาก DB (ข้อมูลซ้ำตรงกับฟิลด์ unique)
+            return res.status(400).json({ message: 'Category name already exists' })
         }
-        res.status(500).json({ message: 'Server Error' }) //ส่ง response กลับด้วย status code 500 และข้อความ "Server Error"
+        res.status(500).json({ message: 'Server Error' }) 
     }
 }
 
@@ -37,7 +37,6 @@ exports.list = async (req, res) => {
 
         const { id, name, } = req.query
         // console.log('1111111111111========= ', id)
-        // console.log('2222222222222========= ', name)
 
         // สร้างเงื่อนไข where แบบ dynamic
         const where = {}
@@ -72,9 +71,9 @@ exports.list = async (req, res) => {
             totalPage: Math.ceil(totalCount / limit),
             totalCount,
         })
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server Error' });
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Server Error' })
     }
 }
 
@@ -109,9 +108,10 @@ exports.update = async (req, res) => {
                 name: name.trim()
             }
         })
+
         res.status(200).json(category)
-    } catch (err) {
-        console.log(err)
+    } catch (error) {
+        console.log(error)
         res.status(500).json({ message: 'Server Error' })
     }
 }
@@ -124,9 +124,9 @@ exports.remove = async (req, res) => {
                 id: Number(id) // ข้อมูลที่ส่งมา มันเป็น string จริงต้องแปลงเป็น number ก่อน
             }
         })
-        res.send(category)
-    } catch (err) {
-        console.log(err)
+        res.status(200).json(category)
+    } catch (error) {
+        console.log(error)
         res.status(500).json({ message: 'Server Error' })
     }
 }
@@ -144,8 +144,8 @@ exports.listAllCategory = async (req, res) => {
             data: categories,
             totalCount: categories.length,
         })
-    } catch (err) {
-        console.error('Error in listAllCountry:', err);
-        res.status(500).json({ message: 'Server Error' });
+    } catch (error) {
+        console.error('Error in listAllCategory:', error)
+        res.status(500).json({ message: 'Server Error' })
     }
 }

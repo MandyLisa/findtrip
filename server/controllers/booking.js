@@ -6,8 +6,8 @@ const { sendBookingConfirmationEmail } = require('../utils/email')
 // GET /api/user/bookings → ดึงข้อมูลการจองทั้งหมด
 exports.getUserBookings = async (req, res) => {
     try {
-        const { id } = req.user
-        // ดึงค่าจาก query params และแปลงให้เป็นตัวเลข
+        const id = req.user.id
+        if (!id) return res.status(401).json({ message: 'Unauthorized' }) // ตรวจสอบว่ามีข้อมูลผู้ใช้ใน req.user และมี id หรือไม่ กัน middleware ไม่ทำงาน
         const page = parseInt(req.query.page) || 1
         const limit = parseInt(req.query.limit) || 10
         const skip = (page - 1) * limit
@@ -15,37 +15,29 @@ exports.getUserBookings = async (req, res) => {
         const bookingStatus = req.query.bookingStatus
 
         const where = { userId: id }
+
+        const allowed = new Set(['DRAFT', 'PENDING', 'PAID', 'FAILED', 'CANCELLED'])
         if (bookingStatus && bookingStatus != 'ALL') {
+            if (!allowed.has(bookingStatus)) {
+                return res.status(400).json({ message: 'Invalid booking status' })
+            }
             where.bookingStatus = bookingStatus
         }
 
-        const booking = await prisma.booking.findMany({
-            where: where,
-            include: { // คสพ. ที่ต้องการให้โชว์ข้อมูลเหล่านี้ออกมาด้วย
-                tourPackage: true,
-                Payment: true
-            },
-            skip: skip,
-            take: limit,
-            orderBy: {
-                updatedDate: 'desc'
-            }
-        })
-
-        // นับจำนวนทั้งหมด (เพื่อใช้คำนวณหน้าทั้งหมด)
-        const total = await prisma.booking.count({
-            where: where
-        })
-
-        // console.log('55555555======= ', booking.length)
-        if (booking.length === 0) {
-            return res.status(400).json({
-                ok: false,
-                message: 'No Booking List'
-            })
-        }
-
-
+        const [booking, total] = await Promise.all([
+            prisma.booking.findMany({
+                where,
+                include: {
+                    tourPackage: true,
+                    Payment: true,
+                },
+                skip,
+                take: limit,
+                orderBy: { updatedDate: "desc" },
+            }),
+            prisma.booking.count({ where }),
+        ])
+   
         res.status(200).json({
             booking: booking,
             total: total,
@@ -53,8 +45,8 @@ exports.getUserBookings = async (req, res) => {
             totalPage: Math.ceil(total / limit)
         })
     } catch (error) { // บล็อกแคช จะทำงานเมื่อ มีข้อผิดพลาดในบล็อก try 
-        console.log('Error fetching booking', error)
-        res.status(500).json({ message: 'Error fetching booking', error }) // ส่งการตอบกลับในรูปแบบ JSON ด้วยข้อความที่กำหนด และ err รายละเอียดของข้อผิดพลาด
+        console.error('Error fetching booking', error)
+        res.status(500).json({ message: 'Error fetching booking' }) // ส่งการตอบกลับในรูปแบบ JSON ด้วยข้อความที่กำหนด และ err รายละเอียดของข้อผิดพลาด
     }
 }
 
@@ -91,8 +83,8 @@ exports.getBookingById = async (req, res) => {
             booking: booking
         })
     } catch (error) {
-        console.log(error)
-        res.status(500).json({ message: 'Error fetching booking details', error })
+        console.error('Error get booking by Id: ', error)
+        res.status(500).json({ message: 'Error fetching booking details' })
     }
 }
 
@@ -179,15 +171,15 @@ exports.createBooking = async (req, res) => {
         })
 
         // 6. เรียกส่งอีเมลแจ้งเตือน 
-        await sendBookingConfirmationEmail(req.user.email, newBooking.id)
+        await sendBookingConfirmationEmail(null, newBooking.id)
 
         res.status(201).json({
             message: 'Booking created successfully',
             booking: newBooking
         })
     } catch (error) {
-        console.log('Error creating booking: ', error)
-        res.status(500).json({ message: 'Booking Server Error', error })
+        console.error('Error creating booking: ', error)
+        res.status(500).json({ message: 'Booking Server Error' })
     }
 }
 
@@ -227,7 +219,7 @@ exports.cancelBooking = async (req, res) => {
 
         // ถ้ามี record อยู่ ให้อัปเดตสถานะ Payment เป็น CANCELLED
         if (existingPayment) {
-            console.log('เข้า updatesPayment ไหม ======== ')
+            // console.log('เข้า updatesPayment ไหม ======== ')
             updatedPayment = await prisma.payment.update({
                 where: {
                     bookingId: Number(id)
@@ -270,8 +262,8 @@ exports.cancelBooking = async (req, res) => {
             booking: booking,
         })
     } catch (err) {
-        console.log('Error cancelling booking', err)
-        res.status(500).json({ message: 'Error cancelling booking', err })
+        console.error('Error cancelling booking', err)
+        res.status(500).json({ message: 'Error cancelling booking' })
     }
 }
 
@@ -291,7 +283,7 @@ exports.listBookings = async (req, res) => {
         }
 
         if (bookingStatus) {
-            where.bookingStatus = bookingStatus
+            where.bookingStatus = bookingStatus.toUpperCase() // แปลงเป็นตัวพิมพ์ใหญ่เพื่อให้ตรงกับ enum
         }
 
         if (userEmail || name) {
@@ -338,14 +330,16 @@ exports.listBookings = async (req, res) => {
         })
 
     } catch (err) {
-        console.log('Error fetching all booking', err)
-        res.status(500).json({ message: 'Error fetching all booking', err })
+        console.error('Error fetching all booking', err)
+        res.status(500).json({ message: 'Error fetching all booking' })
     }
 }
 
 // Drop down Booking Status
 exports.listBookingStatus = async (req, res) => {
+
     try {
+        
         const allStatusList = Object.values(BookingStatus) // แปลง enum เป็น array ของ string
 
         res.status(200).json({
@@ -355,7 +349,7 @@ exports.listBookingStatus = async (req, res) => {
 
     } catch (err) {
         console.error('Error in listBookingStatus', err)
-        res.status(500).json({ message: 'Server Error', err })
+        res.status(500).json({ message: 'Server Error' })
     }
 }
 
@@ -432,7 +426,7 @@ exports.updateBookingStatus = async (req, res) => {
         })
 
     } catch (err) {
-        console.log('Error updating booking status', err)
-        res.status(500).json({ message: 'Error updating booking status', err })
+        console.error('Error updating booking status', err)
+        res.status(500).json({ message: 'Error updating booking status' })
     }
 }

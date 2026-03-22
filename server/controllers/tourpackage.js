@@ -4,65 +4,47 @@ const cloudinary = require('../utils/cloudinary')
 
 // tourpackage/admin
 exports.create = async (req, res) => {
-    try {
-        const { // ยังขาด isRecommend, isActive,  images, tourPDF 
-            title,
-            tourCode,
-            categoryId,
-            countryId,
-            airline,
-            starRating,
-            startDate,
-            endDate,
-            duration,
-            priceAdult,
-            priceChild,
-            singleStayExtra,
-            priceVisa,
-            priceGuide,
-            maxSeats,
-            itinerary,
-            isRecommend,
-            isActive,
-            images,
-            tourPDF
-        } = req.body
-        // ดึงค่าต่างๆจาก req.body ที่มาจาก Frontend เพื่อใช้สร้างข้อมูลใหม่ใน TourPackage
 
-        // 1. Validation
+    try { // ดึงค่าจาก body ที่มาจาก Frontend เพื่อสร้างข้อมูลใหม่ใน TourPackage
+        const { title, tourCode, categoryId, countryId, airline, starRating, startDate, endDate, duration,
+            priceAdult, priceChild, singleStayExtra, priceVisa, priceGuide, maxSeats, itinerary,
+            isRecommend, isActive, images, tourPDF } = req.body
+
+        // Validation
         const requiredFields = [
             title, tourCode, categoryId, countryId,
             airline, starRating, startDate, endDate,
             duration, priceAdult, priceChild, singleStayExtra,
             priceVisa, priceGuide, maxSeats, itinerary,
             isRecommend, isActive, images, tourPDF
-        ];
+        ]
 
         if (requiredFields.some(field => field == null)) {
-            return res.status(400).json({ message: "Missing required fields" });
+            return res.status(400).json({ message: 'Missing required fields' })
         }
 
-        // 2.  แปลงวันที่ให้เป็น DateTime object
-        const formattedStartDate = new Date(startDate); // สร้าง Date object จาก string ที่รับเข้ามา
-        const formattedEndDate = new Date(endDate);
+        // แปลงวันที่ให้เป็น DateTime object
+        const formattedStartDate = new Date(startDate) // สร้าง Date object จาก string ที่รับเข้ามา
+        const formattedEndDate = new Date(endDate)
 
-        // 3. เช็ค validate 
-        const existing = await prisma.tourPackage.findUnique({ where: { tourCode } });
+        // เช็ค validate 
+        const existing = await prisma.tourPackage.findUnique({
+            where: { tourCode }
+        })
+
         if (existing) {
-            return res.status(400).json({ error: 'รหัสทัวร์นี้มีอยู่แล้วในระบบ โปรดติดต่อ Supervisor' });
+            return res.status(400).json({ error: 'รหัสทัวร์นี้มีอยู่แล้วในระบบ โปรดติดต่อ Supervisor' })
         }
 
-        // if (starRating < 1 || starRating > 5) {
-        //     return res.status(400).json({ error: 'ระดับดาวต้องอยู่ระหว่าง 1 ถึง 5 ดาว' });
-        // }
+        // ใส่ Logic เหมือนกับ Update ตรงปุ่มเปิด/ปิดการขายทัวร์ กับ seatStatus
+        let seatStatusInitial = 'AVAILABLE'
+        if (isActive === false) {
+            seatStatusInitial = 'CLOSED'
+        }
 
-        //  if (Number(maxSeats) > 99) {
-        //     return res.status(400).json({ error: 'จำนวนที่นั่งสูงสุดต้องไม่เกินเลข 2 หลัก' });
-        // }
-
-        // 4. create ลงฐานข้อมูล
+        // create ลงฐานข้อมูล
         const newTourPackage = await prisma.tourPackage.create({
-            data: { // ฝั่งซ้ายคือฟิลด์ในฐานข้อมูล ฝั่งขวาคือสิ่งที่ส่งมาจาก front end
+            data: { // ฝั่งซ้ายคือฟิลด์ในฐานข้อมูล ฝั่งขวาคือค่าที่ส่งมาจาก front end
                 title: title,
                 tourCode: tourCode,
                 category: {
@@ -85,7 +67,7 @@ exports.create = async (req, res) => {
                 itinerary: itinerary,
                 isRecommend: isRecommend,
                 isActive: isActive,
-
+                seatStatus: seatStatusInitial, // กำหนดค่าเริ่มต้นของ seatStatus
                 images: { // loop สร้างไปเรื่อยๆ เพราะเป็น One-to-Many: (1 ทัวร์มีหลายรูปภาพ)
                     create: images.map((item) => ({ // return ออกไปเป็น object
                         asset_id: item.asset_id,
@@ -107,96 +89,133 @@ exports.create = async (req, res) => {
         })
 
         // console.log(newTourPackage) // เพื่อดูข้อมูลที่ถูกบันทึกจริง
-        res.status(201).json(newTourPackage) // ส่งข้อมูลหมวดหมู่ที่เพิ่งสร้างกลับไปยัง Frontend โดยส่งข้อความ "Hello New Tourpackage" เพื่อยืนยันว่าบันทึกสำเร็จ
+        res.status(201).json({
+            data: newTourPackage,
+            message: 'Created Successfully'
+        }) // ส่งข้อมูลกลับไปยัง Frontend โดยส่งข้อความเพื่อยืนยันว่าบันทึกสำเร็จ
     } catch (err) {
-        console.error("Create TourPackage Error:", err)
+        console.error('Create TourPackage Error: ', err)
         res.status(500).json({ message: 'Server Error' })
     }
 }
 
+// ตัวอย่างการปรับปรุง Logic ใน Controller
 exports.list = async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1
-        const limit = parseInt(req.query.limit) || 10  // ถ้าไม่มีหรือไม่ถูกต้อง → fallback เป็น 10 ใช้เพื่อกำหนดจำนวนข้อมูลที่จะแสดงต่อหน้า
-        const skip = (page - 1) * limit
+        const page = parseInt(req.query.page) || 1 // อยากดูหน้าที่เท่าไหร่
+        const limit = parseInt(req.query.limit) || 10  // หนึ่งหน้าจะให้โชว์กี่แถว
+        const skip = (page - 1) * limit //ต้อง 'ข้าม' ไปกี่แถวถึงจะเจอหน้าที่จะอ่าน เป็นสูตรการคำนวนหน้า
 
-        const { id, tourCode, categoryId, countryId, isRecommend, isActive } = req.query
-        // console.log('ดู categoryId ======== id ', categoryId)
+        // 1. รับค่า Filter และดึงค่าตัวกรองจาก query string
+        const { id, tourCode, categoryId, countryId, isRecommend, isActive, seatStatus } = req.query
 
-        // สร้างเงื่อนไข where แบบ dynamic
+        // 2. สร้างวันนี้เป็นฐาน (เที่ยงคืนเป๊ะ)
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+
+        // 3. สร้างเงื่อนไขพื้นฐาน
         const where = {}
-
-        if (id) {
-            where.id = Number(id)
-        }
-
-        if (tourCode) {
-            where.tourCode = {
-                contains: tourCode,
-            }
-        }
-
-        if (categoryId) {
-            where.categoryId = Number(categoryId)
-        }
-
-        if (countryId) {
-            where.countryId = Number(countryId)
-        }
-
-        if (isRecommend !== undefined && isRecommend !== '') {
+        if (id && id.trim() !== '') where.id = Number(id)
+        if (tourCode && tourCode.trim() !== '') where.tourCode = { contains: tourCode }
+        if (categoryId && categoryId.trim() !== '') where.categoryId = Number(categoryId)
+        if (countryId && countryId.trim() !== '') where.countryId = Number(countryId)
+        if (isRecommend === 'true' || isRecommend === 'false') {
             where.isRecommend = isRecommend === 'true'
         }
-
-        if (isActive !== undefined && isActive !== '') {
+        if (isActive === 'true' || isActive === 'false') {
             where.isActive = isActive === 'true'
         }
 
-        const [allTours, totalCount] = await Promise.all([
+        // 4. ดึง ID ทั้งหมดมาก่อน เพื่อเอาไปคำนวณ Virtual Status (ไม่ให้ Pagination แหว่ง)
+        // เราไม่สามารถ filter 'CLOSED' (3 วัน) ใน Prisma findMany ตรงๆ ได้ ต้องดึง "ID ทั้งหมด"  ที่ตรงเงื่อนไขมาก่อน
+        const allIds = await prisma.tourPackage.findMany({
+            where: where, // ตัวแปรที่กรองมาแล้ว
+            select: {
+                id: true,
+                startDate: true,
+                seatStatus: true,
+                maxSeats: true,
+                sold: true
+            }
+        })
+
+        // 5. คำนวณ Virtual Status ใหม่ และกรอง ID ตามสถานะที่นั่งที่ถูกปรับแล้ว
+        const filteredIds = allIds.map(tour => {
+            const startDate = new Date(tour.startDate)
+            startDate.setHours(0, 0, 0, 0)
+
+            const daysDiff = Math.ceil((startDate - today) / (1000 * 3600 * 24))
+
+            let currentStatus = tour.seatStatus
+            // แก้ไข: ใช้ <= 3 เพื่อให้นับรวมวันที่ 3 ด้วย
+            if (daysDiff <= 3 && currentStatus !== 'CLOSED') {
+                currentStatus = 'CLOSED'
+            }
+            return { id: tour.id, finalStatus: currentStatus }
+        })
+            .filter(t => {
+                // ถ้าหน้าบ้านไม่ได้เลือก filter อะไร ให้ผ่านหมด
+                if (!req.query.seatStatus || req.query.seatStatus === '') return true
+                // ถ้าเลือก filter ให้เทียบกับ status ที่คำนวณใหม่แล้ว
+                return t.finalStatus === req.query.seatStatus
+            })
+            .map(t => t.id)
+
+        // 6. นำ IDs ที่กรองสถานะที่นั่ง ซึ่งถูกปรับแล้ว ไปดึงข้อมูลแบบ Pagination 
+        const [data, totalCount] = await Promise.all([
             prisma.tourPackage.findMany({
-                select: { // เลือกฟิลด์ที่อยากให้แสดง
-                    id: true,
-                    title: true,
-                    tourCode: true,
-                    priceAdult: true,
-                    priceChild: true,
-                    airline: true,
-                    startDate: true,
-                    endDate: true,
-                    maxSeats: true,
-                    sold: true,
-                    isRecommend: true,
-                    isActive: true,
-                    category: {
-                        select: {
-                            id: true,
-                            name: true
-                        }
-                    },
-                    country: {
-                        select: {
-                            id: true,
-                            name: true
-                        }
-                    }
-                },
-                where: where,
-                orderBy: {
-                    createdDate: 'desc'
+                where: {
+                    id: { in: filteredIds }
                 },
                 skip: skip,
-                take: limit
+                take: limit,
+                orderBy: { createdDate: 'desc' },
+                include: { category: true, country: true } // ดึงข้อมูลที่เกี่ยวข้องมาด้วย
             }),
-            prisma.tourPackage.count({
-                where: where,
-            })
+
+            Promise.resolve(filteredIds.length)
         ])
+
+        // 7. Mapping ข้อมูลรอบสุดท้ายเพื่อใส่ค่า remainingSeats และ daysUntilDeparture
+        const finalData = data.map(tour => {
+            const startDate = new Date(tour.startDate)
+            startDate.setHours(0, 0, 0, 0) // ตั้งวันเดินทางเป็นเที่ยงคืนเช่นกัน
+
+            const daysDiff = Math.ceil((startDate - today) / (1000 * 3600 * 24)) // ใช้ Math.ceil เพื่อความปลอดภัย
+
+            // console.log(`ID: ${tour.id} | Diff: ${daysDiff} days`)
+
+            // แม้ใน DB จะเป็น true แต่ถ้าเหลือ < 3 วัน เราจะส่ง false ไปให้หน้าบ้าน
+            let currentIsActive = tour.isActive
+            if (daysDiff < 3) {
+                currentIsActive = false
+            }
+
+            // 2. คำนวณ seatStatus ให้สอดคล้องกัน
+            let currentSeatStatus = tour.seatStatus
+            if (currentIsActive === false || daysDiff < 3) {
+                currentSeatStatus = 'CLOSED'
+            }
+
+            // หมายเหตุ: ถ้าไม่เข้าเงื่อนไขด้านบน currentStatus จะใช้ค่าจาก DB 
+            // (ซึ่งถูกจัดการโดย SQL Trigger เช่น AVAILABLE, FULL, NEARLY_FULL)
+
+            return {
+                ...tour,
+                isActive: currentIsActive, // ส่งค่าที่อัปเดตแล้วไปให้หน้าบ้าน
+                remainingSeats: tour.maxSeats - tour.sold,
+                daysUntilDeparture: daysDiff,
+                seatStatus: currentSeatStatus // ส่งค่าที่ได้ตามเงื่อนไข ไปให้หน้าบ้าน
+            }
+        })
+
         res.status(200).json({
-            data: allTours,
+            data: finalData,
             currentPage: page,
             totalPage: Math.ceil(totalCount / limit),
             totalCount,
         })
+
     } catch (err) {
         console.log(err)
         res.status(500).json({ message: 'Server Error' })
@@ -207,15 +226,37 @@ exports.read = async (req, res) => {
     try {
         const { id } = req.params
         const tourPackage = await prisma.tourPackage.findFirst({
-            where: {
-                id: Number(id)
-            },
+            where: { id: Number(id) },
             include: { // ดึงทุกฟิลด์ และดึงความสัมพันธ์แบบ relation 
                 images: true,
                 tourPDF: true,
             }
         })
-        res.status(200).json(tourPackage)
+
+        if (!tourPackage) return res.status(404).json({ message: 'ไม่พบข้อมูลทัวร์' })
+
+        // ใช้ Logic คำนวณปิดทัวร์ก่อนเดินทาง 3 วันเหมือนหน้า list
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+
+        const startDateForCompare = new Date(tourPackage.startDate)
+        startDateForCompare.setHours(0, 0, 0, 0)
+
+        const timeDiff = startDateForCompare.getTime() - today.getTime()
+        const daysDiff = Math.floor(timeDiff / (1000 * 3600 * 24))
+
+        let currentStatus = tourPackage.seatStatus
+
+        if (daysDiff < 3 && currentStatus !== 'CLOSED') {
+            currentStatus = 'CLOSED'
+        }
+
+        res.status(200).json({
+            ...tourPackage,
+            daysUntilDeparture: daysDiff,
+            remainingSeats: tourPackage.maxSeats - tourPackage.sold,
+            seatStatus: currentStatus
+        })
     } catch (err) {
         console.log(err)
         res.status(500).json({ message: 'Server Error' })
@@ -230,8 +271,8 @@ exports.update = async (req, res) => {
         // ดึงค่าต่างๆจาก req.body ที่มาจาก Frontend เพื่อใช้สร้างข้อมูลใหม่ใน TourPackage
 
         // แปลงวันที่ให้เป็น DateTime object
-        const formattedStartDate = new Date(startDate);
-        const formattedEndDate = new Date(endDate);
+        const formattedStartDate = new Date(startDate)
+        const formattedEndDate = new Date(endDate)
 
         // ลบรูปเก่า เพื่อ insert รูปใหม่เข้าไปใน database ไม่ได้ลบใน cloud
         await prisma.image.deleteMany({
@@ -242,11 +283,19 @@ exports.update = async (req, res) => {
 
         // กรอง public_id ที่ไม่มี หรือ undefined ออก
         const cleanedImages = (images || []).map((item) => {
-            const { public_id, ...rest } = item;
-            return public_id ? { public_id, ...rest } : rest;
-        });
+            const { public_id, ...rest } = item
+            return public_id ? { public_id, ...rest } : rest
+        })
 
-        console.log(tourPDF.pdf_url);
+        // console.log(tourPDF.pdf_url)
+
+        // Logic เชื่อมโยงปุ่มเปิด/ปิดการขายทัวร์ กับ seatStatus
+        let seatStatusUpdate = undefined
+        if (isActive === false) {
+            seatStatusUpdate = 'CLOSED'
+        } else if (isActive === true) {
+            seatStatusUpdate = 'AVAILABLE'
+        }
 
         const tourPackage = await prisma.tourPackage.update({
             where: {
@@ -275,6 +324,7 @@ exports.update = async (req, res) => {
                 itinerary: itinerary,
                 isRecommend: isRecommend,
                 isActive: isActive,
+                seatStatus: seatStatusUpdate,
                 images: {
                     create: cleanedImages.map((image) => ({
                         public_id: image.public_id,
@@ -378,33 +428,75 @@ exports.remove = async (req, res) => { // EP.11 12.00 ลบรูปใน tabl
 // public/user
 exports.getRecommend = async (req, res) => {
     try {
+
+        const deadline = new Date() // 1. สร้างเงื่อนไขเวลา เอาเวลาปัจจุบัน + 3 วัน
+        deadline.setDate(deadline.getDate() + 3)
+
+        // รองรับ pagination แบบเลือกได้ (เพื่อไม่ให้ Home ที่เรียกแบบเดิมพัง)
+        const page = parseInt(req.query.page, 10)
+        const limit = parseInt(req.query.limit, 10)
+        const hasPagination = Number.isFinite(page) && Number.isFinite(limit) && page > 0 && limit > 0
+
+        const whereCondition = {
+            isActive: true,
+            isRecommend: true,
+            startDate: { gte: deadline },
+            seatStatus: { notIn: ['FULL', 'CLOSED'] },
+        }
+
+        const selectCondition = {
+            id: true,
+            title: true,
+            tourCode: true,
+            country: {
+                select: { name: true }
+            },
+            startDate: true,
+            endDate: true,
+            airline: true,
+            priceAdult: true,
+            images: {
+                select: { url: true },
+                orderBy: { createdDate: 'asc' }
+            },
+        }
+
+        if (hasPagination) {
+            const skip = (page - 1) * limit
+
+            const [tours, totalCount] = await Promise.all([
+                prisma.tourPackage.findMany({
+                    where: whereCondition,
+                    select: selectCondition,
+                    orderBy: {
+                        createdDate: 'desc'
+                    },
+                    skip,
+                    take: limit,
+                }),
+                prisma.tourPackage.count({
+                    where: whereCondition
+                })
+            ])
+
+            return res.status(200).json({
+                data: tours,
+                currentPage: page,
+                totalPage: Math.ceil(totalCount / limit),
+                totalCount
+            })
+        }
+
         const tourRecommend = await prisma.tourPackage.findMany({
-            where: {
-                isActive: true,
-                isRecommend: true
-            },
-            select: {
-                id: true,
-                title: true,
-                tourCode: true,
-                country: {
-                    select: { name: true }
-                },
-                startDate: true,
-                endDate: true,
-                airline: true,
-                priceAdult: true,
-                images: {
-                    select: { url: true },
-                    orderBy: { createdDate: 'asc' }
-                },
-            },
+            where: whereCondition,
+            select: selectCondition,
             orderBy: {
-                createdDate: "desc"
+                createdDate: 'desc'
             },
             take: 9,
         })
-        res.status(200).json(tourRecommend);
+
+        res.status(200).json(tourRecommend)
     } catch (err) {
         console.log(err)
         res.status(500).json({ message: 'Server Error' })
@@ -417,9 +509,20 @@ exports.getAllTours = async (req, res) => {
         const limit = parseInt(req.query.limit) || 10
         const skip = (page - 1) * limit
 
+        const deadline = new Date()     // 1. สร้างเงื่อนไขเดดไลน์ 3 วัน
+        deadline.setDate(deadline.getDate() + 3)
+
+        const whereCondition = { // 2. สร้างตัวแปร where สำหรับ User โดยเฉพาะ
+            isActive: true,
+            startDate: { gt: deadline }, // 3. กรองทัวร์ที่มีวันเริ่มต้นเดินทางมากกว่าเดดไลน์
+            seatStatus: { // กรองเพิ่ม ไม่เอาทัวร์ที่เต็มหรือปิดการขายแล้วออกจากรายการ List
+                notIn: ['FULL', 'CLOSED']
+            }
+        };
+
         const [allTours, totalCount] = await Promise.all([
             prisma.tourPackage.findMany({
-                where: { isActive: true },
+                where: whereCondition,
                 select: {
                     id: true,
                     title: true,
@@ -431,6 +534,7 @@ exports.getAllTours = async (req, res) => {
                     endDate: true,
                     airline: true,
                     priceAdult: true,
+                    seatStatus: true,
                     images: {
                         select: { url: true },
                         orderBy: { id: 'asc' },
@@ -443,7 +547,7 @@ exports.getAllTours = async (req, res) => {
                 take: limit,
             }),
             prisma.tourPackage.count({
-                where: { isActive: true },
+                where: whereCondition // ต้องใช้ where เดียวกันเพื่อให้เลข totalCount ถูกต้อง
             })
         ])
         res.status(200).json({
@@ -451,19 +555,22 @@ exports.getAllTours = async (req, res) => {
             currentPage: page,
             totalPage: Math.ceil(totalCount / limit),
             totalCount,
-        });
+            message: 'ดึงข้อมูลรายการทัวร์ทั้งหมดสำเร็จ'
+        })
     } catch (err) {
         console.log(err)
         res.status(500).json({ message: 'Server Error' })
     }
 }
 
-exports.getTourDeatail = async (req, res) => {
+exports.getTourDetail = async (req, res) => {
     try {
         const { id } = req.params
+
         const tourPackage = await prisma.tourPackage.findFirst({
             where: {
-                id: Number(id)
+                id: Number(id),
+                isActive: true // User ควรจะดูได้เฉพาะทัวร์ที่ยังเปิดใช้งานอยู่เท่านั้น
             },
             include: { // ดึงทุกฟิลด์ และดึงความสัมพันธ์แบบ relation 
                 country: {
@@ -473,29 +580,59 @@ exports.getTourDeatail = async (req, res) => {
                 tourPDF: true,
             }
         })
-        res.status(200).json(tourPackage)
-    } catch (err) {
-        console.log(err)
-        res.status(500).json({ message: 'Server Error' })
-    }
-}
 
-exports.getListby = async (req, res) => { // 
-    try {
+        if (!tourPackage) { // ถ้าไม่เจอทัวร์ หรือทัวร์โดนลบ/ปิดไปแล้ว
+            return res.status(404).json({ message: 'ไม่พบข้อมูลทัวร์ที่ท่านต้องการ' })
+        }
 
-        const { sort, order, limit } = req.body // สิ่งที่ต้องส่งมา 3 อย่าง คุณอยากรู้อะไร ราคา จากน้อยไปมาก 
+        // 2. คำนวณส่วนต่างวัน (Logic 3 วันก่อนเดินทาง)
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
 
-        const tourPackage = await prisma.tourPackage.findMany({
-            take: limit,
-            orderBy: { [sort]: order },
-            include: { category: true }
+        const startDateForCompare = new Date(tourPackage.startDate)
+        startDateForCompare.setHours(0, 0, 0, 0)
+
+        const timeDiff = startDateForCompare.getTime() - today.getTime()
+        const daysDiff = Math.floor(timeDiff / (1000 * 3600 * 24))
+
+        let finalStatus = tourPackage.seatStatus  // กำหนดสถานะสุดท้ายเพื่อส่งให้หน้าบ้าน
+
+        // ถ้าเหลือน้อยกว่า 3 วัน ให้บังคับเป็น CLOSED ทันที
+        if (daysDiff < 3 && finalStatus !== 'CLOSED') {
+            finalStatus = 'CLOSED'
+        }
+
+        res.status(200).json({
+            data: {
+                ...tourPackage,
+                seatStatus: finalStatus,
+                daysUntilDeparture: daysDiff,
+                remainingSeats: tourPackage.maxSeats - tourPackage.sold
+            },
+            message: 'ดึงข้อมูลรายละเอียดทัวร์สำเร็จ'
         })
-        res.status(200).json(tourPackage) // HTTP Status Code: ใช้ 200 สำหรับการค้นหาที่สำเร็จ (201 สำหรับการสร้างข้อมูลใหม่)
     } catch (err) {
         console.log(err)
         res.status(500).json({ message: 'Server Error' })
     }
 }
+
+// exports.getListby = async (req, res) => { // 
+//     try {
+
+//         const { sort, order, limit } = req.body สิ่งที่ต้องส่งมา 3 อย่าง คุณอยากรู้อะไร ราคา จากน้อยไปมาก 
+
+//         const tourPackage = await prisma.tourPackage.findMany({
+//             take: limit,
+//             orderBy: { [sort]: order },
+//             include: { category: true }
+//         })
+//         res.status(200).json(tourPackage) 
+//     } catch (err) {
+//         console.log(err)
+//         res.status(500).json({ message: 'Server Error' })
+//     }
+// }
 
 exports.handleQuery = async (req, res) => {
     try {
@@ -505,9 +642,9 @@ exports.handleQuery = async (req, res) => {
         const skip = (page - 1) * limit // คำนวนว่าข้ามไปกี่ record
 
         const where = {}
-        
+
         where.isActive = true
-        
+
         if (search) {
             where.title = {
                 contains: search,
@@ -531,7 +668,7 @@ exports.handleQuery = async (req, res) => {
                 where: where,
             })
         ])
-        res.status(200).json({
+        return res.status(200).json({
             data: tours,
             currentPage: page,
             totalPage: Math.ceil(totalCount / limit),
@@ -564,8 +701,7 @@ exports.handleTourCode = async (req, res, query) => {
     }
 }
 
-
-exports.searchFilters = async (req, res) => { 
+exports.searchFilters = async (req, res) => {
     try {
 
         const { category, country, priceAdult, page = 1, limit = 10 } = req.body
@@ -603,7 +739,7 @@ exports.searchFilters = async (req, res) => {
                     images: true
                 },
                 orderBy: {
-                    createdDate: "desc"
+                    createdDate: 'desc'
                 },
                 skip,
                 take: limit,
@@ -624,7 +760,6 @@ exports.searchFilters = async (req, res) => {
     }
 }
 
-
 exports.createImages = async (req, res) => {
     try {
         const result = await cloudinary.uploader.upload(req.body.image, {
@@ -639,7 +774,6 @@ exports.createImages = async (req, res) => {
     }
 }
 
-
 exports.removeImages = async (req, res) => {
     try {
         const { public_id } = req.body;
@@ -653,7 +787,6 @@ exports.removeImages = async (req, res) => {
         res.status(500).json({ message: 'Server Error' })
     }
 }
-
 
 exports.createPDF = async (req, res) => {
     try {
@@ -670,8 +803,7 @@ exports.createPDF = async (req, res) => {
         res.status(500).json({ message: 'Server Error' })
     }
 }
-
-// ดึงจำนวนแพ็คเกตคงเหลือ
+//  public/user ดูจำนวนแพ็คเกจที่เหลือ
 exports.getPackageAvailable = async (req, res) => {
     try {
         const { id } = req.params;
@@ -691,7 +823,7 @@ exports.getPackageAvailable = async (req, res) => {
         });
 
         if (!tourPackage) {
-            return res.status(404).json({ message: "Tour package not found" });
+            return res.status(404).json({ message: 'Tour package not found' });
         }
 
         const available = tourPackage.quantity - tourPackage.sold;
@@ -709,7 +841,7 @@ exports.getPackageAvailable = async (req, res) => {
         });
 
     } catch (err) {
-        console.error("Error checking availability:", err);
-        res.status(500).json({ message: "Server error" });
+        console.error('Error checking availability:', err);
+        res.status(500).json({ message: 'Server error' });
     }
-};
+}

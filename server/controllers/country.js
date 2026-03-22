@@ -3,29 +3,31 @@ const prisma = require('../config/prisma')
 
 
 // Admin
-exports.create = async (req, res) => { // ใช้ async/await เพราะมีการทำงานกับฐานข้อมูลที่ต้องรอผลลัพธ์
-    try { // try-catch ดักจับ ประมวลผล และจัดการข้อผิดพลาด
-        const { name } = req.body //ดึงข้อมูลทั้งหมด จาก request body
+exports.create = async (req, res) => {
+    try { 
+        const { name } = req.body //ดึงข้อมูลจาก request body
 
         // Validate input
         if (!name || name.trim() === '') {
-            return res.status(400).json({ message: 'Country name is required' });
+            return res.status(400).json({ message: 'Country name is required' })
         }
 
-        const newCountry = await prisma.country.create({ // สร้าง record ใหม่ในตาราง category 
+        const normalizedName = name.trim()
+
+        const newCountry = await prisma.country.create({ // สร้าง record ใหม่ในตาราง country 
             data: {
-                name: name // name: ชื่อประเทศที่รับมาจาก request         
+                name: normalizedName //  ชื่อประเทศที่รับมาจาก request         
             }
         })
-        res.status(201).json(newCountry) // ส่งข้อมูลหมวดหมู่ที่เพิ่งสร้างกลับไปยัง client
+        res.status(201).json(newCountry) // ส่งข้อมูลประเทศที่เพิ่งสร้างกลับไปยัง client
 
-    } catch (err) { // ถ้ามีข้อผิดพลาดเกิดขึ้นระหว่างการทำงาน
-        console.log(err) // จะแสดง error ใน console (สำหรับ debugging)
+    } catch (error) { 
+        console.error(error) 
 
-        if (err.code === 'P2002') {         // Prisma errors code ระบุ ข้อมูลซ้ำในฟิลด์ unique
-            return res.status(400).json({ message: 'Duplicate country name' });
+        if (error.code === 'P2002') { // Prisma errors code ระบุ ข้อมูลซ้ำในฟิลด์ unique
+            return res.status(400).json({ message: 'Duplicate country name' })
         }
-        res.status(500).json({ message: 'Server Error' }) //ส่ง response กลับด้วย status code 500 และข้อความ "Server Error"
+        res.status(500).json({ message: 'Server Error' }) 
     }
 }
 
@@ -71,9 +73,9 @@ exports.list = async (req, res) => {
             totalPage: Math.ceil(totalCount / limit),
             totalCount,
         })
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server Error' });
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Server Error' })
     }
 }
 
@@ -102,15 +104,17 @@ exports.update = async (req, res) => {
 
         const country = await prisma.country.update({
             where: {
-                id: Number(id) // ข้อมูลที่ส่งมา มันเป็น string จริงต้องแปลงเป็น number ก่อน
+                id: Number(id) // ข้อมูลที่ส่งมา เป็น string ต้องแปลงเป็น number ก่อน
             },
             data: {
                 name: name.trim()
             }
         })
+
         res.status(200).json(country)
-    } catch (err) {
-        console.log(err)
+
+    } catch (error) {
+        console.error(error)
         res.status(500).json({ message: 'Server Error' })
     }
 }
@@ -123,9 +127,11 @@ exports.remove = async (req, res) => {
                 id: Number(id)
             }
         })
-        res.send(country)
-    } catch (err) {
-        console.log(err)
+
+        res.status(200).json(country)
+
+    } catch (error) {
+        console.error(error)
         res.status(500).json({ message: 'Server Error' })
     }
 }
@@ -143,9 +149,9 @@ exports.listAllCountry = async (req, res) => {
             data: countries,
             totalCount: countries.length,
         })
-    } catch (err) {
-        console.error('Error in listAllCountry:', err);
-        res.status(500).json({ message: 'Server Error' });
+    } catch (error) {
+        console.error('Error in listAllCountry:', error)
+        res.status(500).json({ message: 'Server Error' })
     }
 }
 

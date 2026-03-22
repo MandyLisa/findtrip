@@ -3,4 +3,4 @@ const prisma = new PrismaClient() // PrismaClient คือคลาสที่
 // instance นี้จะใช้สำหรับการเชื่อมต่อกับฐานข้อมูลและดำเนินการ query ต่างๆ
 
 
-module.exports = prisma // ส่งออก instance ของ Prisma Client เพื่อให้โมดูลอื่นในโปรเจกต์สามารถนำไปใช้งานได้
+module.exports = prisma // ส่งออก instance ของ Prisma Client เพื่อให้โมดูลอื่นในโปรเจกต์สามารถนำไปใช้งาน
