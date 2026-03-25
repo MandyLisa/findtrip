@@ -162,22 +162,22 @@ exports.getDashboardSummary = async (req, res) => {
             prisma.tourPackage.count(), // นับจำนวนแพ็กเกจทัวร์ทั้งหมดที่มีในระบบ
         ])
 
-        const [recommendTours, almostFullTours, isActiveTours] = await Promise.all([
-            prisma.tourPackage.count({ where: { isRecommend: true } }), // นับทัวร์ที่ตั้งค่าเป็น "แนะนำ"
-            // prisma.tourPackage.count({ where: { isAlmostFull: true } }), // นับทัวร์ที่ตั้งค่าเป็น "ใกล้เต็ม"
-            prisma.tourPackage.count({ where: { isActive: true } }), // นับทัวร์ที่เปิดใช้งาน (Active) อยู่
-        ])
+        // const [recommendTours, almostFullTours, isActiveTours] = await Promise.all([
+        //     prisma.tourPackage.count({ where: { isRecommend: true } }), // นับทัวร์ที่ตั้งค่าเป็น "แนะนำ"
+        //     // prisma.tourPackage.count({ where: { isAlmostFull: true } }), // นับทัวร์ที่ตั้งค่าเป็น "ใกล้เต็ม"
+        //     prisma.tourPackage.count({ where: { isActive: true } }), // นับทัวร์ที่เปิดใช้งาน (Active) อยู่
+        // ])
 
         res.status(200).json({
             totalBookings: bookingCount,
             totalRevenue: totalRevenueResult._sum.amount || 0,
             totalUsers: userCount,
             totalTours: tourPackageCount,
-            tour: {
-                recommendTours,
-                almostFullTours,
-                isActiveTours
-            }
+            // tour: {
+            //     recommendTours,
+            //     almostFullTours,
+            //     isActiveTours
+            // }
         })
     } catch (err) {
         console.error('Error in Get Dashboard Summary:', err)
@@ -219,7 +219,14 @@ exports.getDashboardAnalytics = async (req, res) => {
 
         const [totalSalesAgg, totalTours, totalBookings, totalUsers] = await Promise.all([
             prisma.payment.aggregate({
-                where: { paymentStatus: 'PAID' },
+                where: {
+                    paymentStatus: 'PAID',
+                    paymentDate: {
+                        not: null,
+                        gte: startDate,
+                        lte: endDate
+                    }
+                },
                 _sum: { amount: true }
             }),
             prisma.tourPackage.count(),
@@ -269,9 +276,11 @@ exports.getDashboardAnalytics = async (req, res) => {
                   AND p.paymentDate IS NOT NULL
                   AND p.paymentDate >= ${startDate}
                   AND p.paymentDate <= ${endDate}
-                GROUP BY YEAR(p.paymentDate), WEEK(p.paymentDate, 3)
-                ORDER BY YEAR(p.paymentDate) ASC, WEEK(p.paymentDate, 3) ASC
+                GROUP BY CONCAT(YEAR(p.paymentDate), '-W', LPAD(WEEK(p.paymentDate, 3), 2, '0'))
+                ORDER BY period ASC
             `
+            console.log('55555555555555555555555 : ', salesTrendRaw)
+
         } else {
             salesTrendRaw = await prisma.$queryRaw`
                 SELECT CAST(YEAR(p.paymentDate) AS CHAR) AS period, SUM(p.amount) AS totalSales
@@ -280,9 +289,11 @@ exports.getDashboardAnalytics = async (req, res) => {
                   AND p.paymentDate IS NOT NULL
                   AND p.paymentDate >= ${startDate}
                   AND p.paymentDate <= ${endDate}
-                GROUP BY YEAR(p.paymentDate)
-                ORDER BY YEAR(p.paymentDate) ASC
+                GROUP BY CAST(YEAR(p.paymentDate) AS CHAR)
+                ORDER BY period ASC
             `
+
+            console.log('YEARLY RESULT 55555555 :', salesTrendRaw)
         }
 
         const salesByCountryRaw = await prisma.$queryRaw`
@@ -292,6 +303,9 @@ exports.getDashboardAnalytics = async (req, res) => {
             INNER JOIN TourPackage t ON b.tourPackageId = t.id
             INNER JOIN Country c ON t.countryId = c.id
             WHERE p.paymentStatus = 'PAID'
+              AND p.paymentDate IS NOT NULL
+              AND p.paymentDate >= ${startDate}
+              AND p.paymentDate <= ${endDate}
             GROUP BY c.id, c.name
             ORDER BY totalSales DESC
         `
@@ -303,6 +317,9 @@ exports.getDashboardAnalytics = async (req, res) => {
             INNER JOIN TourPackage t ON b.tourPackageId = t.id
             INNER JOIN Category cat ON t.categoryId = cat.id
             WHERE p.paymentStatus = 'PAID'
+              AND p.paymentDate IS NOT NULL
+              AND p.paymentDate >= ${startDate}
+              AND p.paymentDate <= ${endDate}
             GROUP BY cat.id, cat.name
             ORDER BY totalSales DESC
         `
@@ -313,6 +330,9 @@ exports.getDashboardAnalytics = async (req, res) => {
             INNER JOIN Booking b ON p.bookingId = b.id
             INNER JOIN TourPackage t ON b.tourPackageId = t.id
             WHERE p.paymentStatus = 'PAID'
+              AND p.paymentDate IS NOT NULL
+              AND p.paymentDate >= ${startDate}
+              AND p.paymentDate <= ${endDate}
             GROUP BY t.id, t.title
             ORDER BY totalSales DESC
             LIMIT 10
