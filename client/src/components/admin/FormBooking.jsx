@@ -10,7 +10,7 @@ import Pagination from '../card/Pagination'
 
 const FormBooking = () => {
     const token = useAuthStore((state) => state.token)
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true)
 
     const [totalPages, setTotalPages] = useState(1)
     const [currentPage, setCurrentPage] = useState(1)
@@ -55,7 +55,7 @@ const FormBooking = () => {
         setLoading(true)
         try {
             const res = await listBooking(token, currentPage, limit, form || {})
-            console.log('ดู listBooking ตรงนี้', res)
+            // console.log('ดู listBooking ตรงนี้', res)
             setAllBooking(res.data.data)
             setTotalPages(res.data.totalPage)
         } catch (err) {

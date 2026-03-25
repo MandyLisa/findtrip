@@ -35,14 +35,21 @@ const FormPayment = () => {
         }))
     }
 
+    useEffect(() => {
+        if (token) {
+            fetchPaymentStatus()
+            fetchPaymentMethod()
+            // fetchAllPayment(form)
+        }
+    }, [token])
+
     // Drop down payment Status
     const [paymentStatusList, setPaymentStatusList] = useState([])
     const fetchPaymentStatus = async () => {
         try {
             const res = await getPaymentStatusList(token)
-            console.log('ดู fetchPaymentStatus', res)
+            // console.log('ดู fetchPaymentStatus', res)
             setPaymentStatusList(res.data.data)
-            await fetchAllPayment(form) // ดึงข้อมูลการจองหลังจากได้ status แล้ว
         } catch (err) {
             console.error('Error loading payment status', err)
         }
@@ -54,13 +61,18 @@ const FormPayment = () => {
     const fetchPaymentMethod = async () => {
         try {
             const res = await getPaymentMethodList(token)
-            console.log('ดู fetchPaymentMethod', res)
+            // console.log('ดู fetchPaymentMethod', res)
             setPaymentMethodList(res.data.data)
-            await fetchAllPayment(form) // ดึงข้อมูลการจองหลังจากได้ status แล้ว
         } catch (err) {
             console.error('Error loading payment method', err)
         }
     }
+
+    useEffect(() => {
+        if (token) {
+            fetchAllPayment(form)
+        }
+    }, [token, currentPage, form])
 
     // Payment Table
     const [allPayment, setAllPayment] = useState([])
@@ -68,7 +80,7 @@ const FormPayment = () => {
         setLoading(true)
         try {
             const res = await listPayment(token, currentPage, limit, form || {})
-            console.log('ดู listPayment ตรงนี้', res)
+            // console.log('ดู listPayment ตรงนี้', res)
             setAllPayment(res.data.data)
             setTotalPages(res.data.totalPage)
         } catch (err) {
@@ -82,24 +94,13 @@ const FormPayment = () => {
         e.preventDefault()
         setCurrentPage(1)
         setForm(formTemp)
-        fetchAllPayment(formTemp)
     }
 
     const handleReset = () => {
         setForm(searchForm)
         setFormTemp(searchForm)
         setCurrentPage(1)
-        fetchAllPayment(searchForm)
     }
-
-    useEffect(() => {
-        if (token) {
-            fetchPaymentStatus()
-            fetchPaymentMethod()
-            fetchAllPayment(form)
-        }
-    }, [token, currentPage])
-
 
     return (
         <>

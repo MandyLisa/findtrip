@@ -1,10 +1,10 @@
-import { getUserRoleList, listUsers } from "@/API/profile"
-import useAuthStore from "@/store/authStore"
-import { FileSearch, Loader } from "lucide-react"
-import { useEffect, useState } from "react"
-import { FaSearch } from "react-icons/fa"
-import { Link } from "react-router-dom"
-import Pagination from "../card/Pagination"
+import { getUserRoleList, listUsers } from '@/API/profile'
+import useAuthStore from '@/store/authStore'
+import { FileSearch, Loader } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { FaSearch } from 'react-icons/fa'
+import { Link } from 'react-router-dom'
+import Pagination from '../card/Pagination'
 
 
 const FormManage = () => {
@@ -36,18 +36,31 @@ const FormManage = () => {
         }))
     }
 
+    useEffect(() => {
+        if (token) {
+            fetchRoleList()
+        }
+    }, [token])
+
+
     // Drop down role list 
     const [roleList, setRoleList] = useState([])
     const fetchRoleList = async () => {
         try {
             const res = await getUserRoleList(token)
-            console.log('ดู fetchRoleList', res)
+            // console.log('ดู fetchRoleList', res)
             setRoleList(res.data.data)
-            await fetchAllUser(form) // ดึงข้อมูลการจองหลังจากได้ status แล้ว
         } catch (err) {
             console.error('Error loading role list', err)
         }
     }
+
+    useEffect(() => {
+        if (token) {
+            fetchAllUser(form)
+        }
+    }, [token, currentPage, form])
+
 
     // User Table
     const [allUser, setAllUser] = useState([])
@@ -55,7 +68,7 @@ const FormManage = () => {
         setLoading(true)
         try {
             const res = await listUsers(token, currentPage, limit, form || {})
-            console.log('ดู fetchAllUser ตรงนี้', res)
+            // console.log('ดู fetchAllUser ตรงนี้', res)
             setAllUser(res.data.data)
             setTotalPages(res.data.totalPage)
         } catch (err) {
@@ -69,22 +82,15 @@ const FormManage = () => {
         e.preventDefault()
         setCurrentPage(1)
         setForm(formTemp)
-        fetchAllUser(formTemp)
+        // fetchAllUser(formTemp)
     }
 
     const handleReset = () => {
         setForm(searchForm)
         setFormTemp(searchForm)
         setCurrentPage(1)
-        fetchAllUser(searchForm)
+        // fetchAllUser(searchForm)
     }
-
-    useEffect(() => {
-        if (token) {
-            fetchRoleList()
-            fetchAllUser(form)
-        }
-    }, [token, currentPage])
 
 
     return (
