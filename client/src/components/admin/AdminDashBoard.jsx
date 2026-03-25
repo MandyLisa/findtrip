@@ -23,7 +23,7 @@ const AdminDashBoard = () => {
     const [loading, setLoading] = useState(true)
     const [hasLoadedOnce, setHasLoadedOnce] = useState(false)
     const [granularity, setGranularity] = useState('monthly')
-    const [analytics, setAnalytics] = useState(emptyAnalytics)
+    const [analytics, setAnalytics] = useState(null)
 
     useEffect(() => {
         const load = async () => {
@@ -136,7 +136,9 @@ const AdminDashBoard = () => {
             </div>
 
             <div className='mb-8'>
-                <SalesTrendChart data={analytics.salesTrend} granularity={granularity} />
+                {analytics && (
+                    <SalesTrendChart data={analytics.salesTrend} granularity={granularity} />
+                )}
             </div>
 
             {/* Pie charts — 2 cols on tablet+ */}
@@ -151,7 +153,7 @@ const AdminDashBoard = () => {
                     <SimplePieChart title='สถานะการจอง (ทุกแถวใน Booking)' data={bookingPieData} valueType='count' />
                 </div>
                 <div className='min-w-0'>
-                    <SimplePieChart title='สถานะการชำระเงิน (Payment)' data={paymentPieData} valueType='count' /> 
+                    <SimplePieChart title='สถานะการชำระเงิน (Payment)' data={paymentPieData} valueType='count' />
                 </div>
             </div>
 
