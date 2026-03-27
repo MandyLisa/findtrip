@@ -47,24 +47,24 @@ const AdminDashBoard = () => {
         load()
     }, [token, granularity])
 
-    const kpi = analytics.kpi || emptyAnalytics.kpi
+    const kpi = analytics?.kpi || emptyAnalytics?.kpi
 
-    const countryPieData = (analytics.salesByCountry || []).map((c) => ({
+    const countryPieData = (analytics?.salesByCountry || []).map((c) => ({
         name: c.name,
         value: Number(c.totalSales) || 0,
     }))
 
-    const categoryPieData = (analytics.salesByCategory || []).map((c) => ({
+    const categoryPieData = (analytics?.salesByCategory || []).map((c) => ({
         name: c.name,
         value: Number(c.totalSales) || 0,
     }))
 
-    const bookingPieData = (analytics.bookingStatus || []).map((b) => ({
+    const bookingPieData = (analytics?.bookingStatus || []).map((b) => ({
         name: b.status,
         value: Number(b.count) || 0,
     }))
 
-    const paymentPieData = (analytics.paymentStatus || []).map((p) => ({
+    const paymentPieData = (analytics?.paymentStatus || []).map((p) => ({
         name: p.status,
         value: Number(p.count) || 0,
     }))
@@ -135,14 +135,14 @@ const AdminDashBoard = () => {
                 </div>
             </div>
 
-            <div className='mb-8'>
+            <div className='mb-8 min-h-[300px]'>
                 {analytics && (
                     <SalesTrendChart data={analytics.salesTrend} granularity={granularity} />
                 )}
             </div>
 
             {/* Pie charts — 2 cols on tablet+ */}
-            <div className='min-w-0 mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2 items-stretch'>
+            <div className='min-w-0 mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2 auto-rows-fr items-stretch'>
                 <div className='min-w-0'>
                     <SimplePieChart title='ยอดขายตามประเทศ (PAID)' data={countryPieData} valueType='currency' />
                 </div>

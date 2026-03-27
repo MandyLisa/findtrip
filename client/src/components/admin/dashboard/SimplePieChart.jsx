@@ -40,6 +40,10 @@ const SimplePieChart = ({ title, data, valueType = 'currency', loading = false }
     const formatVal = (v) =>
         valueType === 'currency' ? `${Number(v).toLocaleString()} ฿` : `${Number(v).toLocaleString()} รายการ`
 
+    if (!chartData || chartData.length === 0) { // กัน data undefined
+        return <div className='h-[260px] flex items-center justify-center'>No data</div>
+    }
+
     return (
         <div className='flex h-full min-h-[280px] flex-col rounded-2xl border border-gray-100 bg-white p-5 shadow-sm'>
             <h3 className='mb-1 text-base font-semibold text-gray-900'>{title}</h3>
@@ -52,8 +56,8 @@ const SimplePieChart = ({ title, data, valueType = 'currency', loading = false }
                     ไม่มีข้อมูล
                 </div>
             ) : (
-                <div className='w-full min-w-0 h-[260px] min-h-[260px]'>
-                    <ResponsiveContainer width='100%' height='100%' minWidth={1} minHeight={1}>
+                <div className='w-full min-w-0'>
+                    <ResponsiveContainer width='100%' aspect={1.8}>
                         <PieChart>
                             <Pie
                                 data={chartData}
