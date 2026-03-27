@@ -79,7 +79,7 @@ const AdminDashBoard = () => {
     }
 
     return (
-        <div className='w-full max-w-[1600px] mx-auto px-3 pb-10 sm:px-4 lg:px-6'>
+        <div className='w-full px-3 pb-10 sm:px-4 lg:px-6'>
             <div className='mb-8 text-center sm:mb-10'>
                 <h1 className='bg-gradient-to-r from-pink-600 to-rose-500 bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl'>
                     FindTrip Admin Dashboard
@@ -135,14 +135,14 @@ const AdminDashBoard = () => {
                 </div>
             </div>
 
-            <div className='mb-8 min-h-[300px]'>
+            <div className='mb-8 w-full min-h-[300px]'>
                 {analytics && (
                     <SalesTrendChart data={analytics.salesTrend} granularity={granularity} />
                 )}
             </div>
 
             {/* Pie charts — 2 cols on tablet+ */}
-            <div className='min-w-0 mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2 auto-rows-fr items-stretch'>
+            <div className='min-w-0 mb-8 grid w-full grid-cols-1 gap-6 lg:grid-cols-2 auto-rows-fr items-stretch'>
                 <div className='min-w-0'>
                     <SimplePieChart title='ยอดขายตามประเทศ (PAID)' data={countryPieData} valueType='currency' />
                 </div>
@@ -157,7 +157,9 @@ const AdminDashBoard = () => {
                 </div>
             </div>
 
-            <TopToursTable rows={analytics.topTours} />
+            <div className='w-full min-w-0'>
+                <TopToursTable rows={analytics.topTours} />
+            </div>
 
             {hasLoadedOnce && loading && (
                 <div className='pointer-events-none fixed bottom-4 right-4 flex items-center gap-2 rounded-full bg-white/90 px-3 py-2 text-sm text-gray-500 shadow-lg ring-1 ring-gray-200'>
