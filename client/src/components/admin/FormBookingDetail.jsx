@@ -85,54 +85,78 @@ const FormBookingDetail = () => {
     }
 
     return (
-        <div className='my-8 p-6 bg-white rounded-md shadow-md'>
-            <div className='flex flex-col'>
-                <p className='text-xl md:text-2xl mt-2 md:mt-0'>รายละเอียดการจอง</p>
-                <p className='text-md mt-2'>รหัสลูกค้า {booking?.userId}</p>
+        <div className='my-8 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-gray-200 sm:p-6'>
+            <div className='flex flex-col gap-1'>
+                <p className='text-base font-semibold text-gray-800 sm:text-lg'>รายละเอียดการจอง</p>
+                <p className='text-sm text-gray-600'>รหัสลูกค้า {booking?.userId}</p>
             </div>
-            <div className='flex flex-col mt-4'>
-                <p className='text-md mt-2 font-semibold'>รหัสการจอง: {booking?.id}</p>
-                <p className='text-md mt-2'>ชื่อทัวร์: {booking?.tourPackage?.title}</p>
-                <p className='text-md mt-2'>รหัสทัวร์: ({booking?.tourPackage?.tourCode})</p>
-                <p className='text-md mt-2'>ระยะเวลา: {booking?.tourPackage?.duration}</p>
-                <p className='text-md mt-2'>เดินทาง: {formatDateRange(booking?.tourPackage?.startDate, booking?.tourPackage?.endDate)}</p>
-                <p className='text-md mt-2'>สายการบิน: {booking?.tourPackage?.airline}</p>
-                <p className='text-md mt-2'>โรงแรม: ระดับ {booking?.tourPackage?.starRating} ดาว</p>
-                <p className='text-md mt-6 font-semibold'>จำนวนผู้เดินทาง</p>
-                <p className='text-md mt-2'>ผู้ใหญ่&nbsp;&nbsp; {booking?.adultCount}&nbsp;&nbsp; ท่าน</p>
-                <p className='text-md mt-2'>เด็ก&nbsp;( อายุไม่เกิน 2 ปี ) &nbsp;&nbsp;{booking?.childCount} &nbsp;&nbsp;ท่าน</p>
-                <p className='text-md mt-2'>จำนวนผู้พักแยก&nbsp;&nbsp; {booking?.singleStayCount} &nbsp;&nbsp;ท่าน</p>
-                <p className='text-md mt-6 font-semibold'>ราคาทั้งหมด: <span>{Number(booking?.totalPrice).toLocaleString('th-TH')} บาท</span></p>
-                <p className='text-md mt-6 font-semibold'>สถานะการจอง</p>
-                <div className='flex items-center mt-2'>
-                    <p className='text-md'>
-                        {booking?.bookingStatus ? booking.bookingStatus : '-'}
-                    </p>
+
+            <div className='mt-5 grid grid-cols-1 gap-6 lg:grid-cols-2'>
+                <div className='space-y-2'>
+                    <p className='text-sm font-semibold text-gray-800'>รหัสการจอง: <span className='font-normal text-gray-700'>{booking?.id}</span></p>
+                    <p className='text-sm text-gray-700'>ชื่อทัวร์: {booking?.tourPackage?.title}</p>
+                    <p className='text-sm text-gray-700'>รหัสทัวร์: ({booking?.tourPackage?.tourCode})</p>
+                    <p className='text-sm text-gray-700'>ระยะเวลา: {booking?.tourPackage?.duration}</p>
+                    <p className='text-sm text-gray-700'>เดินทาง: {formatDateRange(booking?.tourPackage?.startDate, booking?.tourPackage?.endDate)}</p>
+                    <p className='text-sm text-gray-700'>สายการบิน: {booking?.tourPackage?.airline}</p>
+                    <p className='text-sm text-gray-700'>โรงแรม: ระดับ {booking?.tourPackage?.starRating} ดาว</p>
+
+                    <div className='pt-4'>
+                        <p className='text-sm font-semibold text-gray-800'>จำนวนผู้เดินทาง</p>
+                        <div className='mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3'>
+                            <p className='text-sm text-gray-700'>ผู้ใหญ่ {booking?.adultCount} ท่าน</p>
+                            <p className='text-sm text-gray-700'>เด็ก ( อายุไม่เกิน 2 ปี ) {booking?.childCount} ท่าน</p>
+                            <p className='text-sm text-gray-700'>พักแยก {booking?.singleStayCount} ท่าน</p>
+                        </div>
+                    </div>
+
+                    <p className='pt-4 text-sm font-semibold text-gray-800'>ราคาทั้งหมด: <span className='font-normal text-gray-700'>{Number(booking?.totalPrice).toLocaleString('th-TH')} บาท</span></p>
+                </div>
+
+                <div className='space-y-2'>
+                    <p className='text-sm font-semibold text-gray-800'>สถานะการจอง</p>
+                    <div className='flex flex-wrap items-center gap-2'>
+                        <p className='text-sm text-gray-700'>
+                            {booking?.bookingStatus ? booking.bookingStatus : '-'}
+                        </p>
                     {booking?.bookingStatus === 'PENDING' &&
                         booking?.Payment?.paymentMethod === 'BANK_TRANSFER' && (
                             <button
                                 onClick={handleShowSlip}
-                                className='ml-2 text-brand-pink hover:text-pink-600'
+                                className='inline-flex items-center justify-center rounded-lg p-1 text-brand-pink hover:bg-pink-50 hover:text-pink-600'
                                 title='ดูสลิปโอนเงิน'
                             >
                                 <Search size={20} />
                             </button>
                         )}
+                    </div>
+
+                    <div className='pt-4'>
+                        <p className='text-sm font-semibold text-gray-800'>ช่องทางชำระเงิน</p>
+                        <p className='mt-1 text-sm text-gray-700'>{booking?.Payment?.paymentMethod ?? '-'}</p>
+                    </div>
+
+                    <div className='pt-4'>
+                        <p className='text-sm font-semibold text-gray-800'>สถานะการชำระเงิน</p>
+                        <p className='mt-1 text-sm text-gray-700'>{booking?.Payment?.paymentStatus ?? '-'}</p>
+                    </div>
+
+                    <div className='pt-4'>
+                        <p className='text-sm font-semibold text-gray-800'>วันที่สร้างการจอง</p>
+                        <p className='mt-1 text-sm text-gray-700'>{formatDate_Time(booking?.createdDate)}</p>
+                    </div>
+
+                    <div className='pt-4'>
+                        <p className='text-sm font-semibold text-gray-800'>วันที่อัพเดตล่าสุด</p>
+                        <p className='mt-1 text-sm text-gray-700'>{formatDate_Time(booking?.updatedDate)}</p>
+                    </div>
                 </div>
-                <p className='text-md mt-6 font-semibold'>ช่องทางชำระเงิน</p>
-                <p className='text-md mt-2'>{booking?.Payment?.paymentMethod ?? '-'}</p>
-                <p className='text-md mt-6 font-semibold'>สถานะการชำระเงิน</p>
-                <p className='text-md mt-2'>{booking?.Payment?.paymentStatus ?? '-'}</p>
-                <p className='text-md mt-6 font-semibold'>วันที่สร้างการจอง</p>
-                <p className='text-md mt-2'>{formatDate_Time(booking?.createdDate)}</p>
-                <p className='text-md mt-6 font-semibold'>วันที่อัพเดตล่าสุด</p>
-                <p className='text-md mt-2'>{formatDate_Time(booking?.updatedDate)}</p>
             </div>
-            <div className='flex mt-8'>
+
+            <div className='mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center'>
                 <button
                     type='button'
-                    className='p-2 mr-6 bg-white text-brand-pink border-2 border-brand-pink rounded-md hover:bg-brand-pink
-                    hover:text-white'
+                    className='inline-flex items-center justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-brand-pink shadow-sm ring-1 ring-inset ring-brand-pink hover:bg-brand-pink hover:text-white'
                     onClick={handleBack}
                 >
                     ย้อนกลับ
@@ -148,13 +172,13 @@ const FormBookingDetail = () => {
                     >
                         <button
                             type='button'
-                            className='p-2 bg-red-600 text-white rounded-md hover:bg-red-700'
+                            className='inline-flex items-center justify-center rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-700'
                         >
                             ยกเลิกรายการจอง
                         </button>
                     </ConfirmDialog>
                 ) : booking?.bookingStatus === 'PENDING' ? (
-                    <div className='flex gap-4'>
+                    <div className='flex flex-col gap-3 sm:flex-row sm:gap-4'>
                         <ConfirmDialog
                             title='คุณแน่ใจว่าต้องการอนุมัติรายการนี้?'
                             description={`ยืนยันการอนุมัติรหัสการจอง '${booking?.id}' หรือไม่?`}
@@ -162,7 +186,7 @@ const FormBookingDetail = () => {
                             cancelText='ยกเลิก'
                             onConfirm={() => handleBookingStatus('PAID')}
                         >
-                            <button className='p-2 bg-green-600 text-white rounded-md hover:bg-green-700'>
+                            <button className='inline-flex items-center justify-center rounded-xl bg-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-700'>
                                 อนุมัติ
                             </button>
                         </ConfirmDialog>
@@ -174,7 +198,7 @@ const FormBookingDetail = () => {
                             cancelText='ยกเลิก'
                             onConfirm={() => handleBookingStatus('FAILED')}
                         >
-                            <button className='p-2 bg-red-600 text-white rounded-md hover:bg-red-700'>
+                            <button className='inline-flex items-center justify-center rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-700'>
                                 ไม่อนุมัติ
                             </button>
                         </ConfirmDialog>
@@ -185,20 +209,20 @@ const FormBookingDetail = () => {
             </div>
 
             {showSlipModal && (
-                <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
-                    <div className='bg-white p-4 rounded-lg max-w-3xl w-full relative'>
+                <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4'>
+                    <div className='relative w-full max-w-3xl rounded-2xl bg-white p-4 shadow-xl ring-1 ring-gray-200 sm:p-6'>
                         <button
                             onClick={handleCloseSlip}
-                            className='absolute top-2 right-2 text-gray-500 hover:text-gray-700'
+                            className='absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700'
                         >
                             ✕
                         </button>
-                        <h2 className='text-lg font-semibold mb-4'>สลิปการชำระเงิน</h2>
+                        <h2 className='text-base font-semibold text-gray-800 sm:text-lg mb-4'>สลิปการชำระเงิน</h2>
                         {booking?.Payment?.secure_url ? (
                             <img
                                 src={booking.Payment.secure_url}
                                 alt='สลิปโอนเงิน'
-                                className='w-full h-auto rounded'
+                                className='w-full h-auto rounded-xl ring-1 ring-gray-200'
                             />
                         ) : (
                             <p className='text-gray-500'>ไม่พบสลิปการชำระเงิน</p>
