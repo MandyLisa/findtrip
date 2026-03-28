@@ -134,34 +134,37 @@ const FormCategory = () => {
 
     return (
         <>
-            <div className='flex gap-4'>
+            <div className='grid grid-cols-1 gap-4 lg:grid-cols-2'>
                 {/* เพิ่มประเภททัวร์ */}
-                <div className='p-4 bg-white shadow-md w-1/2 rounded-md mt-4'>
-                    <div className='inline-flex items-center'>
-                        <div className='bg-blue-600 w-12 h-12 flex items-center justify-center'>
+                <div className='p-4 sm:p-6 bg-white shadow-sm ring-1 ring-gray-200/70 w-full rounded-2xl mt-4'>
+                    <div className='flex items-center gap-3'>
+                        <div className='bg-brand-pink w-11 h-11 rounded-xl flex items-center justify-center shadow-sm'>
                             <Pencil className='w-6 h-6 text-white' />
                         </div>
-                        <h1 className='ml-3 text-lg font-medium text-gray-700'>เพิ่มประเภททัวร์</h1>
+                        <h1 className='text-lg sm:text-xl font-semibold text-gray-800'>เพิ่มประเภททัวร์</h1>
                     </div>
 
-                    <form className='space-y-6 mt-8' onSubmit={handleSubmit}>
+                    <form className='space-y-6 mt-6' onSubmit={handleSubmit}>
                         <div>
-                            <label className='block text-md font-semibold text-gray-700 mt-2 mb-2'>
+                            <label className='block text-sm font-medium text-gray-700 mt-2 mb-2'>
                                 กรุณาเพิ่มประเภททัวร์/Category
                             </label>
                             <input
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                className={`w-full px-3 py-1 border-2 border-brand-pink rounded
-                                ${editMode ? 'bg-gray-100 border-gray-400' : 'bg-white border-brand-pink'}`}
+                                className={`w-full px-3 py-2 rounded-xl border outline-none transition
+                                ${editMode
+                                        ? 'bg-gray-100 border-gray-200 text-gray-700'
+                                        : 'bg-white border-gray-200 text-gray-900 focus:ring-2 focus:ring-brand-pink/40 focus:border-brand-pink'
+                                    }`}
                                 type='text'
                             />
                         </div>
 
                         {/* ปุ่มด้านขวา */}
-                        <div className='flex justify-end gap-4'>
+                        <div className='flex flex-col sm:flex-row justify-end gap-3'>
                             <button
-                                className='p-2 bg-brand-pink text-white rounded-md hover:bg-pink-600'
+                                className='px-4 py-2.5 bg-brand-pink text-white rounded-xl hover:bg-pink-600 shadow-sm'
                                 type='submit'
                             >
                                 {!editMode ? 'เพิ่มรายการ' : 'บันทึกการแก้ไข'}
@@ -170,7 +173,7 @@ const FormCategory = () => {
                             {editMode && (
                                 <button
                                     type='button'
-                                    className='p-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300'
+                                    className='px-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 ring-1 ring-gray-200'
                                     onClick={handleCancelEdit}>
                                     ยกเลิก
                                 </button>
@@ -180,18 +183,18 @@ const FormCategory = () => {
                 </div>
 
                 {/* ค้นประเภททัวร์ */}
-                <div className='p-4 bg-white shadow-md w-1/2 rounded-md mt-4'>
-                    <div className='inline-flex items-center mb-6'>
-                        <div className='bg-blue-600 w-12 h-12 flex items-center justify-center'>
+                <div className='p-4 sm:p-6 bg-white shadow-sm ring-1 ring-gray-200/70 w-full rounded-2xl mt-4'>
+                    <div className='flex items-center gap-3 mb-6'>
+                        <div className='bg-brand-pink w-11 h-11 rounded-xl flex items-center justify-center shadow-sm'>
                             <Search className='w-6 h-6 text-white' />
                         </div>
-                        <h1 className='ml-3 text-lg font-medium text-gray-700'>ค้นหาประเภททัวร์</h1>
+                        <h1 className='text-lg sm:text-xl font-semibold text-gray-800'>ค้นหาประเภททัวร์</h1>
                     </div>
 
                     <form className='space-y-6' onSubmit={handleSearch}>
-                        <div className='grid grid-cols-2 gap-6'>
+                        <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
                             <div>
-                                <label className='block text-md font-semibold text-gray-700 mt-2 mb-2'>
+                                <label className='block text-sm font-medium text-gray-700 mt-2 mb-2'>
                                     เลขไอดี/ID No.
                                 </label>
                                 <input
@@ -199,12 +202,12 @@ const FormCategory = () => {
                                     type='text'
                                     value={formTemp.id}
                                     onChange={handleOnChange}
-                                    className='w-full px-3 py-1 border-2 border-brand-pink rounded'
+                                    className='w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50/60 text-gray-900 outline-none focus:ring-2 focus:ring-brand-pink/40 focus:border-brand-pink'
                                 />
                             </div>
 
                             <div>
-                                <label className='block text-md font-semibold text-gray-700 mt-2 mb-2'>
+                                <label className='block text-sm font-medium text-gray-700 mt-2 mb-2'>
                                     พิมพ์ชื่อประเภททัวร์/Category
                                 </label>
                                 <input
@@ -212,15 +215,15 @@ const FormCategory = () => {
                                     type='text'
                                     value={formTemp.name}
                                     onChange={handleOnChange}
-                                    className='w-full px-3 py-1 border-2 border-brand-pink rounded'
+                                    className='w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50/60 text-gray-900 outline-none focus:ring-2 focus:ring-brand-pink/40 focus:border-brand-pink'
                                 />
                             </div>
                         </div>
 
                         {/* ปุ่มอยู่ด้านขวา */}
-                        <div className='flex justify-end gap-4 mt-4'>
+                        <div className='flex flex-col sm:flex-row justify-end gap-3 mt-4'>
                             <button
-                                className='p-2 bg-brand-pink text-white rounded-md hover:bg-pink-600'
+                                className='px-4 py-2.5 bg-brand-pink text-white rounded-xl hover:bg-pink-600 shadow-sm'
                                 type='submit'
                             >
                                 ค้นหา
@@ -228,7 +231,7 @@ const FormCategory = () => {
 
                             <button
                                 type='button'
-                                className='p-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300'
+                                className='px-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 ring-1 ring-gray-200'
                                 onClick={handleReset}>
                                 ยกเลิก
                             </button>
@@ -238,8 +241,8 @@ const FormCategory = () => {
             </div>
 
             {/* ตาราง */}
-            <div className='overflow-x-auto bg-white shadow-md rounded-md mt-8 p-6'>
-                <h2 className='text-lg font-semibold text-gray-700 mb-4'>รายการประเภททัวร์</h2>
+            <div className='overflow-x-auto bg-white shadow-sm ring-1 ring-gray-200/70 rounded-2xl mt-6 p-4 sm:p-6'>
+                <h2 className='text-lg font-semibold text-gray-800 mb-4'>รายการประเภททัวร์</h2>
 
                 {loading ? (
                     <div className='flex flex-col items-center justify-center py-12'>
@@ -249,7 +252,7 @@ const FormCategory = () => {
                 ) : (
                     <>
                         <table className='min-w-full text-sm text-left text-gray-600'>
-                            <thead className='text-sm text-gray-700 uppercase bg-gray-200'>
+                            <thead className='text-xs sm:text-sm text-gray-700 uppercase bg-gray-100'>
                                 <tr>
                                     <th className='px-4 py-2'>เลขไอดี</th>
                                     <th className='px-4 py-2'>ชื่อประเภททัวร์</th>
@@ -262,7 +265,7 @@ const FormCategory = () => {
                             <tbody>
                                 {categories.length > 0 ? (
                                     categories.map((item) => (
-                                        <tr key={item.id} className='border-b hover:bg-gray-100'>
+                                        <tr key={item.id} className='border-b border-gray-100 hover:bg-pink-50/30'>
                                             <td className='px-4 py-2'>{item.id}</td>
                                             <td className='px-4 py-2'>{item.name}</td>
                                             <td className='px-4 py-2'>{new Date(item.createdDate).toLocaleString()}</td>
@@ -271,7 +274,7 @@ const FormCategory = () => {
                                                 <div className='flex justify-center gap-x-5'>
                                                     <button
                                                         onClick={() => handleEdit(item.id, item.name)}
-                                                        className='bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600'
+                                                        className='px-3 py-1.5 rounded-lg bg-orange-500 text-white hover:bg-orange-600'
                                                     >
                                                         แก้ไข
                                                     </button>
@@ -284,7 +287,7 @@ const FormCategory = () => {
                                                         onConfirm={() => handleRemove(item.id)}
                                                     >
                                                         <button
-                                                            className='bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600'
+                                                            className='px-3 py-1.5 rounded-lg bg-red-500 text-white hover:bg-red-600'
                                                         >
                                                             ลบ
                                                         </button>
