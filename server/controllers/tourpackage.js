@@ -99,7 +99,6 @@ exports.create = async (req, res) => {
     }
 }
 
-// ตัวอย่างการปรับปรุง Logic ใน Controller
 exports.list = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1 // อยากดูหน้าที่เท่าไหร่
@@ -360,7 +359,7 @@ exports.update = async (req, res) => {
     }
 }
 
-exports.remove = async (req, res) => { // EP.11 12.00 ลบรูปใน table และ ใน cloudinary
+exports.remove = async (req, res) => { 
     try {
 
         const { id } = req.params // ต้องส่ง url path และ id มาลบ
@@ -404,7 +403,6 @@ exports.remove = async (req, res) => { // EP.11 12.00 ลบรูปใน tabl
             throw new Error('TourPackage is expected to have a PDF but none was found.');
         }
 
-
         // NOTE: ชื่อfolder ต้องตรงกับใน cloud เช่น pdfs/ ต้องใช้ pdfs/${publicId}
         await cloudinary.uploader.destroy(`findtrip2025/pdf/${publicId}`, {
             resource_type: 'raw', // ต้องระบุว่าเป็นไฟล์ raw ไม่ใช่ image
@@ -423,7 +421,6 @@ exports.remove = async (req, res) => { // EP.11 12.00 ลบรูปใน tabl
     }
 
 }
-
 
 // public/user
 exports.getRecommend = async (req, res) => {

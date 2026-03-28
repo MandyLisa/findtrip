@@ -112,7 +112,7 @@ const FormManage = () => {
                                 onChange={handleOnChange}
                                 name='id'
                                 type='number'
-                                className='w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none placeholder:text-gray-400 focus:border-brand-pink focus:ring-2 focus:ring-brand-pink/30'
+                                className='w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50/60 text-gray-900 outline-none focus:ring-2 focus:ring-brand-pink/40 focus:border-brand-pink'
                             />
                         </div>
 
@@ -123,7 +123,7 @@ const FormManage = () => {
                                 onChange={handleOnChange}
                                 name='email'
                                 type='text'
-                                className='w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none placeholder:text-gray-400 focus:border-brand-pink focus:ring-2 focus:ring-brand-pink/30'
+                                className='w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50/60 text-gray-900 outline-none focus:ring-2 focus:ring-brand-pink/40 focus:border-brand-pink'
                             />
                         </div>
 
@@ -134,7 +134,7 @@ const FormManage = () => {
                                 onChange={handleOnChange}
                                 name='name'
                                 type='text'
-                                className='w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none placeholder:text-gray-400 focus:border-brand-pink focus:ring-2 focus:ring-brand-pink/30'
+                                className='w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50/60 text-gray-900 outline-none focus:ring-2 focus:ring-brand-pink/40 focus:border-brand-pink'
                             />
                         </div>
 
@@ -145,7 +145,7 @@ const FormManage = () => {
                                 onChange={handleOnChange}
                                 name='phone'
                                 type='text'
-                                className='w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none placeholder:text-gray-400 focus:border-brand-pink focus:ring-2 focus:ring-brand-pink/30'
+                                className='w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50/60 text-gray-900 outline-none focus:ring-2 focus:ring-brand-pink/40 focus:border-brand-pink'
                             />
                         </div>
 
@@ -155,7 +155,7 @@ const FormManage = () => {
                                 value={formTemp.role}
                                 name='role'
                                 onChange={handleOnChange}
-                                className='w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-brand-pink focus:ring-2 focus:ring-brand-pink/30'
+                                className='w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50/60 text-gray-900 outline-none focus:ring-2 focus:ring-brand-pink/40 focus:border-brand-pink'
                             >
                                 <option value='' disabled>กรุณาเลือก</option>
                                 {
@@ -172,7 +172,7 @@ const FormManage = () => {
                                 value={formTemp.enable}
                                 name='enable'
                                 onChange={handleOnChange}
-                                className='w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-brand-pink focus:ring-2 focus:ring-brand-pink/30'
+                                className='w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50/60 text-gray-900 outline-none focus:ring-2 focus:ring-brand-pink/40 focus:border-brand-pink'
                             >
                                 <option value='' disabled>กรุณาเลือก</option>
                                 <option value={true}>เปิด</option>

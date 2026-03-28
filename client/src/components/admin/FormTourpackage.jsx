@@ -90,7 +90,7 @@ const FormTourpackage = () => {
     return (
         <>
             <form onSubmit={handleSearch}>
-                <div className='bg-white shadow-sm ring-1 ring-gray-200/70 rounded-2xl mt-6 p-4 sm:p-6'>
+                <div className='mt-8 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-gray-200 sm:p-6'>
                     <div className='flex items-center gap-3'>
                         <div className='bg-brand-pink w-11 h-11 rounded-xl flex items-center justify-center shadow-sm'>
                             <FileSearch className='w-6 h-6 text-white' />

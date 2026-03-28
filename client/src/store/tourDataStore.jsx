@@ -9,7 +9,7 @@ const useTourDataStore = create((set) => ({
     tourpackages: [],
     totalPages: [],
 
-    getCategory: async (token, page = 1, limit = 5, form = {}) => {
+    getCategory: async (token, page = 1, limit = 10, form = {}) => {
         try {
             const res = await listCategory(token, page, limit, form)
             // console.log('ดู getCategory', res)
@@ -22,7 +22,7 @@ const useTourDataStore = create((set) => ({
         }
     },
 
-    getCountry: async (token, page = 1, limit = 5, form = {}) => {
+    getCountry: async (token, page = 1, limit = 10, form = {}) => {
         try {
             const res = await listCountry(token, page, limit, form)
             // console.log('ดู getCountry', res)

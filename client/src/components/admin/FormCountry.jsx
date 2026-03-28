@@ -21,7 +21,7 @@ const FormCountry = () => {
 
     const totalPages = useTourDataStore((state) => state.totalPages)
     const [currentPage, setCurrentPage] = useState(1)
-    const limit = 5
+    const limit = 10
 
     // Add Category
     const handleSubmit = async (e) => {
@@ -155,7 +155,7 @@ const FormCountry = () => {
                                 className={`w-full px-3 py-2 rounded-xl border outline-none transition
                                 ${editMode
                                         ? 'bg-gray-100 border-gray-200 text-gray-700'
-                                        : 'bg-white border-gray-200 text-gray-900 focus:ring-2 focus:ring-brand-pink/40 focus:border-brand-pink'
+                                        : 'bg-gray-50/60 border-gray-200 text-gray-900 focus:ring-2 focus:ring-brand-pink/40 focus:border-brand-pink'
                                     }`}
                                 type='text'
                             />

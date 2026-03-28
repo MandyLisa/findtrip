@@ -32,7 +32,7 @@ exports.create = async (req, res) => {
 exports.list = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1
-        const limit = parseInt(req.query.limit) || 5  // ถ้าไม่มีหรือไม่ถูกต้อง → fallback เป็น 10 ใช้เพื่อกำหนดจำนวนข้อมูลที่จะแสดงต่อหน้า
+        const limit = parseInt(req.query.limit) || 10  // กำหนดจำนวนข้อมูลที่จะแสดงต่อหน้า
         const skip = (page - 1) * limit
 
         const { id, name, } = req.query

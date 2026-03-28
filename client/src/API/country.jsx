@@ -10,7 +10,7 @@ export const createCountry = async (token, form) => {
     })
 }
 
-export const listCountry = async (token, page = 1, limit = 5, form = {}) => {
+export const listCountry = async (token, page = 1, limit = 10, form = {}) => {
 
     const params = {
         page,

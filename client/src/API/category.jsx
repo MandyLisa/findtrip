@@ -11,7 +11,7 @@ export const createCategory = async (token, form) => {
     })
 }
 
-export const listCategory = async (token, page = 1, limit = 5, form = {}) => {
+export const listCategory = async (token, page = 1, limit = 10, form = {}) => {
 
     const params = {
         page,
