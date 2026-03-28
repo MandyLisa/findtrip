@@ -1,6 +1,7 @@
 import { getBookingDetail, updateBookingStatus } from '@/API/booking'
 import useAuthStore from '@/store/authStore'
 import { formatDate_Time, formatDateRange } from '@/utils/formatDate'
+import axios from 'axios'
 import { Loader } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -33,7 +34,7 @@ const FormBookingDetail = () => {
             const res = await getBookingDetail(token, id)
             console.log('ดู fetchBookingDetail ตรงนี้ ', res)
             setBooking(res.data.booking)
-            
+
         } catch (error) {
             console.error('Failed to Fetch Booking Detail: ', error)
         } finally {
@@ -45,7 +46,22 @@ const FormBookingDetail = () => {
     const handleBookingStatus = async (status) => {
         setLoading(true)
         try {
-            const res = await updateBookingStatus(token, id, status)
+            const res =
+                status === 'PAID'
+                    ? await axios.patch(
+                        `/api/booking/admin/${id}/status`,
+                        {
+                            bookingStatus: status,
+                            approvedBy: useAuthStore.getState()?.user?.name,
+                            approvedAt: new Date(),
+                        },
+                        {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                            },
+                        }
+                    )
+                    : await updateBookingStatus(token, id, status)
             console.log('ดู handleBookingStatus ตรงนี้ ', res)
             setBooking(res.data.booking)
 
@@ -87,13 +103,17 @@ const FormBookingDetail = () => {
     return (
         <div className='my-8 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-gray-200 sm:p-6'>
             <div className='flex flex-col gap-1'>
-                <p className='text-base font-semibold text-gray-800 sm:text-lg'>รายละเอียดการจอง</p>
+                <p className='text-base font-semibold text-gray-800 sm:text-lg'>รายละเอียดลูกค้า</p>
                 <p className='text-sm text-gray-600'>รหัสลูกค้า {booking?.userId}</p>
+                <p className='text-sm text-gray-600'>ชื่อลูกค้า {booking?.user?.name} {booking?.user?.surname}</p>
+                <p className='text-sm text-gray-600'>อีเมล์ {booking?.user?.email}</p>
+                <p className='text-sm text-gray-600'>โทรศัพท์ {booking?.user?.phone}</p>
             </div>
 
             <div className='mt-5 grid grid-cols-1 gap-6 lg:grid-cols-2'>
                 <div className='space-y-2'>
-                    <p className='text-sm font-semibold text-gray-800'>รหัสการจอง: <span className='font-normal text-gray-700'>{booking?.id}</span></p>
+                    <p className='text-base font-semibold text-gray-800 sm:text-lg'>รายละเอียดการจอง</p>
+                    <p className='text-sm font-normal text-gray-800'>รหัสการจอง: <span className='font-normal text-gray-700'>{booking?.id}</span></p>
                     <p className='text-sm text-gray-700'>ชื่อทัวร์: {booking?.tourPackage?.title}</p>
                     <p className='text-sm text-gray-700'>รหัสทัวร์: ({booking?.tourPackage?.tourCode})</p>
                     <p className='text-sm text-gray-700'>ระยะเวลา: {booking?.tourPackage?.duration}</p>
@@ -119,16 +139,16 @@ const FormBookingDetail = () => {
                         <p className='text-sm text-gray-700'>
                             {booking?.bookingStatus ? booking.bookingStatus : '-'}
                         </p>
-                    {booking?.bookingStatus === 'PENDING' &&
-                        booking?.Payment?.paymentMethod === 'BANK_TRANSFER' && (
-                            <button
-                                onClick={handleShowSlip}
-                                className='inline-flex items-center justify-center rounded-lg p-1 text-brand-pink hover:bg-pink-50 hover:text-pink-600'
-                                title='ดูสลิปโอนเงิน'
-                            >
-                                <Search size={20} />
-                            </button>
-                        )}
+                        {booking?.bookingStatus === 'PENDING' &&
+                            booking?.Payment?.paymentMethod === 'BANK_TRANSFER' && (
+                                <button
+                                    onClick={handleShowSlip}
+                                    className='inline-flex items-center justify-center rounded-lg p-1 text-brand-pink hover:bg-pink-50 hover:text-pink-600'
+                                    title='ดูสลิปโอนเงิน'
+                                >
+                                    <Search size={20} />
+                                </button>
+                            )}
                     </div>
 
                     <div className='pt-4'>
@@ -194,7 +214,7 @@ const FormBookingDetail = () => {
                         <ConfirmDialog
                             title='คุณแน่ใจว่าไม่ต้องการอนุมัติรายการนี้?'
                             description={`ปฏิเสธรหัสการจอง '${booking?.id}' หรือไม่?`}
-                            confirmText='ไม่อนุมัติ'
+                            confirmText='ยืนยัน'
                             cancelText='ยกเลิก'
                             onConfirm={() => handleBookingStatus('FAILED')}
                         >

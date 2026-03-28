@@ -66,6 +66,9 @@ const FormPaymentDetail = () => {
             <div className='flex flex-col gap-1'>
                 <p className='text-base font-semibold text-gray-800 sm:text-lg'>รายละเอียดการชำระเงิน</p>
                 <p className='text-sm text-gray-600'>รหัสลูกค้า {payment?.booking?.userId}</p>
+                <p className='text-sm text-gray-600'>ชื่อลูกค้า {payment?.booking?.user?.name} {payment?.booking?.user?.surname}</p>
+                <p className='text-sm text-gray-600'>อีเมล์ {payment?.booking?.user?.email}</p>
+                <p className='text-sm text-gray-600'>โทรศัพท์ {payment?.booking?.user?.phone}</p> 
             </div>
 
             <div className='mt-5 grid grid-cols-1 gap-6 lg:grid-cols-2'>

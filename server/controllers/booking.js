@@ -67,7 +67,8 @@ exports.getBookingById = async (req, res) => {
                         tourPDF: true // ชื่อ field ที่สัมพันธ์กันใน model TourPackage ของคุณ
                     }
                 },
-                Payment: true
+                Payment: true,
+                user: true
             }
         })
 
@@ -415,10 +416,10 @@ exports.updateBookingStatus = async (req, res) => {
             },
             include: {
                 tourPackage: true,
-                Payment: true
+                Payment: true,
+                user: true
             }
         })
-
 
         res.status(200).json({
             ok: true,
