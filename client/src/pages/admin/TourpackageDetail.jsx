@@ -8,7 +8,7 @@ const TourpackageDetail = () => {
 
     return (
         <>
-            <div className="flex justify-between items-center">
+            <div className='flex justify-between items-center'>
                 <h1 className='text-lg font-bold'>
                     {isEdit ? `แก้ไขแพ็กเกจทัวร์ ID: ${id}` : 'สร้างแพ็กเกจทัวร์ใหม่'}
                 </h1>
