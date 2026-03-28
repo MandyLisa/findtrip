@@ -144,47 +144,47 @@ const FormTourpackageDetail = () => {
   }
 
 
-  const inputClass = `w-full px-2 py-1 border-2 rounded border-blue-600 
-  ${editMode ? 'bg-gray-100 border-gray-400' : 'bg-white border-blue-600'}`
+  const inputClass = `w-full px-3 py-2 rounded-xl border outline-none transition
+  ${editMode ? 'bg-gray-100 border-gray-200 text-gray-700' : 'bg-white border-gray-200 text-gray-900 focus:ring-2 focus:ring-brand-pink/40 focus:border-brand-pink'}`
 
 
   return (
     <>
       <form onSubmit={handleSubmit}>
         {/* Add Tourpackage Details */}
-        <div className='p-4 bg-white shadow-md w-full rounded-md'>
-          <div className='inline-flex items-center'>
-            <div className='bg-blue-600 w-12 h-12 flex items-center justify-center'>
+        <div className='p-4 sm:p-6 bg-white shadow-sm ring-1 ring-gray-200/70 w-full rounded-2xl'>
+          <div className='flex items-center gap-3'>
+            <div className='bg-brand-pink w-11 h-11 rounded-xl flex items-center justify-center shadow-sm'>
               <Pencil className='w-6 h-6 text-white' />
             </div>
-            <h1 className='ml-3 text-lg font-medium text-gray-700'>เพิ่มรายละเอียดหลัก</h1>
+            <h1 className='text-lg sm:text-xl font-semibold text-gray-800'>เพิ่มรายละเอียดหลัก</h1>
           </div>
 
 
-          <div className='flex flex-row mt-4 gap-4'>
-            <div className='flex flex-col basis-2/3'>
-              <label className='text-md mb-2'>ชื่อทัวร์แพ็คเกจ/Title
+          <div className='mt-5 grid grid-cols-1 gap-4 lg:grid-cols-12'>
+            <div className='flex flex-col lg:col-span-8'>
+              <label className='text-sm font-medium text-gray-700 mb-2'>ชื่อทัวร์แพ็คเกจ/Title
                 <span className='text-red-500'>*</span>
               </label>
               <input
                 value={form.title}
                 // 27.20 เมื่อ input มีการเปลี่ยนแปลง เช่นมีการพิมพ์ข้อมูลเข้ามา เราก็จะให้เค้าทำ function handleOnChange
                 onChange={handleOnChange}
-                className={`${inputClass} basis-2/3`}
+                className={`${inputClass}`}
                 placeholder='ตัวอย่าง: ทัวร์ญี่ปุ่น โตเกียว ฟูจิ หมู่บ้านน้ำใสโอชิโนะฮักไก ชิบูย่า 2025'
                 name='title' // ต้องตรงกันกับตัว state ที่ประกาศไว้ข้างบน
                 type='text'
               />
             </div>
 
-            <div className='flex flex-col basis-1/3'>
-              <label className='text-md mb-2'>รหัสทัวร์/Tour Code
+            <div className='flex flex-col lg:col-span-2'>
+              <label className='text-sm font-medium text-gray-700 mb-2'>รหัสทัวร์/Tour Code
                 <span className='text-red-500'>*</span>
               </label>
               <input
                 value={form.tourCode}
                 onChange={handleOnChange}
-                className={`${inputClass} basis-1/3`}
+                className={`${inputClass}`}
                 placeholder='ตัวอย่าง: AS-JP-25-001'
                 name='tourCode'
                 type='text'
@@ -192,13 +192,13 @@ const FormTourpackageDetail = () => {
               />
             </div>
 
-            <div className='flex flex-col basis-1/3'>
-              <label className='text-md mb-2'>ประเภท-ทวีป/Category
+            <div className='flex flex-col lg:col-span-2'>
+              <label className='text-sm font-medium text-gray-700 mb-2'>ประเภท-ทวีป/Category
                 <span className='text-red-500'>*</span>
               </label>
               <select
                 value={form.categoryId}
-                className={`${inputClass} basis-1/3`}
+                className={`${inputClass}`}
                 name='categoryId'
                 onChange={handleOnChange}
                 required
@@ -214,14 +214,14 @@ const FormTourpackageDetail = () => {
           </div>
 
 
-          <div className='flex flex-row mt-4 gap-4'>
-            <div className='flex flex-col basis-1/4'>
-              <label className='text-md mb-2'>ประเทศ/Country
+          <div className='mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+            <div className='flex flex-col'>
+              <label className='text-sm font-medium text-gray-700 mb-2'>ประเทศ/Country
                 <span className='text-red-500'>*</span>
               </label>
               <select
                 value={form.countryId}
-                className={`${inputClass} basis-1/4`}
+                className={`${inputClass}`}
                 name='countryId'
                 onChange={handleOnChange}
                 required
@@ -235,49 +235,49 @@ const FormTourpackageDetail = () => {
               </select>
             </div>
 
-            <div className='flex flex-col basis-1/4'>
-              <label className='text-md mb-2'>สายการบิน/Airline
+            <div className='flex flex-col'>
+              <label className='text-sm font-medium text-gray-700 mb-2'>สายการบิน/Airline
                 <span className='text-red-500'>*</span>
               </label>
               <input
                 value={form.airline}
                 onChange={handleOnChange}
-                className={`${inputClass} basis-1/4`}
+                className={`${inputClass}`}
                 name='airline'
                 type='text'
               />
             </div>
 
-            <div className='flex flex-col basis-1/4'>
-              <label className='text-md mb-2'>โรงแรม/Star Rating
+            <div className='flex flex-col'>
+              <label className='text-sm font-medium text-gray-700 mb-2'>โรงแรม/Star Rating
                 <span className='text-red-500'>*</span>
               </label>
               <input
                 value={form.starRating}
                 onChange={handleOnChange}
-                className={`${inputClass} basis-1/4`}
+                className={`${inputClass}`}
                 name='starRating'
                 type='number'
               />
             </div>
 
-            <div className='flex flex-col basis-1/4'>
-              <label className='text-md mb-2'>ราคาผู้ใหญ่/Price Adult
+            <div className='flex flex-col'>
+              <label className='text-sm font-medium text-gray-700 mb-2'>ราคาผู้ใหญ่/Price Adult
                 <span className='text-red-500'>*</span>
               </label>
               <input
                 value={form.priceAdult}
                 onChange={handleOnChange}
-                className={`${inputClass} basis-1/4`}
+                className={`${inputClass}`}
                 name='priceAdult'
                 type='number'
               />
             </div>
           </div>
 
-          <div className='flex flex-row mt-4 gap-4'>
-            <div className='flex flex-col basis-1/4'>
-              <label className='text-md mb-2'>วันที่เดินทาง/Start Date
+          <div className='mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+            <div className='flex flex-col'>
+              <label className='text-sm font-medium text-gray-700 mb-2'>วันที่เดินทาง/Start Date
                 <span className='text-red-500'>*</span>
               </label>
               <DatePicker
@@ -290,15 +290,15 @@ const FormTourpackageDetail = () => {
                     },
                   })
                 }
-                className={`${inputClass} basis-1/4`}
+                className={`${inputClass}`}
                 name='startDate'
                 dateFormat='dd MMM yyyy'
                 locale={th}
               />
             </div>
 
-            <div className='flex flex-col basis-1/4'>
-              <label className='text-md mb-2'>วันที่สิ้นสุด/End Date
+            <div className='flex flex-col'>
+              <label className='text-sm font-medium text-gray-700 mb-2'>วันที่สิ้นสุด/End Date
                 <span className='text-red-500'>*</span>
               </label>
               <DatePicker
@@ -311,35 +311,35 @@ const FormTourpackageDetail = () => {
                     },
                   })
                 }
-                className={`${inputClass} basis-1/4`}
+                className={`${inputClass}`}
                 name='endDate'
                 dateFormat='dd MMM yyyy'
                 locale={th}
               />
             </div>
 
-            <div className='flex flex-col basis-1/4'>
-              <label className='text-md mb-2'>ระยะเวลา/Duration
+            <div className='flex flex-col'>
+              <label className='text-sm font-medium text-gray-700 mb-2'>ระยะเวลา/Duration
                 <span className='text-red-500'>*</span>
               </label>
               <input
                 value={form.duration}
                 onChange={handleOnChange}
-                className={`${inputClass} basis-1/4`}
+                className={`${inputClass}`}
                 placeholder='ตัวอย่าง: 5 วัน 3 คืน'
                 name='duration'
                 type='text'
               />
             </div>
 
-            <div className='flex flex-col basis-1/4'>
-              <label className='text-md mb-2'>จำนวนที่นั่ง/maxSeats
+            <div className='flex flex-col'>
+              <label className='text-sm font-medium text-gray-700 mb-2'>จำนวนที่นั่ง/maxSeats
                 <span className='text-red-500'>*</span>
               </label>
               <input
                 value={form.maxSeats}
                 onChange={handleOnChange}
-                className={`${inputClass} basis-1/4`}
+                className={`${inputClass}`}
                 name='maxSeats'
                 type='number'
               />
@@ -348,9 +348,9 @@ const FormTourpackageDetail = () => {
 
 
           {/* Tourpackage Status */}
-          <div className='mt-8 mb-8 ml-4'>
+          <div className='mt-8 mb-8'>
             <p className='text-lg font-medium text-gray-700'>สถานะทัวร์<span className='text-red-500'>*</span></p>
-            <div className='flex items-center gap-8 mt-5'>
+            <div className='flex items-center gap-4 sm:gap-8 mt-5'>
               <Switch
                 id='isRecommend'
                 checked={form.isRecommend}
@@ -363,7 +363,7 @@ const FormTourpackageDetail = () => {
               </Label>
             </div>
 
-            <div className='flex items-center gap-8 mt-5'>
+            <div className='flex items-center gap-4 sm:gap-8 mt-5'>
               <Switch
                 id='isActive'
                 checked={form.isActive}
@@ -379,63 +379,63 @@ const FormTourpackageDetail = () => {
 
 
           {/* Addional Cost */}
-          <div className='p-4 mt-6 bg-white shadow-md w-full rounded-md'>
-            <div className='inline-flex items-center'>
-              <div className='bg-blue-600 w-12 h-12 flex items-center justify-center'>
+          <div className='p-4 sm:p-6 mt-6 bg-white shadow-sm ring-1 ring-gray-200/70 w-full rounded-2xl'>
+            <div className='flex items-center gap-3'>
+              <div className='bg-brand-pink w-11 h-11 rounded-xl flex items-center justify-center shadow-sm'>
                 <Pencil className='w-6 h-6 text-white' />
               </div>
-              <h1 className='ml-3 text-lg font-medium text-gray-700'>ค่าใช้จ่ายเพิ่มเติม</h1>
+              <h1 className='text-lg sm:text-xl font-semibold text-gray-800'>ค่าใช้จ่ายเพิ่มเติม</h1>
             </div>
 
-            <div className='flex flex-row gap-5 mt-4'>
-              <div className='flex flex-col basis-1/4'>
-                <label className='text-md mb-2'>ราคาเด็ก/Price Child
+            <div className='mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+              <div className='flex flex-col'>
+                <label className='text-sm font-medium text-gray-700 mb-2'>ราคาเด็ก/Price Child
                   <span className='text-red-500'>*</span>
                 </label>
                 <input
                   value={form.priceChild}
                   onChange={handleOnChange}
-                  className={`${inputClass} basis-1/4`}
+                  className={`${inputClass}`}
                   name='priceChild'
                   type='number'
                 />
               </div>
 
-              <div className='flex flex-col basis-1/4'>
-                <label className='text-md mb-2'>ราคาพักเดี่ยว/Single Stay
+              <div className='flex flex-col'>
+                <label className='text-sm font-medium text-gray-700 mb-2'>ราคาพักเดี่ยว/Single Stay
                   <span className='text-red-500'>*</span>
                 </label>
                 <input
                   value={form.singleStayExtra}
                   onChange={handleOnChange}
-                  className={`${inputClass} basis-1/4`}
+                  className={`${inputClass}`}
                   name='singleStayExtra'
                   type='number'
                 />
               </div>
 
-              <div className='flex flex-col basis-1/4'>
-                <label className='text-md mb-2'>ค่าทิปไกด์/Tip Guide
+              <div className='flex flex-col'>
+                <label className='text-sm font-medium text-gray-700 mb-2'>ค่าทิปไกด์/Tip Guide
                   <span className='text-red-500'>*</span>
                 </label>
                 <input
                   value={form.priceGuide}
                   onChange={handleOnChange}
-                  className={`${inputClass} basis-1/4`}
+                  className={`${inputClass}`}
                   name='priceGuide'
                   type='number'
                 />
               </div>
 
-              <div className='flex flex-col basis-1/4'>
-                <label className='text-md mb-2'>ค่าวีซ่า(ถ้ามี)/Visa Price
+              <div className='flex flex-col'>
+                <label className='text-sm font-medium text-gray-700 mb-2'>ค่าวีซ่า(ถ้ามี)/Visa Price
                   <span className='text-red-500'>*</span>
                 </label>
                 <input
                   value={form.priceVisa}
                   onChange={handleOnChange}
                   placeholder='หากไม่มีค่าวีซ่าให้กรอก 0'
-                  className={`${inputClass} basis-1/4`}
+                  className={`${inputClass}`}
                   name='priceVisa'
                   type='number'
                 />
@@ -444,12 +444,12 @@ const FormTourpackageDetail = () => {
           </div>
 
           {/* Itinerary */}
-          <div className='p-4 mt-6 bg-white shadow-md w-full rounded-md'>
-            <div className='inline-flex items-center'>
-              <div className='bg-blue-600 w-12 h-12 flex items-center justify-center'>
+          <div className='p-4 sm:p-6 mt-6 bg-white shadow-sm ring-1 ring-gray-200/70 w-full rounded-2xl'>
+            <div className='flex items-center gap-3'>
+              <div className='bg-brand-pink w-11 h-11 rounded-xl flex items-center justify-center shadow-sm'>
                 <Pencil className='w-6 h-6 text-white' />
               </div>
-              <h1 className='ml-3 text-lg font-medium text-gray-700'>แผนการเดินทาง<span className='text-red-500'>*</span></h1>
+              <h1 className='text-lg sm:text-xl font-semibold text-gray-800'>แผนการเดินทาง<span className='text-red-500'>*</span></h1>
             </div>
 
             <div className='mt-6 mb-2'>
@@ -459,7 +459,7 @@ const FormTourpackageDetail = () => {
               <textarea
                 value={form.itinerary}
                 onChange={handleOnChange}
-                className={`${inputClass} w-full in-h-[200px]`}
+                className={`${inputClass} w-full min-h-[220px]`}
                 name='itinerary'
                 type='text'
                 rows={10}
@@ -468,12 +468,12 @@ const FormTourpackageDetail = () => {
           </div>
 
           {/* Image */}
-          <div className='p-4 mt-6 bg-white shadow-md w-full rounded-md'>
-            <div className='inline-flex items-center'>
-              <div className='bg-blue-600 w-12 h-12 flex items-center justify-center'>
+          <div className='p-4 sm:p-6 mt-6 bg-white shadow-sm ring-1 ring-gray-200/70 w-full rounded-2xl'>
+            <div className='flex items-center gap-3'>
+              <div className='bg-brand-pink w-11 h-11 rounded-xl flex items-center justify-center shadow-sm'>
                 <ImageUp className='w-6 h-6 text-white' />
               </div>
-              <h1 className='ml-3 text-lg font-medium text-gray-700'>อัพโหลดรูปภาพ</h1>
+              <h1 className='text-lg sm:text-xl font-semibold text-gray-800'>อัพโหลดรูปภาพ</h1>
             </div>
             <div className='mt-6 mb-2'>
               <p className='w-full mt-6'>อัพโหลดไฟล์รูปภาพ/Upload Images<span className='text-red-500'>*</span></p>
@@ -488,12 +488,12 @@ const FormTourpackageDetail = () => {
           </div>
 
           {/* PDF */}
-          <div className='p-4 mt-6 bg-white shadow-md w-full rounded-md'>
-            <div className='inline-flex items-center'>
-              <div className='bg-blue-600 w-12 h-12 flex items-center justify-center'>
+          <div className='p-4 sm:p-6 mt-6 bg-white shadow-sm ring-1 ring-gray-200/70 w-full rounded-2xl'>
+            <div className='flex items-center gap-3'>
+              <div className='bg-brand-pink w-11 h-11 rounded-xl flex items-center justify-center shadow-sm'>
                 <FileText className='w-6 h-6 text-white' />
               </div>
-              <h1 className='ml-3 text-lg font-medium text-gray-700'>อัพโหลด PDF File</h1>
+              <h1 className='text-lg sm:text-xl font-semibold text-gray-800'>อัพโหลด PDF File</h1>
             </div>
             <div className='mt-6 mb-16'>
               <p className='w-full mt-6'>อัพโหลดไฟล์ PDF /Upload PDF File<span className='text-red-500'>*</span></p>
@@ -517,8 +517,7 @@ const FormTourpackageDetail = () => {
                 >
                   <button
                     type='button'
-                    className='p-2 bg-red-600 text-white border-2 rounded-md
-                hover:bg-red-700 hover:text-white'
+                    className='px-4 py-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 shadow-sm'
                   >
                     ลบรายการ
                   </button>
@@ -529,15 +528,14 @@ const FormTourpackageDetail = () => {
             <div className='flex justify-end'>
               <button
                 type='button'
-                className='p-2 mr-6 bg-white text-brand-pink border-2 border-brand-pink rounded-md hover:bg-brand-pink
-                hover:text-white'
+                className='px-4 py-2.5 mr-3 bg-white text-brand-pink ring-1 ring-brand-pink rounded-xl hover:bg-brand-pink hover:text-white transition'
                 onClick={handleBack}
               >
                 ย้อนกลับ
               </button>
               <button
                 type='submit'
-                className='p-2 bg-brand-pink text-white rounded-md hover:bg-pink-600'
+                className='px-4 py-2.5 bg-brand-pink text-white rounded-xl hover:bg-pink-600 shadow-sm'
               >
                 บันทึกรายการ
               </button>

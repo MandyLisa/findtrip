@@ -90,45 +90,45 @@ const FormTourpackage = () => {
     return (
         <>
             <form onSubmit={handleSearch}>
-                <div className='overflow-x-auto bg-white shadow-md rounded-md mt-8 p-6'>
-                    <div className='inline-flex items-center'>
-                        <div className='bg-blue-600 w-12 h-12 flex items-center justify-center'>
+                <div className='bg-white shadow-sm ring-1 ring-gray-200/70 rounded-2xl mt-6 p-4 sm:p-6'>
+                    <div className='flex items-center gap-3'>
+                        <div className='bg-brand-pink w-11 h-11 rounded-xl flex items-center justify-center shadow-sm'>
                             <FileSearch className='w-6 h-6 text-white' />
                         </div>
-                        <h1 className='ml-3 text-lg font-medium text-gray-700'>ค้นหาแพ็คเกจทัวร์</h1>
+                        <h1 className='text-lg sm:text-xl font-semibold text-gray-800'>ค้นหาแพ็คเกจทัวร์</h1>
                     </div>
 
 
-                    <div className='flex flex-row mt-4 gap-4'>
-                        <div className='flex flex-col basis-1/4'>
-                            <label className='text-md mb-2'>เลขไอดี/ID No.</label>
+                    <div className='mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+                        <div className='flex flex-col'>
+                            <label className='text-sm font-medium text-gray-700 mb-2'>เลขไอดี/ID No.</label>
                             <input
                                 value={formTemp.id}
                                 onChange={handleOnChange}
                                 name='id'
                                 type='number'
-                                className='w-full px-2 py-1 border-2 rounded border-brand-pink'
+                                className='w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50/60 text-gray-900 outline-none focus:ring-2 focus:ring-brand-pink/40 focus:border-brand-pink'
                             />
                         </div>
 
-                        <div className='flex flex-col basis-1/4'>
-                            <label className='text-md mb-2'>รหัสทัวร์/Tour Code</label>
+                        <div className='flex flex-col'>
+                            <label className='text-sm font-medium text-gray-700 mb-2'>รหัสทัวร์/Tour Code</label>
                             <input
                                 value={formTemp.tourCode}
                                 onChange={handleOnChange}
                                 name='tourCode'
                                 type='text'
-                                className='w-full px-2 py-1 border-2 rounded border-brand-pink'
+                                className='w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50/60 text-gray-900 outline-none focus:ring-2 focus:ring-brand-pink/40 focus:border-brand-pink'
                             />
                         </div>
 
-                        <div className='flex flex-col basis-1/4'>
-                            <label className='text-md mb-2'>ประเภททัวร์/Category</label>
+                        <div className='flex flex-col'>
+                            <label className='text-sm font-medium text-gray-700 mb-2'>ประเภททัวร์/Category</label>
                             <select
                                 value={formTemp.categoryId}
                                 name='categoryId'
                                 onChange={handleOnChange}
-                                className='w-full px-2 py-1 border-2 rounded border-brand-pink'
+                                className='w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50/60 text-gray-900 outline-none focus:ring-2 focus:ring-brand-pink/40 focus:border-brand-pink'
                             >
                                 <option value='' disabled>กรุณาเลือก</option>
                                 {
@@ -139,13 +139,13 @@ const FormTourpackage = () => {
                             </select>
                         </div>
 
-                        <div className='flex flex-col basis-1/4'>
-                            <label className='text-md mb-2'>ประเทศ/Country</label>
+                        <div className='flex flex-col'>
+                            <label className='text-sm font-medium text-gray-700 mb-2'>ประเทศ/Country</label>
                             <select
                                 value={formTemp.countryId}
                                 name='countryId'
                                 onChange={handleOnChange}
-                                className='w-full px-2 py-1 border-2 rounded border-brand-pink'
+                                className='w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50/60 text-gray-900 outline-none focus:ring-2 focus:ring-brand-pink/40 focus:border-brand-pink'
                             >
                                 <option value='' disabled>กรุณาเลือก</option>
                                 {
@@ -156,13 +156,13 @@ const FormTourpackage = () => {
                             </select>
                         </div>
 
-                        <div className='flex flex-col basis-1/4'>
-                            <label className='text-md mb-2'>ทัวร์แนะนำ/isRecommend?</label>
+                        <div className='flex flex-col'>
+                            <label className='text-sm font-medium text-gray-700 mb-2'>ทัวร์แนะนำ/isRecommend?</label>
                             <select
                                 value={formTemp.isRecommend}
                                 name='isRecommend'
                                 onChange={handleOnChange}
-                                className='w-full px-2 py-1 border-2 rounded border-brand-pink'
+                                className='w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50/60 text-gray-900 outline-none focus:ring-2 focus:ring-brand-pink/40 focus:border-brand-pink'
                             >
                                 <option value='' disabled>กรุณาเลือก</option>
                                 <option value={true}>ทัวร์แนะนำ</option>
@@ -170,13 +170,13 @@ const FormTourpackage = () => {
                             </select>
                         </div>
 
-                        <div className='flex flex-col basis-1/4'>
-                            <label className='text-md mb-2'>สถานะทัวร์/isActive?</label>
+                        <div className='flex flex-col'>
+                            <label className='text-sm font-medium text-gray-700 mb-2'>สถานะทัวร์/isActive?</label>
                             <select
                                 value={formTemp.isActive}
                                 name='isActive'
                                 onChange={handleOnChange}
-                                className='w-full px-2 py-1 border-2 rounded border-brand-pink'
+                                className='w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50/60 text-gray-900 outline-none focus:ring-2 focus:ring-brand-pink/40 focus:border-brand-pink'
                             >
                                 <option value='' disabled>กรุณาเลือก</option>
                                 <option value={true}>เปิดการขาย</option>
@@ -184,13 +184,13 @@ const FormTourpackage = () => {
 
                             </select>
                         </div>
-                        <div className='flex flex-col basis-1/4'>
-                            <label className='text-md mb-2'>สถานะที่นั่ง/seatStatus?</label>
+                        <div className='flex flex-col'>
+                            <label className='text-sm font-medium text-gray-700 mb-2'>สถานะที่นั่ง/seatStatus?</label>
                             <select
                                 value={formTemp.seatStatus}
                                 name='seatStatus'
                                 onChange={handleOnChange}
-                                className='w-full px-2 py-1 border-2 rounded border-brand-pink'
+                                className='w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50/60 text-gray-900 outline-none focus:ring-2 focus:ring-brand-pink/40 focus:border-brand-pink'
                             >
                                 <option value='' disabled>กรุณาเลือก</option>
                                 <option value='AVAILABLE'>ว่าง</option>
@@ -203,16 +203,16 @@ const FormTourpackage = () => {
 
 
                     {/* ปุ่ม Search */}
-                    <div className='flex justify-end gap-4 mt-4'>
+                    <div className='flex flex-col sm:flex-row justify-end gap-3 mt-6'>
                         <button
                             type='submit'
-                            className='mt-4 p-2 bg-brand-pink text-white ml-4 rounded-md hover:bg-pink-600'
+                            className='sm:mt-0 px-4 py-2.5 bg-brand-pink text-white rounded-xl hover:bg-pink-600 shadow-sm'
                         >
                             ค้นหา
                         </button>
                         <button
                             type='button'
-                            className='mt-4 p-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300'
+                            className='sm:mt-0 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 ring-1 ring-gray-200'
                             onClick={handleReset}
                         >
                             ยกเลิก
@@ -223,12 +223,12 @@ const FormTourpackage = () => {
 
 
             {/* fetch table  */}
-            <div className='overflow-x-auto bg-white shadow-md rounded-md mt-8 p-6'>
-                <div className='flex justify-between mb-5'>
-                    <h2 className='text-lg font-semibold text-gray-700 mb-4'>รายการแพ็คเกจทัวร์</h2>
+            <div className='overflow-x-auto bg-white shadow-sm ring-1 ring-gray-200/70 rounded-2xl mt-6 p-4 sm:p-6'>
+                <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-5'>
+                    <h2 className='text-lg font-semibold text-gray-800'>รายการแพ็คเกจทัวร์</h2>
                     <Link
                         to='/admin/tourpackage/detail'
-                        className='p-2 bg-brand-pink text-white ml-4 rounded-md hover:bg-pink-600'
+                        className='inline-flex items-center justify-center px-4 py-2.5 bg-brand-pink text-white rounded-xl hover:bg-pink-600 shadow-sm'
                     >
                         เพิ่มรายการ
                     </Link>
@@ -253,7 +253,7 @@ const FormTourpackage = () => {
                 ) : (
                     <>
                         <table className='min-w-full text-sm text-left text-gray-600'>
-                            <thead className='text-sm text-gray-700 uppercase bg-gray-200'>
+                            <thead className='text-xs sm:text-sm text-gray-700 uppercase bg-gray-100'>
                                 <tr>
                                     <th className='px-4 py-2'>เลขไอดี</th>
                                     <th className='px-4 py-2'>ชื่อทัวร์แพ็คเกจ</th>
@@ -276,7 +276,7 @@ const FormTourpackage = () => {
                             <tbody>
                                 {tourpackages.length > 0 ? (
                                     tourpackages.map((item) => (
-                                        <tr key={item.id} className='border-b hover:bg-gray-100'>
+                                        <tr key={item.id} className='border-b border-gray-100 hover:bg-pink-50/30'>
                                             <td className='px-4 py-2'>{item.id}</td>
                                             <td className='px-4 py-2'>{item.title}</td>
                                             <td className='px-4 py-2'>{item.tourCode}</td>

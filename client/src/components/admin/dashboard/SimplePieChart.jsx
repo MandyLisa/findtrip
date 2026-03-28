@@ -1,6 +1,6 @@
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const COLORS = [
     '#ec4899',
@@ -29,9 +29,29 @@ const SimplePieChart = ({ title, data, valueType = 'currency', loading = false }
         : []
 
     const [mounted, setMounted] = useState(false)
+    const containerRef = useRef(null)
+    const [containerWidth, setContainerWidth] = useState(0)
 
     useEffect(() => {
         setMounted(true)
+    }, [])
+
+    useEffect(() => {
+        if (!containerRef.current) return
+
+        const el = containerRef.current
+
+        const update = () => {
+            const next = el.getBoundingClientRect().width
+            setContainerWidth(next)
+        }
+
+        update()
+
+        const ro = new ResizeObserver(() => update())
+        ro.observe(el)
+
+        return () => ro.disconnect()
     }, [])
 
     const total = chartData.reduce((s, d) => s + d.value, 0)
@@ -40,12 +60,21 @@ const SimplePieChart = ({ title, data, valueType = 'currency', loading = false }
     const formatVal = (v) =>
         valueType === 'currency' ? `${Number(v).toLocaleString()} ฿` : `${Number(v).toLocaleString()} รายการ`
 
+    const showLabels = containerWidth >= 520
+    const labelText = ({ name, percent }) => {
+        const p = (percent * 100)
+        if (!Number.isFinite(p) || p < 5) return ''
+        const safeName = String(name ?? '')
+        const short = safeName.length > 14 ? `${safeName.slice(0, 14)}…` : safeName
+        return `${short} ${p.toFixed(0)}%`
+    }
+
     if (!chartData || chartData.length === 0) { // กัน data undefined
         return <div className='h-[260px] flex items-center justify-center'>No data</div>
     }
 
     return (
-        <div className='flex h-full min-h-[280px] flex-col rounded-2xl border border-gray-100 bg-white p-5 shadow-sm'>
+        <div ref={containerRef} className='flex h-full min-h-[280px] flex-col rounded-2xl border border-gray-100 bg-white p-5 shadow-sm'>
             <h3 className='mb-1 text-base font-semibold text-gray-900'>{title}</h3>
             {!mounted || loading ? (
                 <div className='flex flex-1 items-center justify-center rounded-xl bg-gray-50 text-sm text-gray-400'>
@@ -68,7 +97,8 @@ const SimplePieChart = ({ title, data, valueType = 'currency', loading = false }
                                 innerRadius={48}
                                 outerRadius={88}
                                 paddingAngle={2}
-                                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                label={showLabels ? labelText : false}
+                                labelLine={showLabels}
                             >
                                 {chartData.map((_, i) => (
                                     <Cell key={i} fill={COLORS[i % COLORS.length]} stroke='#fff' strokeWidth={1} />
