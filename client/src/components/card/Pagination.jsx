@@ -11,13 +11,13 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     })
 
     return (
-        <div className='flex flex-col items-center mt-6 space-y-2'>
+        <div className='flex flex-col items-center mt-5 space-y-2 sm:mt-6'>
             <p className='text-gray-500 text-sm'>
                 หน้า {currentPage} จาก {totalPages}
             </p>
 
             {/* ปุ่มก่อนหน้า */}
-            <div className='flex justify-center mt-6 space-x-2 flex-wrap'>
+            <div className='flex justify-center space-x-2 flex-wrap'>
                 <button
                     onClick={() => onPageChange(currentPage - 1)}
                     disabled={currentPage === 1}

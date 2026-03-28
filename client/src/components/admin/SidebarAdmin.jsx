@@ -180,7 +180,7 @@ const SidebarAdmin = () => {
                 </div>
             </div>
 
-            <div className='hidden md:flex bg-brand-pink w-72 text-white flex-col h-screen border-r border-pink-200/30'>
+            <div className='hidden md:flex bg-brand-pink w-72 text-white flex-col h-dvh border-r border-pink-200/30'>
                 <div className='h-20 flex items-center justify-center px-5 border-b border-pink-200/30'>
                     <img src={logo1} alt='Logo' className='h-10 w-auto mx-auto' />
                 </div>

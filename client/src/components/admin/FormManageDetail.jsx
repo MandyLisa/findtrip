@@ -95,74 +95,80 @@ const FormManageDetail = () => {
     }
 
     return (
-        <div className='my-8 p-6 bg-white rounded-md shadow-md'>
-            <div className='flex flex-col'>
-                <p className='text-xl md:text-2xl mt-2 mb-2'>จัดการข้อมูลผู้ใช้งาน</p>
-                <p className='text-md mt-2'>รหัสลูกค้า: &nbsp;{user.id}</p>
-                <p className='text-md mt-2'>ชื่อ: &nbsp;{user.name}</p>
-                <p className='text-md mt-2'>นามสกุล: &nbsp;{user.surname}</p>
-                <p className='text-md mt-2'>อีเมล์: &nbsp;{user.email}</p>
-                <p className='text-md mt-2'>ชื่อบัญชี: &nbsp;{user.username}</p>
-                <p className='text-md mt-2'>เบอร์โทรศัพท์: &nbsp;{user.phone}</p>
-                
-                {stateUser?.role === 'SUPER_ADMIN' && ( // ให้เห็นเฉพาะ role นี้
-                    <>
-                        <p className='text-md mt-6 font-semibold'>สถานะบัญชี</p>
-                        <div className='flex items-center justify-start space-x-4'>
-                            <span className='text-md mt-2'>
-                                สถานะบัญชี : <span className={status ? 'text-green-600' : 'text-red-600'}>
-                                    {status ? 'เปิด' : 'ปิด'}
-                                </span>
-                            </span>
-                            <ConfirmDialog
-                                title='คุณแน่ใจหรือไม่?'
-                                description={`คุณต้องการ ${status ? 'ปิด' : 'เปิด'} บัญชีของผู้ใช้รายนี้`}
-                                confirmText='ยืนยัน'
-                                cancelText='ยกเลิก'
-                                onConfirm={() => handleChangeAccountStatus(user.id)}
-                            >
-                                <button
-                                    className={`px-3 py-1 mt-2 rounded text-white transition-colors duration-200
-                                ${status
-                                            ? 'bg-red-500 hover:bg-red-600'     // ปิดบัญชี
-                                            : 'bg-green-500 hover:bg-green-600' // เปิดบัญชี
-                                        }`}
-                                >
-                                    {status ? 'ปิดบัญชี' : 'เปิดบัญชี'}
-                                </button>
-                            </ConfirmDialog>
-                        </div>
+        <div className='my-8 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-gray-200 sm:p-6'>
+            <div className='flex flex-col gap-1'>
+                <p className='text-base font-semibold text-gray-800 sm:text-lg'>จัดการข้อมูลผู้ใช้งาน</p>
+                <p className='text-sm text-gray-600'>รหัสลูกค้า: {user.id}</p>
+            </div>
 
-                        <p className='text-md mt-6 font-semibold'>บทบาท</p>
-                        <div className='flex items-center justify-start space-x-4'>
-                            <span className='text-md mt-2'>
-                                บทบาทผู้ใช้ : {role}
-                            </span>
-                            <ConfirmDialog
-                                title='คุณแน่ใจหรือไม่?'
-                                description={`คุณต้องการเปลี่ยนบทบาทเป็น ${role === 'ADMIN' ? 'ผู้ใช้ทั่วไป' : 'แอดมิน'} ของผู้ใช้รายนี้`}
-                                confirmText='ยืนยัน'
-                                cancelText='ยกเลิก'
-                                onConfirm={handleChangeRole}
-                            >
-                                <button className='bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600'>
-                                    เปลี่ยนบทบาท
-                                </button>
-                            </ConfirmDialog>
-                        </div>
-                    </>
-                )} 
-
-                <div className='flex mt-8'>
-                    <button
-                        type='button'
-                        className='p-2 mr-6 bg-white text-brand-pink border-2 border-brand-pink rounded-md hover:bg-brand-pink
-                    hover:text-white'
-                        onClick={handleBack}
-                    >
-                        ย้อนกลับ
-                    </button>
+            <div className='mt-5 grid grid-cols-1 gap-6 lg:grid-cols-2'>
+                <div className='space-y-2'>
+                    <p className='text-sm text-gray-700'>ชื่อ: {user.name}</p>
+                    <p className='text-sm text-gray-700'>นามสกุล: {user.surname}</p>
+                    <p className='text-sm text-gray-700'>อีเมล์: {user.email}</p>
+                    <p className='text-sm text-gray-700'>ชื่อบัญชี: {user.username}</p>
+                    <p className='text-sm text-gray-700'>เบอร์โทรศัพท์: {user.phone}</p>
                 </div>
+
+                {stateUser?.role === 'SUPER_ADMIN' && ( // ให้เห็นเฉพาะ role นี้
+                    <div className='space-y-6'>
+                        <div className='rounded-2xl bg-gray-50 p-4 ring-1 ring-gray-200'>
+                            <p className='text-sm font-semibold text-gray-800'>สถานะบัญชี</p>
+                            <div className='mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
+                                <span className='text-sm text-gray-700'>
+                                    สถานะบัญชี : <span className={status ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>
+                                        {status ? 'เปิด' : 'ปิด'}
+                                    </span>
+                                </span>
+                                <ConfirmDialog
+                                    title='คุณแน่ใจหรือไม่?'
+                                    description={`คุณต้องการ ${status ? 'ปิด' : 'เปิด'} บัญชีของผู้ใช้รายนี้`}
+                                    confirmText='ยืนยัน'
+                                    cancelText='ยกเลิก'
+                                    onConfirm={() => handleChangeAccountStatus(user.id)}
+                                >
+                                    <button
+                                        className={`inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors
+                                ${status
+                                                ? 'bg-red-600 hover:bg-red-700'     // ปิดบัญชี
+                                                : 'bg-green-600 hover:bg-green-700' // เปิดบัญชี
+                                            }`}
+                                    >
+                                        {status ? 'ปิดบัญชี' : 'เปิดบัญชี'}
+                                    </button>
+                                </ConfirmDialog>
+                            </div>
+                        </div>
+
+                        <div className='rounded-2xl bg-gray-50 p-4 ring-1 ring-gray-200'>
+                            <p className='text-sm font-semibold text-gray-800'>บทบาท</p>
+                            <div className='mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
+                                <span className='text-sm text-gray-700'>บทบาทผู้ใช้ : {role}</span>
+                                <ConfirmDialog
+                                    title='คุณแน่ใจหรือไม่?'
+                                    description={`คุณต้องการเปลี่ยนบทบาทเป็น ${role === 'ADMIN' ? 'ผู้ใช้ทั่วไป' : 'แอดมิน'} ของผู้ใช้รายนี้`}
+                                    confirmText='ยืนยัน'
+                                    cancelText='ยกเลิก'
+                                    onConfirm={handleChangeRole}
+                                >
+                                    <button className='inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700'>
+                                        เปลี่ยนบทบาท
+                                    </button>
+                                </ConfirmDialog>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            <div className='mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center'>
+                <button
+                    type='button'
+                    className='inline-flex items-center justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-brand-pink shadow-sm ring-1 ring-inset ring-brand-pink hover:bg-brand-pink hover:text-white'
+                    onClick={handleBack}
+                >
+                    ย้อนกลับ
+                </button>
             </div>
         </div>
     )

@@ -96,66 +96,66 @@ const FormManage = () => {
     return (
         <>
             <form onSubmit={handleSearch}>
-                <div className='overflow-x-auto bg-white shadow-md rounded-md mt-8 p-6'>
-                    <div className='inline-flex items-center'>
-                        <div className='bg-blue-600 w-12 h-12 flex items-center justify-center'>
+                <div className='mt-8 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-gray-200 sm:p-6'>
+                    <div className='flex items-center gap-3'>
+                        <div className='flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600'>
                             <FileSearch className='w-6 h-6 text-white' />
                         </div>
-                        <h1 className='ml-3 text-lg font-medium text-gray-700'>ค้นหาผู้ใช้งาน</h1>
+                        <h1 className='text-base font-semibold text-gray-800 sm:text-lg'>ค้นหาผู้ใช้งาน</h1>
                     </div>
 
-                    <div className='flex flex-row mt-4 gap-4'>
-                        <div className='flex flex-col basis-1/4'>
-                            <label className='text-md mb-2'>เลขผู้ใช้งาน/User No.</label>
+                    <div className='mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+                        <div className='flex flex-col'>
+                            <label className='mb-2 text-sm font-medium text-gray-700'>เลขผู้ใช้งาน/User No.</label>
                             <input
                                 value={formTemp.id}
                                 onChange={handleOnChange}
                                 name='id'
                                 type='number'
-                                className='w-full px-2 py-1 border-2 rounded border-brand-pink'
+                                className='w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none placeholder:text-gray-400 focus:border-brand-pink focus:ring-2 focus:ring-brand-pink/30'
                             />
                         </div>
 
-                        <div className='flex flex-col basis-1/4'>
-                            <label className='text-md mb-2'>อีเมล์ผู้ใช้/User Email</label>
+                        <div className='flex flex-col'>
+                            <label className='mb-2 text-sm font-medium text-gray-700'>อีเมล์ผู้ใช้/User Email</label>
                             <input
                                 value={formTemp.email}
                                 onChange={handleOnChange}
                                 name='email'
                                 type='text'
-                                className='w-full px-2 py-1 border-2 rounded border-brand-pink'
+                                className='w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none placeholder:text-gray-400 focus:border-brand-pink focus:ring-2 focus:ring-brand-pink/30'
                             />
                         </div>
 
-                        <div className='flex flex-col basis-1/4'>
-                            <label className='text-md mb-2'>ชื่อผู้ใช้/Name</label>
+                        <div className='flex flex-col'>
+                            <label className='mb-2 text-sm font-medium text-gray-700'>ชื่อผู้ใช้/Name</label>
                             <input
                                 value={formTemp.name}
                                 onChange={handleOnChange}
                                 name='name'
                                 type='text'
-                                className='w-full px-2 py-1 border-2 rounded border-brand-pink'
+                                className='w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none placeholder:text-gray-400 focus:border-brand-pink focus:ring-2 focus:ring-brand-pink/30'
                             />
                         </div>
 
-                        <div className='flex flex-col basis-1/4'>
-                            <label className='text-md mb-2'>โทรศัพท์/Phone No.</label>
+                        <div className='flex flex-col'>
+                            <label className='mb-2 text-sm font-medium text-gray-700'>โทรศัพท์/Phone No.</label>
                             <input
                                 value={formTemp.phone}
                                 onChange={handleOnChange}
                                 name='phone'
                                 type='text'
-                                className='w-full px-2 py-1 border-2 rounded border-brand-pink'
+                                className='w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none placeholder:text-gray-400 focus:border-brand-pink focus:ring-2 focus:ring-brand-pink/30'
                             />
                         </div>
 
-                        <div className='flex flex-col basis-1/4'>
-                            <label className='text-md mb-2'>บทบาท/Role</label>
+                        <div className='flex flex-col'>
+                            <label className='mb-2 text-sm font-medium text-gray-700'>บทบาท/Role</label>
                             <select
                                 value={formTemp.role}
                                 name='role'
                                 onChange={handleOnChange}
-                                className='w-full px-2 py-1 border-2 rounded border-brand-pink'
+                                className='w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-brand-pink focus:ring-2 focus:ring-brand-pink/30'
                             >
                                 <option value='' disabled>กรุณาเลือก</option>
                                 {
@@ -166,13 +166,13 @@ const FormManage = () => {
                             </select>
                         </div>
 
-                        <div className='flex flex-col basis-1/4'>
-                            <label className='text-md mb-2'>สถานะบัญชี/Account Status?</label>
+                        <div className='flex flex-col'>
+                            <label className='mb-2 text-sm font-medium text-gray-700'>สถานะบัญชี/Account Status?</label>
                             <select
                                 value={formTemp.enable}
                                 name='enable'
                                 onChange={handleOnChange}
-                                className='w-full px-2 py-1 border-2 rounded border-brand-pink'
+                                className='w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-brand-pink focus:ring-2 focus:ring-brand-pink/30'
                             >
                                 <option value='' disabled>กรุณาเลือก</option>
                                 <option value={true}>เปิด</option>
@@ -182,16 +182,16 @@ const FormManage = () => {
                         </div>
                     </div>
 
-                    <div className='flex justify-end gap-4 mt-4'>
+                    <div className='mt-6 flex flex-col items-stretch justify-end gap-3 sm:flex-row sm:items-center'>
                         <button
                             type='submit'
-                            className='mt-4 p-2 bg-brand-pink text-white ml-4 rounded-md hover:bg-pink-600'
+                            className='inline-flex items-center justify-center rounded-xl bg-brand-pink px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-pink-600'
                         >
                             ค้นหา
                         </button>
                         <button
                             type='button'
-                            className='mt-4 p-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300'
+                            className='inline-flex items-center justify-center rounded-xl bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-200 hover:bg-gray-200'
                             onClick={handleReset}
                         >
                             ยกเลิก
@@ -201,9 +201,9 @@ const FormManage = () => {
             </form>
 
 
-            <div className='overflow-x-auto bg-white shadow-md rounded-md mt-8 p-6'>
-                <div className='flex justify-between mb-5'>
-                    <h2 className='text-lg font-semibold text-gray-700 mb-4'>รายการจองทัวร์</h2>
+            <div className='mt-8 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-gray-200 sm:p-6'>
+                <div className='mb-5 flex items-center justify-between'>
+                    <h2 className='text-base font-semibold text-gray-800 sm:text-lg'>รายการจองทัวร์</h2>
                 </div>
 
                 {loading ? (
@@ -213,55 +213,59 @@ const FormManage = () => {
                     </div>
                 ) : (
                     <>
-                        <table className='min-w-full text-sm text-left text-gray-600'>
-                            <thead className='text-sm text-gray-700 uppercase bg-gray-200'>
-                                <tr>
-                                    <th className='px-4 py-2'>เลขผู้ใช้งาน</th>
-                                    <th className='px-4 py-2'>ชื่อ</th>
-                                    <th className='px-4 py-2'>อีเมล์</th>
-                                    <th className='px-4 py-2'>หมายเลขโทรศัพท์</th>
-                                    <th className='px-4 py-2'>บทบาท</th>
-                                    <th className='px-4 py-2'>สถานะบัญชี</th>
-                                    <th className='px-4 py-2 text-center'>จัดการ</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                {allUser.length > 0 ? (
-                                    allUser.map((item) => (
-                                        <tr key={item.id} className='border-b hover:bg-gray-100'>
-                                            <td className='px-4 py-2'>{item.id}</td>
-                                            <td className='px-4 py-2'>{item.name}</td>
-                                            <td className='px-4 py-2'>{item.email}</td>
-                                            <td className='px-4 py-2'>{item.phone}</td>
-                                            <td className='px-4 py-2'>{item.role}</td>
-                                            <td className='px-4 py-2 text center'>
-                                                {item.enable ? (
-                                                    <span className='text-green-600 text-sm font-bold'>เปิด</span>
-                                                ) : (
-                                                    <span className='text-red-600 text-sm font-bold'>ปิด</span>
-                                                )}
-                                            </td>
-                                            <td className='px-4 py-2 text-center'>
-                                                <Link
-                                                    to={`/admin/manage/${item.id}`}
-                                                    className='text-blue-600 hover:text-blue-800 inline-flex items-center gap-1'
-                                                >
-                                                    <FaSearch />
-                                                    ดูรายละเอียด
-                                                </Link>
-                                            </td>
+                        <div className='-mx-4 overflow-x-auto sm:-mx-6'>
+                            <div className='inline-block min-w-full align-middle px-4 sm:px-6'>
+                                <table className='min-w-full text-sm text-left text-gray-700'>
+                                    <thead className='bg-gray-100 text-xs font-semibold uppercase tracking-wider text-gray-700'>
+                                        <tr>
+                                            <th className='px-4 py-2'>เลขผู้ใช้งาน</th>
+                                            <th className='px-4 py-2'>ชื่อ</th>
+                                            <th className='px-4 py-2'>อีเมล์</th>
+                                            <th className='px-4 py-2'>หมายเลขโทรศัพท์</th>
+                                            <th className='px-4 py-2'>บทบาท</th>
+                                            <th className='px-4 py-2'>สถานะบัญชี</th>
+                                            <th className='px-4 py-2 text-center'>จัดการ</th>
                                         </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan={7} className='text-center text-gray-500 font-semibold py-8'>
-                                            ไม่พบข้อมูลแพ็คเกจที่คุณค้นหา
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
+                                    </thead>
+
+                                    <tbody className='divide-y divide-gray-100'>
+                                        {allUser.length > 0 ? (
+                                            allUser.map((item) => (
+                                                <tr key={item.id} className='hover:bg-pink-50/30'>
+                                                    <td className='px-4 py-2'>{item.id}</td>
+                                                    <td className='px-4 py-2'>{item.name}</td>
+                                                    <td className='px-4 py-2'>{item.email}</td>
+                                                    <td className='px-4 py-2'>{item.phone}</td>
+                                                    <td className='px-4 py-2'>{item.role}</td>
+                                                    <td className='px-4 py-2 text center'>
+                                                        {item.enable ? (
+                                                            <span className='text-green-600 text-sm font-bold'>เปิด</span>
+                                                        ) : (
+                                                            <span className='text-red-600 text-sm font-bold'>ปิด</span>
+                                                        )}
+                                                    </td>
+                                                    <td className='px-4 py-2 text-center'>
+                                                        <Link
+                                                            to={`/admin/manage/${item.id}`}
+                                                            className='inline-flex items-center gap-1 font-semibold text-blue-600 hover:text-blue-800'
+                                                        >
+                                                            <FaSearch />
+                                                            ดูรายละเอียด
+                                                        </Link>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan={7} className='text-center text-gray-500 font-semibold py-8'>
+                                                    ไม่พบข้อมูลแพ็คเกจที่คุณค้นหา
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
 
                         <Pagination
                             currentPage={currentPage}
