@@ -15,7 +15,7 @@ const FormPaymentDetail = () => {
     const [loading, setLoading] = useState(false)
 
     const [showSlipModal, setShowSlipModal] = useState(false)
-    const handleShowSlip = () => setShowSlipModal(true)
+    // const handleShowSlip = () => setShowSlipModal(true)
     const handleCloseSlip = () => setShowSlipModal(false)
 
     useEffect(() => {
@@ -39,7 +39,7 @@ const FormPaymentDetail = () => {
         }
     }
 
-    
+
 
     const handleBack = () => {
         navigate(-1)
@@ -68,7 +68,7 @@ const FormPaymentDetail = () => {
                 <p className='text-sm text-gray-600'>รหัสลูกค้า {payment?.booking?.userId}</p>
                 <p className='text-sm text-gray-600'>ชื่อลูกค้า {payment?.booking?.user?.name} {payment?.booking?.user?.surname}</p>
                 <p className='text-sm text-gray-600'>อีเมล์ {payment?.booking?.user?.email}</p>
-                <p className='text-sm text-gray-600'>โทรศัพท์ {payment?.booking?.user?.phone}</p> 
+                <p className='text-sm text-gray-600'>โทรศัพท์ {payment?.booking?.user?.phone}</p>
             </div>
 
             <div className='mt-5 grid grid-cols-1 gap-6 lg:grid-cols-2'>
@@ -98,16 +98,17 @@ const FormPaymentDetail = () => {
                         <p className='text-sm text-gray-700'>
                             {payment?.booking?.bookingStatus ? payment?.booking?.bookingStatus : '-'}
                         </p>
-                    {(payment?.paymentStatus === 'PAID'|| payment?.paymentStatus === 'PENDING') &&
-                        payment?.paymentMethod === 'BANK_TRANSFER' && (
-                            <button
-                                onClick={handleShowSlip}
-                                className='inline-flex items-center justify-center rounded-lg p-1 text-brand-pink hover:bg-pink-50 hover:text-pink-600'
-                                title='ดูสลิปโอนเงิน'
-                            >
-                                <Search size={20} />
-                            </button>
-                        )}
+
+                        {/* {(payment?.paymentStatus === 'PAID' || payment?.paymentStatus === 'PENDING' || payment?.paymentStatus === 'FAILED') &&
+                            payment?.paymentMethod === 'BANK_TRANSFER' && (
+                                <button
+                                    onClick={handleShowSlip}
+                                    className='inline-flex items-center justify-center rounded-lg p-1 text-brand-pink hover:bg-pink-50 hover:text-pink-600'
+                                    title='ดูสลิปโอนเงิน'
+                                >
+                                    <Search size={20} />
+                                </button>
+                            )} */}
                     </div>
 
                     <div className='pt-4'>
@@ -130,7 +131,7 @@ const FormPaymentDetail = () => {
 
                     <div className='pt-4'>
                         <p className='text-sm font-semibold text-gray-800'>หมายเลขธุรกรรมการเงิน</p>
-                        <p className='mt-1 text-sm text-gray-700'>{payment?.transactionId?? '-'}</p>
+                        <p className='mt-1 text-sm text-gray-700'>{payment?.transactionId ?? '-'}</p>
                     </div>
 
                     <div className='pt-4'>
@@ -142,6 +143,29 @@ const FormPaymentDetail = () => {
                         <p className='text-sm font-semibold text-gray-800'>วันที่อัพเดตล่าสุด</p>
                         <p className='mt-1 text-sm text-gray-700'>{payment?.updatedDate}</p>
                     </div>
+
+                    {payment?.booking?.approvedBy && (
+                        <div className='pt-4'>
+                            <p className='text-sm font-semibold text-gray-800'>ข้อมูลการอนุมัติรายการ</p>
+
+                            <div className='mt-2 space-y-1'>
+                                <p className='text-sm text-gray-700'>อนุมัติโดย: {payment?.booking?.approvedBy}</p>
+                                <p className='text-sm text-gray-700'>
+                                    วันที่อนุมัติ: {payment?.booking?.approvedAt ? new Date(payment?.booking?.approvedAt).toLocaleString('th-TH') : '-'}
+                                </p>
+                            </div>
+
+                            {payment?.secure_url && (
+                                <div className='mt-3'>
+                                    <img
+                                        src={payment.secure_url}
+                                        alt='สลิปโอนเงิน'
+                                        className='w-full h-auto rounded-xl ring-1 ring-gray-200'
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -164,7 +188,7 @@ const FormPaymentDetail = () => {
                         >
                             ✕
                         </button>
-                        <h2 className='mb-4 text-base font-semibold text-gray-800 sm:text-lg'>สลิปการชำระเงิน</h2>
+                        <h2 className='mb-4 text-base font-semibold text-gray-800 sm:text-lg'>สลิปการชำระเงิน555555555</h2>
                         {payment?.secure_url ? (
                             <img
                                 src={payment.secure_url}

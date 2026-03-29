@@ -37,7 +37,7 @@ exports.getUserBookings = async (req, res) => {
             }),
             prisma.booking.count({ where }),
         ])
-   
+
         res.status(200).json({
             booking: booking,
             total: total,
@@ -340,7 +340,7 @@ exports.listBookings = async (req, res) => {
 exports.listBookingStatus = async (req, res) => {
 
     try {
-        
+
         const allStatusList = Object.values(BookingStatus) // แปลง enum เป็น array ของ string
 
         res.status(200).json({
@@ -360,9 +360,32 @@ exports.updateBookingStatus = async (req, res) => {
         const { id } = req.params
         const { bookingStatus } = req.body
 
-        const updatedBooking = await prisma.booking.update({
+        // ตรวจสอบสิทธิ์ Admin
+        if (!['ADMIN', 'SUPER_ADMIN'].includes(req.user?.role)) {
+            return res.status(403).json({
+                message: 'Permission denied'
+            })
+        }
+
+        // สร้าง object สำหรับ update แบบ dynamic
+        const updateData = {
+            bookingStatus: bookingStatus
+        }
+
+        // audit ตอนอนุมัติ
+        if (['PAID', 'FAILED'].includes(bookingStatus)) {
+            if (!req.user?.name) {
+                return res.status(400).json({
+                    message: 'User name is required'
+                })
+            }
+            updateData.approvedBy = req.user.name
+            updateData.approvedAt = new Date()
+        }
+
+        const updatedBooking = await prisma.booking.update({ // อัปเดตสถานะการจองที่ ตาราง booking
             where: { id: Number(id) },
-            data: { bookingStatus: bookingStatus }
+            data: updateData
         })
 
         // ตรวจสอบว่ามี payment ที่ผูกกับ bookingId นี้หรือไม่

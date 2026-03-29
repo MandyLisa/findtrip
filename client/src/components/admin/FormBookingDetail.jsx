@@ -202,7 +202,7 @@ const FormBookingDetail = () => {
                         <ConfirmDialog
                             title='คุณแน่ใจว่าต้องการอนุมัติรายการนี้?'
                             description={`ยืนยันการอนุมัติรหัสการจอง '${booking?.id}' หรือไม่?`}
-                            confirmText='อนุมัติเลย'
+                            confirmText='ยืนยัน'
                             cancelText='ยกเลิก'
                             onConfirm={() => handleBookingStatus('PAID')}
                         >
