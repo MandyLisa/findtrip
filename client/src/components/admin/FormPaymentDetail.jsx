@@ -14,8 +14,7 @@ const FormPaymentDetail = () => {
     const [payment, setPayment] = useState({})
     const [loading, setLoading] = useState(false)
 
-    const [showSlipModal, setShowSlipModal] = useState(false)
-    // const handleShowSlip = () => setShowSlipModal(true)
+    const [showSlipModal, setShowSlipModal] = useState(true)
     const handleCloseSlip = () => setShowSlipModal(false)
 
     useEffect(() => {
@@ -29,7 +28,7 @@ const FormPaymentDetail = () => {
         setLoading(true)
         try {
             const res = await getPaymentDetail(token, id)
-            console.log('ดู fetchPaymentDetail ตรงนี้ ', res)
+            // console.log('ดู fetchPaymentDetail ตรงนี้ ', res)
             setPayment(res.data.payment)
 
         } catch (err) {
@@ -98,17 +97,6 @@ const FormPaymentDetail = () => {
                         <p className='text-sm text-gray-700'>
                             {payment?.booking?.bookingStatus ? payment?.booking?.bookingStatus : '-'}
                         </p>
-
-                        {/* {(payment?.paymentStatus === 'PAID' || payment?.paymentStatus === 'PENDING' || payment?.paymentStatus === 'FAILED') &&
-                            payment?.paymentMethod === 'BANK_TRANSFER' && (
-                                <button
-                                    onClick={handleShowSlip}
-                                    className='inline-flex items-center justify-center rounded-lg p-1 text-brand-pink hover:bg-pink-50 hover:text-pink-600'
-                                    title='ดูสลิปโอนเงิน'
-                                >
-                                    <Search size={20} />
-                                </button>
-                            )} */}
                     </div>
 
                     <div className='pt-4'>
@@ -118,7 +106,7 @@ const FormPaymentDetail = () => {
                             {payment?.paymentMethod === 'BANK_TRANSFER' && payment?.bankName && (
                                 <>
                                     <br />
-                                    <span className='text-sm text-gray-600'>ธนาคาร: {payment.bankName}</span>
+                                    <span className='text-sm text-gray-600'>ธนาคาร: {payment?.bankName}</span>
                                 </>
                             )}
                         </p>
@@ -144,12 +132,13 @@ const FormPaymentDetail = () => {
                         <p className='mt-1 text-sm text-gray-700'>{payment?.updatedDate}</p>
                     </div>
 
-                    {payment?.booking?.approvedBy && (
+                    {payment?.booking?.approvedBy && ( // แสดงข้อมูลการอนุมัติเฉพาะเมื่อมีการอนุมัติแล้ว)
                         <div className='pt-4'>
                             <p className='text-sm font-semibold text-gray-800'>ข้อมูลการอนุมัติรายการ</p>
-
                             <div className='mt-2 space-y-1'>
-                                <p className='text-sm text-gray-700'>อนุมัติโดย: {payment?.booking?.approvedBy}</p>
+                                <p className='text-sm text-gray-700'>
+                                    อนุมัติโดย: {payment?.booking?.approvedBy}
+                                </p>
                                 <p className='text-sm text-gray-700'>
                                     วันที่อนุมัติ: {payment?.booking?.approvedAt ? new Date(payment?.booking?.approvedAt).toLocaleString('th-TH') : '-'}
                                 </p>
@@ -158,7 +147,7 @@ const FormPaymentDetail = () => {
                             {payment?.secure_url && (
                                 <div className='mt-3'>
                                     <img
-                                        src={payment.secure_url}
+                                        src={payment?.secure_url}
                                         alt='สลิปโอนเงิน'
                                         className='w-full h-auto rounded-xl ring-1 ring-gray-200'
                                     />
@@ -179,7 +168,7 @@ const FormPaymentDetail = () => {
                 </button>
             </div>
 
-            {showSlipModal && (
+            {/* {showSlipModal && (
                 <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4'>
                     <div className='relative w-full max-w-3xl rounded-2xl bg-white p-4 shadow-xl ring-1 ring-gray-200 sm:p-6'>
                         <button
@@ -200,7 +189,7 @@ const FormPaymentDetail = () => {
                         )}
                     </div>
                 </div>
-            )}
+            )} */}
         </div >
     )
 }

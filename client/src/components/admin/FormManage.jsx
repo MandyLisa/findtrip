@@ -220,6 +220,7 @@ const FormManage = () => {
                                         <tr>
                                             <th className='px-4 py-2'>เลขผู้ใช้งาน</th>
                                             <th className='px-4 py-2'>ชื่อ</th>
+                                            <th className='px-4 py-2'>นามสกุล</th>
                                             <th className='px-4 py-2'>อีเมล์</th>
                                             <th className='px-4 py-2'>หมายเลขโทรศัพท์</th>
                                             <th className='px-4 py-2'>บทบาท</th>
@@ -234,6 +235,7 @@ const FormManage = () => {
                                                 <tr key={item.id} className='hover:bg-pink-50/30'>
                                                     <td className='px-4 py-2'>{item.id}</td>
                                                     <td className='px-4 py-2'>{item.name}</td>
+                                                    <td className='px-4 py-2'>{item.surname}</td>
                                                     <td className='px-4 py-2'>{item.email}</td>
                                                     <td className='px-4 py-2'>{item.phone}</td>
                                                     <td className='px-4 py-2'>{item.role}</td>
