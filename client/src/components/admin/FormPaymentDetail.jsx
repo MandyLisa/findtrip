@@ -62,16 +62,17 @@ const FormPaymentDetail = () => {
 
     return (
         <div className='my-8 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-gray-200 sm:p-6'>
-            <div className='flex flex-col gap-1'>
-                <p className='text-base font-semibold text-gray-800 sm:text-lg'>รายละเอียดการชำระเงิน</p>
-                <p className='text-sm text-gray-600'>รหัสลูกค้า {payment?.booking?.userId}</p>
-                <p className='text-sm text-gray-600'>ชื่อลูกค้า {payment?.booking?.user?.name} {payment?.booking?.user?.surname}</p>
-                <p className='text-sm text-gray-600'>อีเมล์ {payment?.booking?.user?.email}</p>
-                <p className='text-sm text-gray-600'>โทรศัพท์ {payment?.booking?.user?.phone}</p>
-            </div>
+            <p className='text-base font-semibold text-gray-800 sm:text-lg'>รายละเอียดการชำระเงิน</p>
 
             <div className='mt-5 grid grid-cols-1 gap-6 lg:grid-cols-2'>
                 <div className='space-y-2'>
+                    <div className='space-y-1'>
+                        <p className='text-sm text-gray-600'>รหัสลูกค้า {payment?.booking?.userId}</p>
+                        <p className='text-sm text-gray-600'>ชื่อลูกค้า {payment?.booking?.user?.name} {payment?.booking?.user?.surname}</p>
+                        <p className='text-sm text-gray-600'>อีเมล์ {payment?.booking?.user?.email}</p>
+                        <p className='text-sm text-gray-600'>โทรศัพท์ {payment?.booking?.user?.phone}</p>
+                    </div>
+
                     <p className='text-sm font-semibold text-gray-800'>หมายเลขการชำระเงิน: <span className='font-normal text-gray-700'>{payment?.id}</span></p>
                     <p className='text-sm text-gray-700'>ชื่อทัวร์: {payment?.booking?.tourPackage?.title}</p>
                     <p className='text-sm text-gray-700'>รหัสทัวร์: {payment?.booking?.tourPackage?.tourCode}</p>
@@ -89,17 +90,24 @@ const FormPaymentDetail = () => {
                     </div>
 
                     <p className='pt-4 text-sm font-semibold text-gray-800'>ราคารวมทั้งหมด: <span className='font-normal text-gray-700'>{Number(payment?.booking?.totalPrice).toLocaleString('th-TH')} บาท</span></p>
+
+                    <div className='pt-4 lg:hidden'>
+                        <p className='text-sm font-semibold text-gray-800'>สถานะการจอง</p>
+                        <p className='mt-1 text-sm text-gray-700'>
+                            {payment?.booking?.bookingStatus ? payment?.booking?.bookingStatus : '-'}
+                        </p>
+                    </div>
                 </div>
 
                 <div className='space-y-2'>
-                    <p className='text-sm font-semibold text-gray-800'>สถานะการจอง</p>
-                    <div className='flex flex-wrap items-center gap-2'>
-                        <p className='text-sm text-gray-700'>
+                    <div className='hidden lg:block'>
+                        <p className='text-sm font-semibold text-gray-800'>สถานะการจอง</p>
+                        <p className='mt-1 text-sm text-gray-700'>
                             {payment?.booking?.bookingStatus ? payment?.booking?.bookingStatus : '-'}
                         </p>
                     </div>
 
-                    <div className='pt-4'>
+                    <div className='pt-0'>
                         <p className='text-sm font-semibold text-gray-800'>ช่องทางชำระเงิน</p>
                         <p className='mt-1 text-sm text-gray-700'>
                             {payment?.paymentMethod ?? '-'}
@@ -149,7 +157,7 @@ const FormPaymentDetail = () => {
                                     <img
                                         src={payment?.secure_url}
                                         alt='สลิปโอนเงิน'
-                                        className='w-full h-auto rounded-xl ring-1 ring-gray-200'
+                                        className='w-full max-w-lg h-auto rounded-xl ring-1 ring-gray-200 object-contain bg-gray-50'
                                     />
                                 </div>
                             )}
