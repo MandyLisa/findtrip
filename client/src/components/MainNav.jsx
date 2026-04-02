@@ -1,7 +1,7 @@
 // rafce (arrow function) หรือ rfce (function declaration) ใช้อันไหนก็ได้
 
 import { Link, useNavigate } from 'react-router-dom'
-import logo from '../assets/logo.png'
+import logo from '../assets/logo1.png'
 import { CircleUserRound } from 'lucide-react'
 import { useState } from 'react'
 import useAuthStore from '../store/authStore'

@@ -95,7 +95,7 @@ exports.createBooking = async (req, res) => {
     try {
         const { tourPackageId, adultCount, childCount, singleStayCount } = req.body
 
-        // แปลงให้เป็นจำนวนเต็มก่อน
+        // แปลงให้เป็นจำนวนเต็ม
         const parsedTourPackageId = parseInt(tourPackageId)
         if (isNaN(parsedTourPackageId)) {
             return res.status(400).json({ message: 'Invalid tourPackageId provided!' })
