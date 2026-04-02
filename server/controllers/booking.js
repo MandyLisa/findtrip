@@ -93,7 +93,7 @@ exports.getBookingById = async (req, res) => {
 // POST /api/user/booking → สร้างการจองใหม่
 exports.createBooking = async (req, res) => {
     try {
-        const { tourPackageId, adultCount, childCount, singleStayCount } = req.body
+        const { tourPackageId, adultCount, childCount, singleStayCount, forceCreate } = req.body
 
         // แปลงให้เป็นจำนวนเต็ม
         const parsedTourPackageId = parseInt(tourPackageId)
@@ -101,21 +101,30 @@ exports.createBooking = async (req, res) => {
             return res.status(400).json({ message: 'Invalid tourPackageId provided!' })
         }
 
-        // ตรวจสอบว่าผู้ใช้นี้มีรายการจอง (DRAFT/PENDING) สำหรับทัวร์แพ็กเกจนี้อยู่แล้วหรือไม่
+        // ตรวจสอบว่าผู้ใช้นี้มีรายการจองสำหรับทัวร์แพ็กเกจนี้อยู่แล้วหรือไม่
         const existingActiveBooking = await prisma.booking.findFirst({
             where: {
                 userId: parseInt(req.user.id), // ใช้ userId จาก JWT (Authenticated user)
                 tourPackageId: parsedTourPackageId,
                 bookingStatus: {
-                    in: ['DRAFT'] // ['DRAFT', 'PENDING_PAYMENT']
+                    in: ['DRAFT', 'PENDING', 'PAID']
                 }
             }
         })
 
-        if (existingActiveBooking) { // หากพบการจองที่กำลังดำเนินอยู่
+        if (existingActiveBooking && forceCreate !== true) { // หากพบการจองที่กำลังดำเนินอยู่
+            let conflictMessage = 'You already have an active booking for this tourpackage.'
+            if (existingActiveBooking.bookingStatus === 'DRAFT') {
+                conflictMessage = 'You already have a DRAFT booking for this tourpackage. Do you want to book again?'
+            } else if (existingActiveBooking.bookingStatus === 'PENDING') {
+                conflictMessage = 'You already have a PENDING booking for this tourpackage. Do you want to book again?'
+            } else if (existingActiveBooking.bookingStatus === 'PAID') {
+                conflictMessage = 'You already have a PAID booking for this tourpackage. Do you want to book again?'
+            }
             return res.status(409).json({ // 409 Conflict: เพื่อบอกว่า Request ขัดแย้งกับสถานะปัจจุบัน
-                message: 'You already have an active booking for this tourpackage. Please complete or cancel your existing booking',
-                bookingId: existingActiveBooking.id // อาจส่ง ID การจองเดิมกลับไปให้ Client เพื่อ redirect
+                message: conflictMessage,
+                bookingId: existingActiveBooking.id,
+                bookingStatus: existingActiveBooking.bookingStatus
             })
         }
 
@@ -172,11 +181,18 @@ exports.createBooking = async (req, res) => {
         })
 
         // 6. เรียกส่งอีเมลแจ้งเตือน 
-        await sendBookingConfirmationEmail(null, newBooking.id)
+        let emailSent = true
+        try {
+            await sendBookingConfirmationEmail(null, newBooking.id)
+        } catch (emailError) {
+            emailSent = false
+            console.error('Booking created but email sending failed: ', emailError)
+        }
 
         res.status(201).json({
             message: 'Booking created successfully',
-            booking: newBooking
+            booking: newBooking,
+            emailSent: emailSent
         })
     } catch (error) {
         console.error('Error creating booking: ', error)

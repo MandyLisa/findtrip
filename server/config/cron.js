@@ -1,6 +1,7 @@
 const cron = require('node-cron')
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
+const { sendBookingCancelledEmail } = require('../utils/email')
 
 // ฟังก์ชันสำหรับ Update สถานะทัวร์อัตโนมัติ
 const updateTourStatus = async () => {
@@ -8,6 +9,7 @@ const updateTourStatus = async () => {
         // console.log('--- Starting Daily Tour Status Update ---')
         
         const today = new Date()
+
         today.setHours(0, 0, 0, 0)
 
         // คำนวณวันที่ "วันนี้ + 3 วัน"
@@ -37,6 +39,59 @@ const updateTourStatus = async () => {
     }
 }
 
+const autoCancelExpiredDraftBookings = async () => {
+    try {
+        const cutoff = new Date(Date.now() - (24 * 60 * 60 * 1000))
+
+        const expiredDrafts = await prisma.booking.findMany({
+            where: {
+                bookingStatus: 'DRAFT',
+                createdDate: {
+                    lt: cutoff,
+                },
+                Payment: {
+                    is: null,
+                },
+            },
+            select: {
+                id: true,
+                adultCount: true,
+                tourPackageId: true,
+            },
+        })
+
+        for (const booking of expiredDrafts) {
+            try {
+                await prisma.$transaction(async (tx) => {
+                    await tx.booking.update({
+                        where: { id: booking.id },
+                        data: { bookingStatus: 'CANCELLED' },
+                    })
+
+                    await tx.tourPackage.update({
+                        where: { id: booking.tourPackageId },
+                        data: {
+                            sold: {
+                                decrement: booking.adultCount,
+                            },
+                        },
+                    })
+                })
+
+                try {
+                    await sendBookingCancelledEmail(null, booking.id)
+                } catch (emailError) {
+                    console.error('Auto-cancelled booking but email sending failed: ', emailError)
+                }
+            } catch (err) {
+                console.error('Failed to auto-cancel expired draft booking: ', booking.id, err)
+            }
+        }
+    } catch (error) {
+        console.error('Error during autoCancelExpiredDraftBookings:', error)
+    }
+}
+
 // 2. ตั้งเวลาให้ทำงานทุกวันตอนเที่ยงคืนเป๊ะ (00:00)
 // รูปแบบ: (วินาที) นาที ชั่วโมง วันที่ เดือน วันในสัปดาห์
 // '0 0 * * *' คือ ทุกนาทีที่ 0 ชั่วโมงที่ 0 ของทุกวัน
@@ -45,6 +100,11 @@ const initCron = () => {
         updateTourStatus()
     })
     console.log('Cron Job initialized: Will run every day at midnight.')
+
+    cron.schedule('0 * * * *', () => {
+        autoCancelExpiredDraftBookings()
+    })
+    console.log('Cron Job initialized: Auto-cancel expired DRAFT bookings every hour.')
 }
 
 module.exports = { initCron }

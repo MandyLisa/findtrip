@@ -132,3 +132,51 @@ exports.sendPaymentSuccessEmail = async (toEmail, paymentId) => {
         console.error('ไม่สามารถส่งอีเมล์ยืนยันการชำระเงินได้:', error.message)
     }
 }
+
+
+exports.sendBookingCancelledEmail = async (toEmail, bookingId) => {
+    try {
+        const booking = await prisma.booking.findUnique({
+            where: { id: bookingId },
+            include: {
+                tourPackage: true,
+                user: true,
+            },
+        })
+
+        if (!booking) throw new Error('Booking not found')
+
+        const { tourPackage, user } = booking
+        const recipient = toEmail || booking.user?.email
+
+        if (!recipient) {
+            throw new Error('No email address found for this user')
+        }
+
+        const htmlContent = `
+            <h2>แจ้งยกเลิกการจองแพ็คเกจทัวร์ ${tourPackage.title}</h2>
+            <p>คุณ ${user.name || ''} ${user.surname || ''}</p>
+            <p>ระบบได้ทำการยกเลิกการจองของคุณโดยอัตโนมัติ เนื่องจากไม่ได้ทำรายการชำระเงินภายใน 24 ชั่วโมง</p>
+            <ul>
+                <li><strong>รหัสการจอง:</strong> ${booking.id}</li>
+                <li><strong>ชื่อทัวร์:</strong> ${tourPackage.title}</li>
+                <li><strong>รหัสทัวร์:</strong> ${tourPackage.tourCode}</li>
+                <li><strong>จำนวนผู้เดินทาง(ผู้ใหญ่):</strong> ${booking.adultCount} ท่าน</li>
+                <li><strong>รวมยอด:</strong> ${booking.totalPrice.toLocaleString()} บาท</li>
+            </ul>
+            <p>หากคุณต้องการจองใหม่ สามารถกลับไปทำรายการจองได้อีกครั้ง</p>
+        `
+
+        await transporter.sendMail({
+            from: `'findtrip' <${process.env.EMAIL_USER}>`,
+            to: recipient,
+            subject: `ยกเลิกการจองอัตโนมัติ - ${tourPackage.title}`,
+            html: htmlContent,
+        })
+
+        console.log('ส่งอีเมลแจ้งยกเลิกการจองสำเร็จ')
+    } catch (error) {
+        console.error('Error in sendBookingCancelledEmail: ', error.message)
+        throw new Error('Error in sending booking cancelled email')
+    }
+}

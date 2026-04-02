@@ -32,7 +32,7 @@ const FormBookingDetail = () => {
         setLoading(true)
         try {
             const res = await getBookingDetail(token, id)
-            console.log('ดู fetchBookingDetail ตรงนี้ ', res)
+            // console.log('ดู fetchBookingDetail ตรงนี้ ', res)
             setBooking(res.data.booking)
 
         } catch (error) {
@@ -62,7 +62,7 @@ const FormBookingDetail = () => {
                         }
                     )
                     : await updateBookingStatus(token, id, status)
-            console.log('ดู handleBookingStatus ตรงนี้ ', res)
+            // console.log('ดู handleBookingStatus ตรงนี้ ', res)
             setBooking(res.data.booking)
 
             if (status === 'CANCELLED') {
@@ -250,7 +250,6 @@ const FormBookingDetail = () => {
                     </div>
                 </div>
             )}
-
         </div >
     )
 }
