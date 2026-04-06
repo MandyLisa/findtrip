@@ -107,7 +107,7 @@ exports.createBooking = async (req, res) => {
                 userId: parseInt(req.user.id), // ใช้ userId จาก JWT (Authenticated user)
                 tourPackageId: parsedTourPackageId,
                 bookingStatus: {
-                    in: ['DRAFT', 'PENDING', 'PAID']
+                    in: ['DRAFT', 'PENDING']
                 }
             }
         })
@@ -118,8 +118,6 @@ exports.createBooking = async (req, res) => {
                 conflictMessage = 'You already have a DRAFT booking for this tourpackage. Do you want to book again?'
             } else if (existingActiveBooking.bookingStatus === 'PENDING') {
                 conflictMessage = 'You already have a PENDING booking for this tourpackage. Do you want to book again?'
-            } else if (existingActiveBooking.bookingStatus === 'PAID') {
-                conflictMessage = 'You already have a PAID booking for this tourpackage. Do you want to book again?'
             }
             return res.status(409).json({ // 409 Conflict: เพื่อบอกว่า Request ขัดแย้งกับสถานะปัจจุบัน
                 message: conflictMessage,
