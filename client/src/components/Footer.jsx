@@ -1,5 +1,4 @@
-
-import logo from '../assets/logo.png';
+import logo from '../assets/logo.png'
 
 const Footer = () => {
   return (
@@ -12,14 +11,14 @@ const Footer = () => {
                     </div>
 
                     <div className='flex gap-8'>
-                        <a href="https://line.me" target="_blank" rel="noopener noreferrer">
-                            <img src="/icons/line-logo.png" alt="Line" className="w-10 h-10" />
+                        <a href='https://line.me' target='_blank' rel='noopener noreferrer'>
+                            <img src='/icons/line-logo.png' alt='Line' className='w-10 h-10' />
                         </a>
-                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
-                            <img src="/icons/facebook-logo.png" alt="Facebook" className="w-10 h-10" />
+                        <a href='https://facebook.com' target='_blank' rel='noopener noreferrer'>
+                            <img src='/icons/facebook-logo.png' alt='Facebook' className='w-10 h-10' />
                         </a>
-                        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
-                            <img src="/icons/ig-logo.png" alt="Instagram" className="w-10 h-10" />
+                        <a href='https://instagram.com' target='_blank' rel='noopener noreferrer'>
+                            <img src='/icons/ig-logo.png' alt='Instagram' className='w-10 h-10' />
                         </a>
 
                     </div>

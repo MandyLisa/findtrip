@@ -162,6 +162,9 @@ model Payment {
     paymentMethod PaymentMethod
     paymentStatus PaymentStatus @default(PENDING)
     transactionId String?
+    stripeSessionId String?      @unique
+    stripeClientSecret String?
+    stripeSessionCreatedAt DateTime?
     paymentDate   DateTime?
     secure_url    String? // URL แบบ https
     public_id     String?

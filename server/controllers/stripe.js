@@ -9,11 +9,22 @@ exports.createStripePayment = async (req, res) => { // สร้าง Stripe Ch
     try {
         const { bookingId } = req.body // รับ bookingId เพื่อจะได้รู้ว่ากำลังจะจ่ายเงินสำหรับการจองไหน
         const userId = req.user.id //และใครเป็นผู้จ่าย
+
+        const REUSE_WINDOW_MS = 30 * 60 * 1000
+
+        const numericBookingId = Number(bookingId)
+        if (!numericBookingId || Number.isNaN(numericBookingId)) {
+            return res.status(400).json({ message: 'Invalid bookingId' })
+        }
+
         // console.error(userId)
         // console.error(bookingId)
 
         const booking = await prisma.booking.findFirst({ // หา booking ใน DB ว่ามีจริงไหม
-            where: { id: bookingId }
+            where: {
+                id: numericBookingId,
+                userId: userId,
+            }
         })
 
 
@@ -21,16 +32,58 @@ exports.createStripePayment = async (req, res) => { // สร้าง Stripe Ch
             return res.status(404).json({ message: 'Booking not found' })
         }
 
-        // **เช็คการจ่ายซ้ำ** ตรวจสอบว่ามีการชำระเงินที่สำเร็จแล้วสำหรับการจองนี้หรือไม่ เพื่อป้องกันการสร้าง Stripe Session ซ้ำซ้อน
-        const existingPayment = await prisma.payment.findFirst({
+        const existingPayment = await prisma.payment.findUnique({
             where: {
                 bookingId: booking.id,
-                paymentStatus: 'PAID'
-            }
+            },
         })
 
-        if (existingPayment) {
+        if (existingPayment?.paymentStatus === 'PAID') {
             return res.status(400).json({ message: 'Payment for this booking has already been processed' })
+        }
+
+        // ถ้ามี payment แบบโอนเงินที่กำลังรอตรวจ (แนบสลิป) → ไม่อนุญาตให้เปิด Stripe
+        if (existingPayment?.paymentMethod === 'BANK_TRANSFER' && existingPayment?.paymentStatus === 'PENDING') {
+            return res.status(409).json({
+                message: 'You already have a pending bank transfer payment for this booking. Please cancel the existing order before paying by credit card.',
+                paymentMethod: existingPayment.paymentMethod,
+                paymentStatus: existingPayment.paymentStatus,
+            })
+        }
+
+        // ถ้ามี Stripe session ค้างอยู่และยังไม่ PAID → reuse clientSecret เดิม
+        if (
+            existingPayment?.paymentMethod === 'CREDIT_CARD' &&
+            existingPayment?.paymentStatus === 'PENDING' &&
+            existingPayment?.stripeSessionId
+        ) {
+            let canReuse = true
+
+            if (existingPayment.stripeSessionCreatedAt) {
+                const ageMs = Date.now() - new Date(existingPayment.stripeSessionCreatedAt).getTime()
+                if (ageMs > REUSE_WINDOW_MS) {
+                    canReuse = false
+                }
+            }
+
+            if (canReuse) {
+                try {
+                    const stripeSession = await stripe.checkout.sessions.retrieve(existingPayment.stripeSessionId)
+                    const expiresAtMs = stripeSession?.expires_at ? stripeSession.expires_at * 1000 : null
+                    const notExpired = !expiresAtMs || expiresAtMs > Date.now()
+                    const isOpen = stripeSession?.status === 'open'
+                    const notPaid = stripeSession?.payment_status !== 'paid'
+
+                    if (isOpen && notExpired && notPaid) {
+                        const clientSecret = existingPayment.stripeClientSecret || stripeSession.client_secret
+                        if (clientSecret) {
+                            return res.status(201).json({ clientSecret: clientSecret })
+                        }
+                    }
+                } catch (stripeError) {
+                    console.error('Error retrieving Stripe session for reuse:', stripeError)
+                }
+            }
         }
 
         const { totalPrice } = booking // destructure โค้ดออกมา เพื่อ เอายอด totalPrice ไปสร้าง Stripe Checkout Session
@@ -58,6 +111,33 @@ exports.createStripePayment = async (req, res) => { // สร้าง Stripe Ch
             mode: 'payment',
             return_url: `http://localhost:5173/user/payment-success?session_id={CHECKOUT_SESSION_ID}&booking_id=${bookingId}`, // หน้าที่บอกว่า เมื่อจ่ายเงินเสร็จ จะให้มันไปไหน
         })
+
+        // persist Stripe session on Payment (idempotent / reuse)
+        if (existingPayment) {
+            await prisma.payment.update({
+                where: { id: existingPayment.id },
+                data: {
+                    paymentMethod: 'CREDIT_CARD',
+                    paymentStatus: 'PENDING',
+                    amount: booking.totalPrice,
+                    stripeSessionId: session.id,
+                    stripeClientSecret: session.client_secret,
+                    stripeSessionCreatedAt: new Date(),
+                },
+            })
+        } else {
+            await prisma.payment.create({
+                data: {
+                    bookingId: booking.id,
+                    paymentMethod: 'CREDIT_CARD',
+                    paymentStatus: 'PENDING',
+                    amount: booking.totalPrice,
+                    stripeSessionId: session.id,
+                    stripeClientSecret: session.client_secret,
+                    stripeSessionCreatedAt: new Date(),
+                },
+            })
+        }
 
         // ส่ง clientSecret กลับไปให้ Frontend 
         res.status(201).json({ clientSecret: session.client_secret })
