@@ -96,49 +96,34 @@ exports.stripeCheckoutStatus = async (req, res) => {
         if (session.payment_status === 'paid') {
             // การชำระเงินสำเร็จบน Stripe
 
-            // 3. ค้นหา Booking ใน DB ของเรา
-            const booking = await prisma.booking.findUnique({
-                where: { id: sessionBookingId }
-            })
+            const result = await prisma.$transaction(async (tx) => {
+                const booking = await tx.booking.findUnique({
+                    where: { id: sessionBookingId },
+                })
 
-            // console.error('booking ================ ', booking)
-
-            if (!booking) {
-                console.error(`Booking not found for payment confirmation: ${sessionBookingId}`)
-                return res.status(404).json({ message: 'Associated booking not found.' })
-            }
-
-            // 4. ตรวจสอบและสร้าง/อัปเดต Payment record
-            let payment = await prisma.payment.findUnique({
-                where: { bookingId: booking.id }
-            })
-
-            if (payment) {
-                // ถ้ามี Payment record อยู่แล้ว (อาจจะอยู่ในสถานะ PENDING จากการโอนเงิน หรือเคยสร้างไว้ก่อน)
-                // ให้อัปเดตสถานะและข้อมูลที่เกี่ยวข้องกับการชำระเงินด้วยบัตร
-                if (payment.paymentStatus === 'PAID') {
-                    console.error(`Payment for booking ${booking.id} already PAID.`)
-                    return res.status(200).json({ message: 'Payment already confirmed.', paymentStatus: 'PAID', booking: booking })
+                if (!booking) {
+                    console.error(`Booking not found for payment confirmation: ${sessionBookingId}`)
+                    return { notFound: true }
                 }
 
-                payment = await prisma.payment.update({
-                    where: { id: payment.id },
-                    data: {
+                const existingPayment = await tx.payment.findUnique({
+                    where: { bookingId: booking.id },
+                })
+
+                if (existingPayment?.paymentStatus === 'PAID' && booking.bookingStatus === 'PAID') {
+                    return { alreadyPaid: true, paymentId: existingPayment.id }
+                }
+
+                const payment = await tx.payment.upsert({
+                    where: { bookingId: booking.id },
+                    update: {
                         paymentMethod: 'CREDIT_CARD',
                         paymentStatus: 'PAID',
-                        transactionId: session.id, // ใช้ Stripe Session ID เป็น transaction ID
+                        transactionId: session.id,
                         paymentDate: new Date(),
-                        amount: session.amount_total / 100, // แปลงจากสตางค์เป็นบาท
+                        amount: session.amount_total / 100,
                     },
-                    include: { booking: true } // ดึงข้อมูล booking กลับไปด้วย
-                })
-                console.error('Existing Payment record updated to PAID:', payment)
-
-            } else {
-                // ถ้ายังไม่มี Payment record (กรณีที่ไม่เคยเลือกช่องทางอื่นมาก่อน หรือเพิ่งสร้าง session)
-                // ให้สร้าง Payment record ใหม่
-                payment = await prisma.payment.create({
-                    data: {
+                    create: {
                         bookingId: booking.id,
                         paymentMethod: 'CREDIT_CARD',
                         paymentStatus: 'PAID',
@@ -146,23 +131,33 @@ exports.stripeCheckoutStatus = async (req, res) => {
                         paymentDate: new Date(),
                         amount: session.amount_total / 100,
                     },
-                    include: { booking: true }
                 })
-            }
 
-            // 5. update DB bookingStatus ให้เป็น PAID (เมื่อชำระเงินสำเร็จ)
-            const updatedBooking = await prisma.booking.update({
-                where: {
-                    id: booking.id
-                },
-                data: {
-                    bookingStatus: 'PAID'
+                await tx.booking.update({
+                    where: { id: booking.id },
+                    data: { bookingStatus: 'PAID' },
+                })
+
+                return {
+                    alreadyPaid: false,
+                    paymentId: payment.id,
                 }
             })
-            await sendPaymentSuccessEmail(req.user.email, payment.id)
 
-            res.status(200).json({
-                message: 'Payment Complete',
+            if (result?.notFound) {
+                return res.status(404).json({ message: 'Associated booking not found.' })
+            }
+
+            if (!result?.alreadyPaid) {
+                try {
+                    await sendPaymentSuccessEmail(null, result.paymentId)
+                } catch (emailError) {
+                    console.error('Payment confirmed but email sending failed: ', emailError)
+                }
+            }
+
+            return res.status(200).json({
+                message: result?.alreadyPaid ? 'Payment already confirmed.' : 'Payment Complete',
                 paymentStatus: 'PAID',
             })
 

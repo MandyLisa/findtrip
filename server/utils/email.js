@@ -101,6 +101,12 @@ exports.sendPaymentSuccessEmail = async (toEmail, paymentId) => {
         const user = payment.booking.user
         const tour = payment.booking.tourPackage
 
+        const recipient = toEmail || user?.email
+
+        if (!recipient) {
+            throw new Error('No email address found for this user')
+        }
+
         const message = `
             <html>
                 <body style="font-family: Arial, sans-serif; color: #333;">
@@ -122,7 +128,7 @@ exports.sendPaymentSuccessEmail = async (toEmail, paymentId) => {
 
         await transporter.sendMail({
             from: process.env.EMAIL_USER,
-            to: toEmail,
+            to: recipient,
             subject: 'ยืนยันการชำระเงิน - findtrip',
             html: message
         })
