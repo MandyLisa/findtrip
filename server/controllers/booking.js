@@ -1,6 +1,7 @@
 const { BookingStatus } = require('@prisma/client')
 const prisma = require('../config/prisma')
-const { sendBookingConfirmationEmail } = require('../utils/email')
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
+const { sendBookingConfirmationEmail, sendPaymentSuccessEmail } = require('../utils/email')
 
 // 1. User ดูการจองของตัวเองทั้งหมด
 // GET /api/user/bookings → ดึงข้อมูลการจองทั้งหมด
@@ -214,47 +215,102 @@ exports.cancelBooking = async (req, res) => {
             return res.status(404).json({ message: 'Booking not found' })
         }
 
-        // 2. อัปเดตสถานะ Booking เป็น CANCELLED
-        const updateBooking = await prisma.booking.update({
-            where: {
-                id: Number(id)
-            },
-            data: {
-                bookingStatus: 'CANCELLED'
-            }
-        })
+        if (existingBooking.bookingStatus === 'PAID') {
+            return res.status(400).json({ message: 'Cannot cancel a PAID booking' })
+        }
 
-        // 3. อัปเดตสถานะ Payment เป็น CANCELLED (ถ้ามี)
-        let updatedPayment = null // กำหนดค่าเริ่มต้นเป็น null
+        // ตรวจสอบสถานะ Payment ก่อน เพื่อรองรับ soft cancel ตอนบัตรเครดิต PENDING
         const existingPayment = await prisma.payment.findUnique({
             where: {
                 bookingId: Number(id)
             }
         })
 
-        // ถ้ามี record อยู่ ให้อัปเดตสถานะ Payment เป็น CANCELLED
-        if (existingPayment) {
-            // console.log('เข้า updatesPayment ไหม ======== ')
-            updatedPayment = await prisma.payment.update({
-                where: {
-                    bookingId: Number(id)
-                },
-                data: {
-                    paymentStatus: 'CANCELLED'
+        if (
+            existingPayment &&
+            existingPayment.paymentMethod === 'CREDIT_CARD' &&
+            existingPayment.paymentStatus === 'PENDING' &&
+            existingPayment.stripeSessionId
+        ) {
+            try {
+                const stripeSession = await stripe.checkout.sessions.retrieve(existingPayment.stripeSessionId)
+
+                if (stripeSession?.payment_status === 'paid') {
+                    const result = await prisma.$transaction(async (tx) => {
+                        const payment = await tx.payment.upsert({
+                            where: { bookingId: Number(id) },
+                            update: {
+                                paymentMethod: 'CREDIT_CARD',
+                                paymentStatus: 'PAID',
+                                transactionId: stripeSession.id,
+                                paymentDate: new Date(),
+                                amount: stripeSession.amount_total / 100,
+                            },
+                            create: {
+                                bookingId: Number(id),
+                                paymentMethod: 'CREDIT_CARD',
+                                paymentStatus: 'PAID',
+                                transactionId: stripeSession.id,
+                                paymentDate: new Date(),
+                                amount: stripeSession.amount_total / 100,
+                            },
+                        })
+
+                        await tx.booking.update({
+                            where: { id: Number(id) },
+                            data: { bookingStatus: 'PAID' },
+                        })
+
+                        return { paymentId: payment.id }
+                    })
+
+                    try {
+                        await sendPaymentSuccessEmail(null, result.paymentId)
+                    } catch (emailError) {
+                        console.error('Payment synced to PAID but email sending failed: ', emailError)
+                    }
+
+                    return res.status(409).json({
+                        message: 'Payment already completed. Booking has been synced to PAID and cannot be cancelled.',
+                        bookingStatus: 'PAID',
+                        paymentStatus: 'PAID'
+                    })
                 }
-            })
+
+                // ถ้า session ยัง open อยู่ สามารถ expire เพื่อกันการจ่ายต่อได้
+                if (stripeSession?.status === 'open') {
+                    try {
+                        await stripe.checkout.sessions.expire(existingPayment.stripeSessionId)
+                    } catch (expireError) {
+                        console.error('Failed to expire Stripe session:', expireError)
+                    }
+                }
+            } catch (stripeError) {
+                console.error('Error retrieving Stripe session before cancel:', stripeError)
+            }
         }
 
-        // 4. คืนจำนวนที่นั่งกลับไปในระบบ (เฉพาะ adultCount)
-        await prisma.tourPackage.update({
-            where: {
-                id: existingBooking.tourPackageId
-            },
-            data: {
-                sold: {
-                    decrement: existingBooking.adultCount
-                }
+        await prisma.$transaction(async (tx) => {
+            await tx.booking.update({
+                where: { id: Number(id) },
+                data: { bookingStatus: 'CANCELLED' }
+            })
+
+            if (existingPayment) {
+                await tx.payment.update({
+                    where: { bookingId: Number(id) },
+                    data: { paymentStatus: 'CANCELLED' }
+                })
             }
+
+            await tx.tourPackage.update({
+                where: { id: existingBooking.tourPackageId },
+                data: {
+                    sold: {
+                        decrement: existingBooking.adultCount
+                    }
+                }
+            })
         })
 
         const booking = await prisma.booking.findUnique({
