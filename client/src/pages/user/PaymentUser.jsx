@@ -6,7 +6,7 @@ import { Ban, CheckCircle, TicketCheck, Clock, Loader, XCircle } from 'lucide-re
 import { FaCcVisa } from 'react-icons/fa'
 import { SiMastercard } from 'react-icons/si'
 import BookingCardDetails from '../../components/card/BookingCardDetails'
-import { toast } from 'sonner'
+import Swal from 'sweetalert2'
 import CheckoutCardForm from '../../components/payment/CheckoutCardForm'
 import BankTransferForm from '../../components/payment/BankTransferForm'
 import useAuthStore from '../../store/authStore'
@@ -60,11 +60,24 @@ const PaymentUser = () => {
     try {
       const res = await cancelBooking(token, bookingId) // เรียก API ยกเลิกการจอง
       setBooking(res.data.booking) 
-      toast.success('ยกเลิกการจองเรียบร้อยแล้ว')
+      await Swal.fire({
+        title: 'ยกเลิกการจองเรียบร้อยแล้ว',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 1200,
+        timerProgressBar: true,
+      })
       navigate(`/user/mybookings`) 
     } catch (error) {
       console.error(error)
-      toast.error('เกิดข้อผิดพลาดในการยกเลิกการจอง')
+      const errMsg = error.response?.data?.message || 'เกิดข้อผิดพลาดในการยกเลิกการจอง'
+      await Swal.fire({
+        title: 'ทำรายการไม่สำเร็จ',
+        text: errMsg,
+        icon: 'error',
+        confirmButtonText: 'ลองอีกครั้ง',
+        confirmButtonColor: '#dc2626'
+      })
     }
   }
 

@@ -5,7 +5,7 @@ import { formatDateRange } from '../../utils/formatDate'
 import DownloadPDF from '../../components/card/DownloadPDF'
 import { createBooking } from '../../API/booking'
 import Pre_Footer from '../../components/Pre_Footer'
-import { toast } from 'sonner'
+import Swal from 'sweetalert2'
 import { InfoBox } from '../../components/ui/InfoBox'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import useAuthStore from '@/store/authStore'
@@ -66,11 +66,20 @@ const BookingUser = () => {
     }, [tourDetail, adultCount, childCount, singleStayCount])
 
     // คำนวณที่นั่งที่เหลือสำหรับการแสดงผล
-    const availableSeats = (tourDetail?.maxSeats ?? 0) - (tourDetail?.sold ?? 0)
+    const hasSeatData = tourDetail?.maxSeats != null && tourDetail?.sold != null
+    const availableSeats = hasSeatData
+        ? (parseInt(tourDetail.maxSeats) || 0) - (parseInt(tourDetail.sold) || 0)
+        : null
 
     const handleClickBooking = async () => {
-        if (adultCount > availableSeats) { // validate ก่อน ค่อยสร้างการจอง
-            toast.error('จำนวนผู้ใหญ่เกินจำนวนที่นั่ง')
+        if (availableSeats !== null && adultCount > availableSeats) { // validate ก่อน ค่อยสร้างการจอง
+            await Swal.fire({
+                title: 'ไม่สามารถจองได้',
+                text: 'จำนวนผู้ใหญ่เกินจำนวนที่นั่ง',
+                icon: 'error',
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#dc2626',
+            })
             return
         }
 
@@ -84,19 +93,38 @@ const BookingUser = () => {
             }
             const res = await createBooking(token, data)
             const bookingId = res.data.booking.id
+            await Swal.fire({
+                title: 'สร้างการจองสำเร็จ!',
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 1200,
+                timerProgressBar: true,
+            })
             navigate(`/user/payments/${bookingId}`)
-            toast.success('สร้างการจองสำเร็จ!')
 
         } catch (error) {
             console.error('Booking error:', error)
             if (error.response && error.response.status === 409) { // ถ้า Error 409 (Conflict) เกิดจากการจองซ้ำ        
                 const existingBookingId = error.response.data.bookingId // ดึง bookingId เดิมจาก Backend
-                toast.info('คุณมีรายการจองที่กำลังดำเนินการสำหรับทัวร์นี้อยู่แล้ว!')
+                await Swal.fire({
+                    title: 'มีรายการจองอยู่แล้ว',
+                    text: 'คุณมีรายการจองที่กำลังดำเนินการสำหรับทัวร์นี้อยู่แล้ว!',
+                    icon: 'info',
+                    confirmButtonText: 'ไปหน้าชำระเงิน',
+                    confirmButtonColor: '#ec4899',
+                })
                 if (existingBookingId) {
                     navigate(`/user/payments/${existingBookingId}`) // Redirect ไปที่หน้า PaymentUser เดิมเพื่อดำเนินการต่อ
                 }
             } else {
-                toast.error('เกิดข้อผิดพลาดในการสร้างการจอง')
+                const errMsg = error.response?.data?.message || 'เกิดข้อผิดพลาดในการสร้างการจอง'
+                await Swal.fire({
+                    title: 'ทำรายการไม่สำเร็จ',
+                    text: errMsg,
+                    icon: 'error',
+                    confirmButtonText: 'ลองอีกครั้ง',
+                    confirmButtonColor: '#dc2626'
+                })
             }
         } finally {
             setIsLoading(false)
@@ -114,9 +142,6 @@ const BookingUser = () => {
             </div>
         )
     }
-
-    console.log('adultCount 55555: ', adultCount)
-    console.log('availableSeats 5555: ', availableSeats)
 
     return (
         <div className='px-4 sm:px-6 lg:px-12'>
@@ -136,7 +161,7 @@ const BookingUser = () => {
                     รหัสทัวร์ ({tourDetail.tourCode})
                 </div>
                 <div className='text-xl text-gray-700 font-semibold'>
-                    จำนวนที่นั่งคงเหลือ <span className='text-brand-pink'>{availableSeats}</span> ที่นั่ง
+                    จำนวนที่นั่งคงเหลือ <span className='text-brand-pink'>{availableSeats === null ? 'กำลังโหลด...' : availableSeats}</span> ที่นั่ง
                 </div>
             </div>
             <div className='py-6 text-2xl text-gray-700'>
@@ -157,17 +182,17 @@ const BookingUser = () => {
                             </button>
                             <span className='text-lg font-semibold text-brand-pink'>{adultCount}</span>
                             <button
-                                className={`px-3 py-1 bg-brand-pink text-white font-semibold hover:bg-pink-600 ${adultCount >= availableSeats
+                                className={`px-3 py-1 bg-brand-pink text-white font-semibold hover:bg-pink-600 ${(availableSeats !== null && adultCount >= availableSeats)
                                     ? 'bg-gray-300 cursor-not-allowed'
                                     : 'bg-brand-pink hover:bg-pink-600'
                                     }`}
                                 onClick={() => increment(setAdultCount, adultCount)}
-                            // disabled={adultCount >= availableSeats}
+                                disabled={availableSeats !== null && adultCount >= availableSeats}
                             >
                                 +
                             </button>
                         </div>
-                        {adultCount > availableSeats && (
+                        {availableSeats !== null && adultCount > availableSeats && (
                             <p className='text-sm text-red-500 mt-1'>จำนวนผู้ใหญ่เกินจำนวนที่นั่งแล้ว</p>
                         )}
                     </div>
