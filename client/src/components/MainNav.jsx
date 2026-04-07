@@ -1,7 +1,7 @@
 // rafce (arrow function) หรือ rfce (function declaration) ใช้อันไหนก็ได้
 import { Link, useNavigate } from 'react-router-dom'
 import logo from '../assets/logo1.png'
-import { CircleUserRound } from 'lucide-react'
+import { CircleUserRound, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import useAuthStore from '../store/authStore'
 
@@ -11,6 +11,7 @@ const MainNav = () => { // ใช้ global state จะได้ไม่ต้
     const actionLogout = useAuthStore((state) => state.actionLogout)
     const navigate = useNavigate()
     const [showDropdown, setShowDropdown] = useState(false)
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
     const handleLogout = () => {
         actionLogout()
@@ -30,7 +31,7 @@ const MainNav = () => { // ใช้ global state จะได้ไม่ต้
                             </Link>
 
                             {/* เมนูหลัก */}
-                            <div className='flex items-center gap-2 sm:gap-3 lg:gap-5'>
+                            <div className='hidden sm:flex items-center gap-2 sm:gap-3 lg:gap-5'>
                                 <Link to={'/'} className='text-xs sm:text-sm lg:text-base hover:scale-105 hover:duration-200 hover:text-brand-pink'>
                                     หน้าหลัก
                                 </Link>
@@ -45,6 +46,18 @@ const MainNav = () => { // ใช้ global state จะได้ไม่ต้
 
                         {/* ส่วนขวา - Login/User Profile */}
                         <div className='flex items-center gap-3'>
+                            <button
+                                type='button'
+                                className='sm:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-brand-pink hover:bg-white transition-colors'
+                                aria-label='Toggle menu'
+                                onClick={() => setIsMobileMenuOpen((v) => !v)}
+                            >
+                                {isMobileMenuOpen ? (
+                                    <X className='w-6 h-6' />
+                                ) : (
+                                    <Menu className='w-6 h-6' />
+                                )}
+                            </button>
                             {!user ? (
                                 <div className='flex items-center gap-1 sm:gap-2 lg:gap-5'>
                                     <Link to={'/login'} className='px-2 sm:px-3 lg:px-4 py-1 sm:py-2 text-xs sm:text-sm lg:text-base hover:border-2 border-brand-pink rounded-md transition-all'>
@@ -110,6 +123,35 @@ const MainNav = () => { // ใช้ global state จะได้ไม่ต้
                             )}
                         </div>
                     </div>
+
+                    {/* Mobile menu */}
+                    {isMobileMenuOpen && (
+                        <div className='sm:hidden pb-4'>
+                            <div className='flex flex-col gap-3 pt-2'>
+                                <Link
+                                    to={'/'}
+                                    className='text-sm hover:text-brand-pink'
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    หน้าหลัก
+                                </Link>
+                                <Link
+                                    to={'/programs'}
+                                    className='text-sm hover:text-brand-pink'
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    แพ็คเกจทัวร์ทั้งหมด
+                                </Link>
+                                <Link
+                                    to={'/about'}
+                                    className='text-sm hover:text-brand-pink'
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    เกี่ยวกับเรา
+                                </Link>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </nav >
 
