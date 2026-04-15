@@ -29,6 +29,15 @@ export const getUserBookings = async (token, page = 1, limit = 10, bookingStatus
     })
 }
 
+// User ดูรายละเอียดการจองแต่ละ id
+export const getBookingDetail = async (token, bookingId) => {
+    return await axios.get(`/api/booking/${bookingId}`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
+}
+
 // Admin Drop down 
 export const getBookingStatusList = async (token) => {
     return await axios.get('/api/booking/admin/list-status/booking', {
@@ -52,15 +61,6 @@ export const listBooking = async (token, page = 1, limit = 10, form = {}) => {
             Authorization: `Bearer ${token}`
         },
         params
-    })
-}
-
-// Admin ดูรายละเอียดการจองแต่ละ id
-export const getBookingDetail = async (token, bookingId) => {
-    return await axios.get(`/api/booking/${bookingId}`, {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
     })
 }
 

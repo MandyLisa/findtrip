@@ -1,23 +1,23 @@
-import { useNavigate } from "react-router-dom"
-import { formatDateRange } from "../../utils/formatDate"
+import { useNavigate } from 'react-router-dom'
+import { formatDateRange } from '../../utils/formatDate'
 
 
 const X_card = ({ data }) => {
 
-  const navigate = useNavigate()
+    const navigate = useNavigate()
 
-  const handleOnClick = () => {
-    navigate(`/tourdetail/${data.id}`)
-  }
+    const handleOnClick = () => {
+        navigate(`/tourdetail/${data.id}`)
+    }
 
     return (
         <div className='flex flex-row sm:flex-row border border-brand-pink rounded-md mt-6 shadow-md p-3 hover:bg-gray-50'
-             onClick={handleOnClick}
+            onClick={handleOnClick}
         >
-            <div className='w-full sm:w-48 h-48 bg-gray-300 rounded text-center flex items-center justify-center'>
+            <div className='w-full sm:w-48 h-48 bg-gray-300 rounded overflow-hidden flex-shrink-0'>
                 <img
                     src={data.images[0].url}
-                    className='w-full h-48 object-cover rounded'
+                    className='w-full h-full object-cover rounded'
                     alt='tour'
                 />
             </div>
