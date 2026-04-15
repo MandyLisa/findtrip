@@ -6,6 +6,7 @@ import { getUserBookings } from '../../API/booking'
 import UserBookingCard from '../../components/user/UserBookingCard'
 import Pagination from '../../components/card/Pagination'
 import { Loader } from 'lucide-react'
+import { BOOKING_STATUS_CONFIG } from '../../constants/bookingStatus'
 
 
 const MyBooking = () => {
@@ -112,6 +113,7 @@ const MyBooking = () => {
                             <div className='mt-0' key={booking.id}>
                                 <UserBookingCard
                                     data={booking}
+                                    bookingStatus={BOOKING_STATUS_CONFIG}
                                 />
                             </div>
                         ))
