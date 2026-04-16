@@ -14,8 +14,8 @@ const FormPaymentDetail = () => {
     const [payment, setPayment] = useState({})
     const [loading, setLoading] = useState(false)
 
-    const [showSlipModal, setShowSlipModal] = useState(true)
-    const handleCloseSlip = () => setShowSlipModal(false)
+    // const [showSlipModal, setShowSlipModal] = useState(true)
+    // const handleCloseSlip = () => setShowSlipModal(false)
 
     useEffect(() => {
         if (id) {
@@ -37,7 +37,6 @@ const FormPaymentDetail = () => {
             setLoading(false)
         }
     }
-
 
 
     const handleBack = () => {
@@ -175,29 +174,6 @@ const FormPaymentDetail = () => {
                     ย้อนกลับ
                 </button>
             </div>
-
-            {/* {showSlipModal && (
-                <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4'>
-                    <div className='relative w-full max-w-3xl rounded-2xl bg-white p-4 shadow-xl ring-1 ring-gray-200 sm:p-6'>
-                        <button
-                            onClick={handleCloseSlip}
-                            className='absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700'
-                        >
-                            ✕
-                        </button>
-                        <h2 className='mb-4 text-base font-semibold text-gray-800 sm:text-lg'>สลิปการชำระเงิน555555555</h2>
-                        {payment?.secure_url ? (
-                            <img
-                                src={payment.secure_url}
-                                alt='สลิปโอนเงิน'
-                                className='w-full h-auto rounded-xl ring-1 ring-gray-200'
-                            />
-                        ) : (
-                            <p className='text-gray-500'>ไม่พบสลิปการชำระเงิน</p>
-                        )}
-                    </div>
-                </div>
-            )} */}
         </div >
     )
 }
