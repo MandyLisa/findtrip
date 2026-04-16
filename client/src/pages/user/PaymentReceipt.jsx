@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { getBookingDetail } from '../../API/booking'
 import useAuthStore from '../../store/authStore'
 import { formatDate_Time, formatThaiDate } from '@/utils/formatDate'
@@ -9,6 +9,7 @@ const PaymentReceipt = () => {
     const token = useAuthStore((state) => state.token)
     const [paymentDetails, setPaymentDetails] = useState(null)
     const [loading, setLoading] = useState(true)
+    const navigate = useNavigate()
 
     useEffect(() => {
         if (bookingId) {
@@ -20,7 +21,7 @@ const PaymentReceipt = () => {
         try {
             setLoading(true) // Set loading to true before fetching
             const res = await getBookingDetail(token, bookingId)
-            console.log('ดู fetchBookingDetails ', res)
+            // console.log('ดู fetchBookingDetails ', res)
             setPaymentDetails(res.data.booking)
         } catch (error) {
             console.error('Error fetching payment details: ', error)
@@ -52,7 +53,7 @@ const PaymentReceipt = () => {
                 {children}
             </div>
         </div>
-    );
+    )
 
     // 2. ส่วนสำหรับกลุ่มย่อย (เน้นสีเขียวอ่อนให้ดูสบายตา)
     const SubSection = ({ label, children }) => (
@@ -66,7 +67,7 @@ const PaymentReceipt = () => {
             <p style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: '700', color: '#059669' }}>{label}</p>
             {children}
         </div>
-    );
+    )
 
     // 3. Grid2 แบ่งคอลัมน์
     const Grid2 = ({ children }) => (
@@ -77,7 +78,7 @@ const PaymentReceipt = () => {
         }}>
             {children}
         </div>
-    );
+    )
 
     // 4. Field แสดงข้อมูล (เน้นความสะอาด)
     const Field = ({ label, value, bold, mono, style }) => (
@@ -93,7 +94,7 @@ const PaymentReceipt = () => {
                 {value || '-'}
             </p>
         </div>
-    );
+    )
 
     // 5. MetricCard (ใส่กรอบและเงาเบาๆ)
     const MetricCard = ({ num, label }) => (
@@ -108,7 +109,7 @@ const PaymentReceipt = () => {
             <p style={{ margin: 0, fontSize: '20px', fontWeight: '700', color: '#2563eb' }}>{num || 0}</p>
             <p style={{ margin: 0, fontSize: '16px', color: '#6b7280', fontWeight: '500' }}>{label}</p>
         </div>
-    );
+    )
 
     if (loading) {
         return <div>Loading booking details...</div>
@@ -116,7 +117,7 @@ const PaymentReceipt = () => {
 
 
     if (!paymentDetails) {
-        return <div>No booking details found for ID: {bookingId}.</div>
+        return <div>No booking details found for ID: {bookingId}</div>
     }
 
     return (
@@ -130,7 +131,7 @@ const PaymentReceipt = () => {
                         <p style={{ margin: '4px 0 0', fontSize: 20, fontWeight: 500 }}>{bookingId}</p>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end' }}>
-                        <span style={{ fontSize: 16, padding: '3px 10px', borderRadius: 'var(--border-radius-md)', background: 'var(--color-background-success)', color: 'var(--color-text-success)', fontWeight: 500 }}>ยืนยันแล้ว</span>
+                        <span style={{ fontSize: 18, padding: '3px 10px', borderRadius: 'var(--border-radius-md)', background: 'var(--color-background-success)', color: 'var(--color-text-success)', fontWeight: 500 }}>ใบยืนยันการจอง</span>
                     </div>
                 </div>
 
@@ -201,6 +202,17 @@ const PaymentReceipt = () => {
                     </p>
                 </div>
             </div>
+
+            <div className='flex justify-center w-full px-4'>
+                <button
+                    type='button'
+                    className='w-full p-2 bg-brand-pink text-white rounded-md hover:bg-pink-600 hover:text-white mt-6 transition-all'
+                    onClick={() => navigate(-1)} // สั่งให้ย้อนกลับไปหน้าที่แล้ว
+                >
+                    ย้อนกลับ
+                </button>
+            </div>
+
         </div>
     )
 }

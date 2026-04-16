@@ -72,7 +72,7 @@ const PaymentSuccess = () => {
         try {
             const res = await getBookingDetail(token, bookingId) // เรียก API|
             const booking = res.data.booking
-            console.log('ดู booking จาก handleBankTransferSuccess ตรงนี้', booking)
+            // console.log('ดู booking จาก handleBankTransferSuccess ตรงนี้', booking)
 
             setPaymentStatus('อัปโหลดสลิปสำเร็จ!')
             setMessage(`เราได้รับสลิปการโอนเงินของคุณสำหรับการจองเลข ID: ${bookingId} ผ่าน${bankName}แล้ว กรุณารอการตรวจสอบ ภายใน 24 ชม.`)
