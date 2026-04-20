@@ -64,7 +64,7 @@ const PaymentReceipt = () => {
             borderRadius: '6px',
             borderLeft: '4px solid #10b981' // เพิ่มแถบสีข้างๆ ให้รู้ว่าเป็นข้อมูลสำคัญ
         }}>
-            <p style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: '700', color: '#059669' }}>{label}</p>
+            <p style={{ margin: '0 0 16px 0', fontSize: '12px', fontWeight: '700', color: '#059669' }}>{label}</p>
             {children}
         </div>
     )
@@ -80,23 +80,7 @@ const PaymentReceipt = () => {
         </div>
     )
 
-    // 4. Field แสดงข้อมูล (เน้นความสะอาด)
-    const Field = ({ label, value, bold, mono, style }) => (
-        <div style={{ ...style }}>
-            <p style={{ margin: 0, fontSize: '16px', color: '#6b7280', fontWeight: '500' }}>{label}</p>
-            <p style={{
-                margin: '2px 0 0',
-                fontSize: '18px',
-                fontWeight: bold ? '700' : '400',
-                fontFamily: mono ? '"Courier New", Courier, monospace' : 'inherit',
-                color: '#111827'
-            }}>
-                {value || '-'}
-            </p>
-        </div>
-    )
-
-    // 5. MetricCard (ใส่กรอบและเงาเบาๆ)
+    // 4. MetricCard (ใส่กรอบและเงาเบาๆ) เพื่อแสดงตัวเลขที่สำคัญ เช่น จำนวนผู้เดินทาง
     const MetricCard = ({ num, label }) => (
         <div style={{
             padding: '12px',
@@ -107,9 +91,28 @@ const PaymentReceipt = () => {
             boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
         }}>
             <p style={{ margin: 0, fontSize: '20px', fontWeight: '700', color: '#2563eb' }}>{num || 0}</p>
-            <p style={{ margin: 0, fontSize: '16px', color: '#6b7280', fontWeight: '500' }}>{label}</p>
+            <p style={{ margin: 0, fontSize: '20px', color: '#6b7280', fontWeight: '500' }}>{label}</p>
         </div>
     )
+
+    // 5. Field แสดงข้อมูล (เน้นความสะอาด)
+    const Field = ({ label, value, bold, mono, style }) => (
+        <div style={{ ...style }}>
+            <p style={{ margin: 0, fontSize: '16px', color: '#6b7280', fontWeight: '500' }}>{label}</p>
+            <p style={{
+                margin: '2px 0 0',
+                fontSize: '18px',
+                fontWeight: bold ? '700' : '400',
+                fontFamily: mono ? '"Courier New", Courier, monospace' : 'inherit',
+                color: '#111827',
+                wordBreak: 'break-all', // สั่งให้ตัดคำถ้ามันยาวเกินไป
+                whiteSpace: 'normal'    // ยอมให้ขึ้นบรรทัดใหม่ได้
+            }}>
+                {value || '-'}
+            </p>
+        </div>
+    )
+
 
     if (loading) {
         return <div>Loading booking details...</div>
@@ -119,6 +122,8 @@ const PaymentReceipt = () => {
     if (!paymentDetails) {
         return <div>No booking details found for ID: {bookingId}</div>
     }
+
+    
 
     return (
         <div style={{ padding: '1rem', width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
@@ -180,6 +185,7 @@ const PaymentReceipt = () => {
                                 <Field label='วันที่ชำระเงิน' value={formatDate_Time(paymentDetails.Payment?.stripeSessionCreatedAt)} />
                             </Grid2>
                         </SubSection>
+
                     )}
                     {paymentDetails.Payment?.paymentMethod === 'BANK_TRANSFER' && (
                         <SubSection label='โอนเงิน'>
