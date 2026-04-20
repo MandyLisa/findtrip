@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { getBookingDetail } from '../../API/booking'
 import useAuthStore from '../../store/authStore'
 import { formatDate_Time, formatThaiDate } from '@/utils/formatDate'
+import { Printer } from 'lucide-react'
 
 const PaymentReceipt = () => {
     const { bookingId } = useParams()
@@ -123,7 +124,9 @@ const PaymentReceipt = () => {
         return <div>No booking details found for ID: {bookingId}</div>
     }
 
-    
+    const handlePrint = () => {
+        window.print()
+    }
 
     return (
         <div style={{ padding: '1rem', width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
@@ -135,8 +138,32 @@ const PaymentReceipt = () => {
                         <p style={{ margin: 0, fontSize: 18, color: 'var(--color-text-secondary)' }}>เลขการจอง</p>
                         <p style={{ margin: '4px 0 0', fontSize: 20, fontWeight: 500 }}>{bookingId}</p>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end' }}>
-                        <span style={{ fontSize: 18, padding: '3px 10px', borderRadius: 'var(--border-radius-md)', background: 'var(--color-background-success)', color: 'var(--color-text-success)', fontWeight: 500 }}>ใบยืนยันการจอง</span>
+                    {/* ปรับส่วนนี้: ใส่ flex-column เพื่อให้ปุ่มอยู่ข้างล่าง badge */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'flex-end' }}>
+                        <span style={{ fontSize: 18, padding: '3px 10px', borderRadius: 'var(--border-radius-md)', background: 'var(--color-background-success)', color: 'var(--color-text-success)', fontWeight: 500 }}>
+                            ใบยืนยันการจอง
+                        </span>
+
+                        {/* เพิ่มปุ่มพิมพ์ตรงนี้ค่ะ ใช้ className "no-print" เพื่อไม่ให้ปุ่มโผล่ใน PDF */}
+                        <button
+                            onClick={handlePrint}
+                            className="no-print"
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                padding: '6px 12px',
+                                background: '#ffffff',
+                                border: '1px solid #d1d5db',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                fontSize: '14px',
+                                color: '#374151',
+                                boxShadow: '0 1px 2px rgba(0,0,0,0.05)',   
+                            }}
+                        >
+                            <Printer /> พิมพ์ใบจอง / บันทึก PDF
+                        </button>
                     </div>
                 </div>
 
@@ -209,7 +236,7 @@ const PaymentReceipt = () => {
                 </div>
             </div>
 
-            <div className='flex justify-center w-full px-4'>
+            <div className='flex justify-center w-full px-4 no-print'> {/* เพิ่มคลาส no-print เพื่อซ่อนปุ่มนี้เมื่อพิมพ์ */}
                 <button
                     type='button'
                     className='w-full p-2 bg-brand-pink text-white rounded-md hover:bg-pink-600 hover:text-white mt-6 transition-all'

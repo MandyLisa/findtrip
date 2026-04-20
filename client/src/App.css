@@ -40,3 +40,22 @@
 .read-the-docs {
   color: #888;
 }
+
+@media print {
+  /* ซ่อนทุกอย่างที่มี Class no-print */
+  .no-print {
+    display: none !important;
+  }
+
+  /* ตั้งค่าหน้ากระดาษ */
+  @page {
+    size: A4;
+    margin: 1cm;
+  }
+
+  /* ปรับให้สีพื้นหลังในใบเสร็จติดไปด้วย (บาง Browser จะซ่อนสีพื้นหลังไว้) */
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
