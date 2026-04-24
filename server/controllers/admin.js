@@ -1,6 +1,15 @@
-const { Role } = require("@prisma/client")
-const prisma = require("../config/prisma")
+const { Role } = require('@prisma/client')
+const prisma = require('../config/prisma')
 
+
+/** แปลงค่าจาก Prisma/MySQL เป็น number สำหรับ JSON */
+const toNum = (v) => {
+    if (v == null || v === undefined) return 0
+    if (typeof v === 'bigint') return Number(v)
+    if (typeof v === 'object' && v !== null && typeof v.toNumber === 'function') return v.toNumber()
+    const n = Number(v)
+    return Number.isFinite(n) ? n : 0
+}
 
 // 1. ดูข้อมูลผู้ใช้ทั้งหมด
 exports.listUsers = async (req, res) => {
@@ -125,7 +134,7 @@ exports.updateUserRole = async (req, res) => {
     }
 }
 
-// 4. เปลี่ยน status ลูกค้า
+// 4. เปลี่ยน status user (enable/disable)
 exports.changeUserStatus = async (req, res) => {
     // console.log('เข้าฟังชั่นนี้ไหม changeUserStatus')
     try {
@@ -146,78 +155,115 @@ exports.changeUserStatus = async (req, res) => {
         })
     } catch (err) {
         console.error('Error change user status', err)
-        res.status(500).json({ message: 'Error change user status'})
+        res.status(500).json({ message: 'Error change user status' })
     }
 }
 
-// 5. show dashboard
-exports.getDashboardSummary = async (req, res) => {
-    try {
-        const [bookingCount, totalRevenueResult, userCount, tourPackageCount] = await Promise.all([
-            prisma.booking.count(), // นับจำนวนการจองทั้งหมดในฐานข้อมูล
-            prisma.payment.aggregate({ // คำนวณยอดรวมเงินทั้งหมดจากฟิลด์ amount ในตาราง payment
-                _sum: { amount: true }
-            }),
-            prisma.user.count(), // นับจำนวนผู้ใช้งาน (Member) ทั้งหมด
-            prisma.tourPackage.count(), // นับจำนวนแพ็กเกจทัวร์ทั้งหมดที่มีในระบบ
-        ])
+// // 5. show dashboard
+// exports.getDashboardSummary = async (req, res) => {
+//     try {
 
-        // const [recommendTours, almostFullTours, isActiveTours] = await Promise.all([
-        //     prisma.tourPackage.count({ where: { isRecommend: true } }), // นับทัวร์ที่ตั้งค่าเป็น "แนะนำ"
-        //     // prisma.tourPackage.count({ where: { isAlmostFull: true } }), // นับทัวร์ที่ตั้งค่าเป็น "ใกล้เต็ม"
-        //     prisma.tourPackage.count({ where: { isActive: true } }), // นับทัวร์ที่เปิดใช้งาน (Active) อยู่
-        // ])
 
-        res.status(200).json({
-            totalBookings: bookingCount,
-            totalRevenue: totalRevenueResult._sum.amount || 0,
-            totalUsers: userCount,
-            totalTours: tourPackageCount,
-            // tour: {
-            //     recommendTours,
-            //     almostFullTours,
-            //     isActiveTours
-            // }
-        })
-    } catch (err) {
-        console.error('Error in Get Dashboard Summary:', err)
-        res.status(500).json({ message: 'Error in Get Dashboard Summary:' })
-    }
-}
+//         // 2. ดึงข้อมูลแบบ Parallel (รันพร้อมกัน)
+//         const [
+//             bookingCount,
+//             totalRevenueResult,
+//             userCount,
+//             tourCount,
+//             todaySales,
+//             weeklySales,
+//             monthlySales,
+//             yearlySales
+//         ] = await Promise.all([ // 
+//             prisma.booking.count(),
+//             prisma.payment.aggregate({ _sum: { amount: true } }),  // คำนวณยอดรวมเงินทั้งหมดจากฟิลด์ amount ในตาราง payment
+//             prisma.user.count(),
+//             prisma.tourPackage.count(),
 
-/** แปลงค่าจาก Prisma/MySQL เป็น number สำหรับ JSON */
-const toNum = (v) => {
-    if (v == null || v === undefined) return 0
-    if (typeof v === 'bigint') return Number(v)
-    if (typeof v === 'object' && v !== null && typeof v.toNumber === 'function') return v.toNumber()
-    const n = Number(v)
-    return Number.isFinite(n) ? n : 0
-}
+//             // เพิ่มยอดขายตามช่วงเวลา (กรองเฉพาะคนที่จ่ายแล้ว) gte = greater than or equal (ข้อมูลตั้งแต่วันที่ 1 เป็นต้นไป)
+//             prisma.payment.aggregate({
+//                 where: { paymentStatus: 'PAID', paymentDate: { gte: startOfDay } },
+//                 _sum: { amount: true }
+//             }),
+//             prisma.payment.aggregate({
+//                 where: { paymentStatus: 'PAID', paymentDate: { gte: startOfWeek } },
+//                 _sum: { amount: true }
+//             }),
+//             prisma.payment.aggregate({
+//                 where: { paymentStatus: 'PAID', paymentDate: { gte: startOfMonth } },
+//                 _sum: { amount: true }
+//             }),
+//             prisma.payment.aggregate({
+//                 where: { paymentStatus: 'PAID', paymentDate: { gte: startOfYear } },
+//                 _sum: { amount: true }
+//             }),
+//         ])
+
+//         // 3. ส่งข้อมูลกลับ (ใช้ toNum ที่เราทำไว้จะดีมาก) 
+//         res.status(200).json({
+//             totalBookings: bookingCount,
+//             totalRevenue: totalRevenueResult._sum.amount || 0,
+//             totalUsers: userCount,
+//             totalTours: tourCount,
+//             salesMetrics: {
+//                 today: toNum(todaySales._sum.amount),
+//                 thisWeek: toNum(weeklySales._sum.amount),
+//                 thisMonth: toNum(monthlySales._sum.amount),
+//                 thisYear: toNum(yearlySales._sum.amount)
+//             }
+//         })
+//     } catch (err) {
+//         console.error('Error in Get Dashboard Summary:', err)
+//         res.status(500).json({ message: 'Error in Get Dashboard Summary:' })
+//     }
+// }
+
 
 // 6. Dashboard analytics (KPI + charts + top tours) — aggregate ที่ backend
 exports.getDashboardAnalytics = async (req, res) => {
     try {
+        // 1. รับค่า granularity (ช่วงเวลาที่ใช้ในการแสดงผล เช่น รายเดือน รายสัปดาห์ รายปี) จาก query parameters
         const granularity = ['weekly', 'monthly', 'yearly'].includes(req.query.granularity)
             ? req.query.granularity
             : 'monthly'
 
-        const endDate = new Date()
-        const startDate = new Date()
+        const endDate = new Date() // วันนี้ ตอนนี้
+        const startDate = new Date() // วันนี้ ตอนนี้ (แต่เราจะหมุนย้อนอดีตไป)
+
         if (granularity === 'monthly') {
-            startDate.setMonth(endDate.getMonth() - 11)
-            startDate.setDate(1)
-            startDate.setHours(0, 0, 0, 0)
-        } else if (granularity === 'weekly') {
-            startDate.setDate(endDate.getDate() - 7 * 11)
+            startDate.setMonth(endDate.getMonth() - 11) // ถอยหลังไป 11 เดือน (รวมเดือนปัจจุบันเป็น 12 เดือน) เพื่อดูการเติบโตของกราฟในช่วง 1 ปี ที่ผ่านมา
+            startDate.setDate(1) // ตั้งวันที่เป็นวันที่ 1 ของเดือน เพื่อให้ช่วงเวลาครอบคลุมทั้งเดือน
+            startDate.setHours(0, 0, 0, 0) // ตั้งเวลาเป็น 00:00:00 (เริ่มวันใหม่)
+        } else if (granularity === 'weekly') { // ถอยหลังไป 11 สัปดาห์ (รวมสัปดาห์ปัจจุบันเป็น 12 สัปดาห์) เพื่อดูการเติบโตของกราฟในช่วง 3 เดือน ที่ผ่านมา
+            startDate.setDate(endDate.getDate() - 7 * 11) // เอา 'วันนี้' ลบออกไป 77 วัน (7 วัน * 11 สัปดาห์)
             startDate.setHours(0, 0, 0, 0)
         } else {
-            startDate.setFullYear(endDate.getFullYear() - 4)
+            startDate.setFullYear(endDate.getFullYear() - 4) // ถอยหลังไป 4 ปี (รวมปีปัจจุบันเป็น 5 ปี) เพื่อดูการเติบโตของกราฟในช่วง 5 ปี ที่ผ่านมา
             startDate.setMonth(0, 1)
             startDate.setHours(0, 0, 0, 0)
         }
-        endDate.setHours(23, 59, 59, 999)
+        endDate.setHours(23, 59, 59, 999) // ตั้งเวลาเป็น 23:59:59.999 (วินาทีสุดท้ายของวัน) เพื่อให้ยอดขายในวันนี้ถูกนับรวมอยู่ในผลลัพธ์ด้วย
 
-        const [totalSalesAgg, totalTours, totalBookings, totalUsers] = await Promise.all([
+        // 2. เตรียมช่วงเวลา โดยเพิ่ม Logic วันที่สำหรับ Summary เข้าไป
+        const now = new Date()
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+        const startOfWeek = new Date(now)
+        startOfWeek.setDate(now.getDate() - now.getDay()) // ถอยไปต้นสัปดาห์ (วันอาทิตย์)
+        startOfWeek.setHours(0, 0, 0, 0)
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+        const startOfYear = new Date(now.getFullYear(), 0, 1)
+
+        // 3. ดึงข้อมูลแบบ Parallel (รันพร้อมกัน) ยิง API และรันพร้อมกันทั้งหมด 8 คำสั่ง ไม่ต้องรอทีละบรรทัด ช่วยลดเวลาในการรอผลลัพธ์จากฐานข้อมูล
+        const [
+            totalSalesAgg,
+            totalTours,
+            totalBookings,
+            totalUsers,
+            todaySales,
+            weeklySales,
+            monthlySales,
+            yearlySales
+        ] = await Promise.all([
             prisma.payment.aggregate({
                 where: {
                     paymentStatus: 'PAID',
@@ -229,11 +275,16 @@ exports.getDashboardAnalytics = async (req, res) => {
                 },
                 _sum: { amount: true }
             }),
-            prisma.tourPackage.count(),
-            prisma.booking.count(),
-            prisma.user.count()
+            prisma.tourPackage.count(), // นับจำนวนแพ็กเกจทัวร์ทั้งหมดที่มีในระบบ
+            prisma.booking.count(), // นับจำนวนการจองทั้งหมดในฐานข้อมูล
+            prisma.user.count(), // นับจำนวนผู้ใช้งาน (Member) ทั้งหมด
+            prisma.payment.aggregate({ where: { paymentStatus: 'PAID', paymentDate: { gte: startOfDay } }, _sum: { amount: true } }), // คำนวณยอดรวมเงินทั้งหมดจากฟิลด์ amount ในตาราง payment
+            prisma.payment.aggregate({ where: { paymentStatus: 'PAID', paymentDate: { gte: startOfWeek } }, _sum: { amount: true } }),
+            prisma.payment.aggregate({ where: { paymentStatus: 'PAID', paymentDate: { gte: startOfMonth } }, _sum: { amount: true } }),
+            prisma.payment.aggregate({ where: { paymentStatus: 'PAID', paymentDate: { gte: startOfYear } }, _sum: { amount: true } }),
         ])
 
+        // 4. ดึงข้อมูลทำกราฟและ Chart
         const bookingStatusRows = await prisma.booking.groupBy({
             by: ['bookingStatus'],
             _count: { _all: true }
@@ -279,7 +330,7 @@ exports.getDashboardAnalytics = async (req, res) => {
                 GROUP BY CONCAT(YEAR(p.paymentDate), '-W', LPAD(WEEK(p.paymentDate, 3), 2, '0'))
                 ORDER BY period ASC
             `
-            console.log('55555555555555555555555 : ', salesTrendRaw)
+            // console.log('55555555555555555555555 : ', salesTrendRaw)
 
         } else {
             salesTrendRaw = await prisma.$queryRaw`
@@ -293,7 +344,7 @@ exports.getDashboardAnalytics = async (req, res) => {
                 ORDER BY period ASC
             `
 
-            console.log('YEARLY RESULT 55555555 :', salesTrendRaw)
+            // console.log('YEARLY RESULT 55555555 :', salesTrendRaw)
         }
 
         const salesByCountryRaw = await prisma.$queryRaw`
@@ -356,6 +407,12 @@ exports.getDashboardAnalytics = async (req, res) => {
                 totalTours,
                 totalBookings,
                 totalUsers
+            },
+            salesMetrics: {
+                today: toNum(todaySales._sum.amount),
+                thisWeek: toNum(weeklySales._sum.amount),
+                thisMonth: toNum(monthlySales._sum.amount),
+                thisYear: toNum(yearlySales._sum.amount)
             },
             salesTrend: mapTrend(salesTrendRaw),
             salesByCountry: mapNamed(salesByCountryRaw),

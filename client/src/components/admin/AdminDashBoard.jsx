@@ -1,4 +1,4 @@
-import { fetchDashboardAnalytics } from '@/API/profile'
+import { fetchDashboardAnalytics } from '@/API/dashboard'
 import useAuthStore from '@/store/authStore'
 import { Loader } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -9,6 +9,7 @@ import TopToursTable from './dashboard/TopToursTable'
 
 const emptyAnalytics = {
     kpi: { totalSales: 0, totalTours: 0, totalBookings: 0, totalUsers: 0 },
+    salesMetrics: { today: 0, thisWeek: 0, thisMonth: 0, thisYear: 0 },
     salesTrend: [],
     salesByCountry: [],
     salesByCategory: [],
@@ -35,6 +36,7 @@ const AdminDashBoard = () => {
             setLoading(true)
             try {
                 const res = await fetchDashboardAnalytics(token, { granularity })
+                console.log('Dashboard analytics loaded:', res.data)
                 setAnalytics({ ...emptyAnalytics, ...res.data })
             } catch (err) {
                 console.error('Error loading dashboard:', err)
@@ -47,7 +49,8 @@ const AdminDashBoard = () => {
         load()
     }, [token, granularity])
 
-    const kpi = analytics?.kpi || emptyAnalytics?.kpi
+    const kpi = analytics?.kpi || emptyAnalytics?.kpi // Fallback to empty KPI if analytics or kpi is not available
+    const salesMetrics = analytics?.salesMetrics || emptyAnalytics?.salesMetrics
 
     const countryPieData = (analytics?.salesByCountry || []).map((c) => ({
         name: c.name,
@@ -87,7 +90,7 @@ const AdminDashBoard = () => {
                 <p className='mt-2 text-sm text-gray-500'>สรุปภาพรวมธุรกิจ — ยอดขายจากการชำระเงินสำเร็จ (PAID) เท่านั้น</p>
             </div>
 
-            {/* KPI */}
+            {/* KPI รวม */}
             <div className='mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4'>
                 <KPICard
                     title='ยอดขายรวม (PAID)'
@@ -107,6 +110,30 @@ const AdminDashBoard = () => {
                 <KPICard
                     title='ผู้ใช้งานทั้งหมด'
                     value={Number(kpi.totalUsers).toLocaleString()}
+                    accent='from-amber-500 to-orange-500'
+                />
+            </div>
+
+            {/* KPI ยอดขาย*/}
+            <div className='mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4'>
+                <KPICard
+                    title='ยอดขายรวมรายวัน (PAID)'
+                    value={`${Number(salesMetrics.today).toLocaleString()} ฿`}
+                    accent='from-pink-500 to-rose-500'
+                />
+                <KPICard
+                    title='ยอดขายรวมรายสัปดาห์ (PAID)'
+                    value={`${Number(salesMetrics.thisWeek).toLocaleString()} ฿`}
+                    accent='from-indigo-500 to-violet-500'
+                />
+                <KPICard
+                    title='ยอดขายรายเดือน (PAID)'
+                    value={`${Number(salesMetrics.thisMonth).toLocaleString()} ฿`}
+                    accent='from-emerald-500 to-teal-500'
+                />
+                <KPICard
+                    title='ยอดขายรายปี (PAID)'
+                    value={`${Number(salesMetrics.thisYear).toLocaleString()} ฿`}
                     accent='from-amber-500 to-orange-500'
                 />
             </div>
@@ -134,7 +161,8 @@ const AdminDashBoard = () => {
                     ))}
                 </div>
             </div>
-
+            
+            {/* Line graphs*/}
             <div className='mb-8 w-full min-h-[300px]'>
                 {analytics && (
                     <SalesTrendChart data={analytics.salesTrend} granularity={granularity} />
