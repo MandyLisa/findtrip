@@ -60,13 +60,17 @@ const SimplePieChart = ({ title, data, valueType = 'currency', loading = false }
     const formatVal = (v) =>
         valueType === 'currency' ? `${Number(v).toLocaleString()} ฿` : `${Number(v).toLocaleString()} รายการ`
 
-    const showLabels = containerWidth >= 520
-    const labelText = ({ name, percent }) => {
+    const showLabels = containerWidth >= 350 // แสดง label ถ้า container กว้างพอ (ประมาณ 350px ขึ้นไป)
+
+    const labelText = ({ name, percent }) => { // แสดง label สำหรับ Donut Charts
         const p = (percent * 100)
-        if (!Number.isFinite(p) || p < 5) return ''
+        if (!Number.isFinite(p) || p < 1) return ''
+
+        // ถ้าจอเล็กมาก ให้โชว์แค่ % ก็พอ หรือตัดชื่อให้สั้นลงอีก
+        const nameLimit = containerWidth < 500 ? 8 : 14
         const safeName = String(name ?? '')
         const short = safeName.length > 14 ? `${safeName.slice(0, 14)}…` : safeName
-        return `${short} ${p.toFixed(0)}%`
+        return `${short} ${p.toFixed(1)}%` //ปรับเป็น .toFixed(1) เพื่อความแม่นยำของผลรวม %
     }
 
     if (!chartData || chartData.length === 0) { // กัน data undefined
@@ -86,7 +90,7 @@ const SimplePieChart = ({ title, data, valueType = 'currency', loading = false }
                 </div>
             ) : (
                 <div className='w-full min-w-0'>
-                    <ResponsiveContainer width='100%' aspect={1.8}>
+                    <ResponsiveContainer width='100%' height={300}>
                         <PieChart>
                             <Pie
                                 data={chartData}
@@ -94,8 +98,8 @@ const SimplePieChart = ({ title, data, valueType = 'currency', loading = false }
                                 nameKey='name'
                                 cx='50%'
                                 cy='50%'
-                                innerRadius={48}
-                                outerRadius={88}
+                                innerRadius={showLabels ? 40 : 50} // ถ้าโชว์ label ให้หด วงกลมลง เพื่อให้มีที่ว่างสำหรับ label
+                                outerRadius={showLabels ? 70 : 90} // ถ้าโชว์ label ให้ขยาย วงกลมออก เพื่อให้ label ไม่ทับกัน
                                 paddingAngle={2}
                                 label={showLabels ? labelText : false}
                                 labelLine={showLabels}
@@ -105,7 +109,14 @@ const SimplePieChart = ({ title, data, valueType = 'currency', loading = false }
                                 ))}
                             </Pie>
                             <Tooltip formatter={(v) => formatVal(v)} contentStyle={{ borderRadius: '12px' }} />
-                            <Legend wrapperStyle={{ fontSize: '12px' }} />
+                            <Legend
+                                iconType='circle'
+                                wrapperStyle={{
+                                    fontSize: '10px',
+                                    bottom: 0,
+                                    paddingTop: '20px'
+                                }}
+                            />
                         </PieChart>
                     </ResponsiveContainer>
                 </div>

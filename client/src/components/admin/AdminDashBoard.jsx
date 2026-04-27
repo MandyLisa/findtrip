@@ -36,7 +36,7 @@ const AdminDashBoard = () => {
             setLoading(true)
             try {
                 const res = await fetchDashboardAnalytics(token, { granularity })
-                console.log('Dashboard analytics loaded:', res.data)
+                // console.log('Dashboard analytics loaded:', res.data)
                 setAnalytics({ ...emptyAnalytics, ...res.data })
             } catch (err) {
                 console.error('Error loading dashboard:', err)
@@ -169,7 +169,7 @@ const AdminDashBoard = () => {
                 )}
             </div>
 
-            {/* Pie charts — 2 cols on tablet+ */}
+            {/* Donut charts — 2 cols on tablet+ */}
             <div className='min-w-0 mb-8 grid w-full grid-cols-1 gap-6 lg:grid-cols-2 auto-rows-fr items-stretch'>
                 <div className='min-w-0'>
                     <SimplePieChart title='ยอดขายตามประเทศ (PAID)' data={countryPieData} valueType='currency' />
