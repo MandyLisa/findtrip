@@ -36,7 +36,7 @@ const AdminDashBoard = () => {
             setLoading(true)
             try {
                 const res = await fetchDashboardAnalytics(token, { granularity })
-                // console.log('Dashboard analytics loaded:', res.data)
+                console.log('Dashboard analytics loaded:', res.data)
                 setAnalytics({ ...emptyAnalytics, ...res.data })
             } catch (err) {
                 console.error('Error loading dashboard:', err)
@@ -186,7 +186,21 @@ const AdminDashBoard = () => {
             </div>
 
             <div className='w-full min-w-0'>
-                <TopToursTable rows={analytics.topTours} />
+                <TopToursTable 
+                    rows={analytics.topToursByRevenue} 
+                    title='ทัวร์ทำเงินสูงสุด 10 อันดับแรก' 
+                    description='เรียงตามยอดเงินที่ชำระจริง (เฉพาะการชำระ PAID)' 
+                    type='revenue' 
+                />
+            </div>
+
+            <div className='w-full min-w-0 mt-4'>
+                <TopToursTable 
+                    rows={analytics.topToursByVolume} 
+                    title='ทัวร์ขายดี 10 อันดับแรก' 
+                    description='เรียงตามจำนวนยอดการจอง (เฉพาะการชำระ PAID)' 
+                    type='volume' 
+                />
             </div>
 
             {hasLoadedOnce && loading && (

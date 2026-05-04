@@ -343,10 +343,10 @@ exports.getDashboardAnalytics = async (req, res) => {
                 GROUP BY CAST(YEAR(p.paymentDate) AS CHAR)
                 ORDER BY period ASC
             `
-
             // console.log('YEARLY RESULT 55555555 :', salesTrendRaw)
         }
 
+        //SQL Alias (นามแฝง) คือการตั้งชื่อใหม่ให้กับคอลัมน์หรือผลลัพธ์ของการคำนวณใน SQL เพื่อให้ง่ายต่อการอ้างอิงและอ่านผลลัพธ์ โดยใช้คำว่า AS ตามด้วยชื่อที่ต้องการตั้งเป็นนามแฝง เช่น ในตัวอย่างนี้ เราตั้งชื่อใหม่ให้กับผลรวมของยอดขายเป็น totalSales และตั้งชื่อใหม่ให้กับช่วงเวลาที่เรากำลังวิเคราะห์เป็น period ซึ่งช่วยให้เราเข้าใจได้ง่ายขึ้นว่าแต่ละคอลัมน์ในผลลัพธ์หมายถึงอะไร และทำให้โค้ดดูสะอาดและอ่านง่ายขึ้นมาก
         const salesByCountryRaw = await prisma.$queryRaw`
             SELECT c.id AS countryId, c.name AS name, COALESCE(SUM(p.amount), 0) AS totalSales
             FROM Payment p
@@ -374,8 +374,15 @@ exports.getDashboardAnalytics = async (req, res) => {
             GROUP BY cat.id, cat.name
             ORDER BY totalSales DESC
         `
-
-        const topToursRaw = await prisma.$queryRaw`
+        // ทัวร์ที่ทำรายได้สูงสุด 10 อันดับแรก (กรองเฉพาะคนที่จ่ายแล้ว)
+        // เลือก id ของทัวร์ ตั้งชื่อใหม่ว่า tourPackageId, title ของทัวร์, และเอา amount (ยอดเงิน) ในตาราง Payment มาบวกกันทั้งหมด (SUM) ถ้าค่าเป็นว่างให้ใส่ 0 (COALESCE) แล้วส่งกลับมาในชื่อ totalSales
+        // เริ่มดึงข้อมูลจากตาราง Payment (ตั้งชื่อย่อว่า p)
+        // เชื่อมกับตาราง Booking (ตั้งชื่อย่อว่า b) โดยดูว่า bookingId ใน Payment ตรงกับ id ของ Booking ไหน
+        // เชื่อมกับตาราง TourPackage (ตั้งชื่อย่อว่า t) โดยดูว่า tourPackageId ใน Booking ตรงกับ id ของ TourPackage ไหน
+        // กรองเฉพาะแถวที่ paymentStatus เป็น 'PAID' และ paymentDate ไม่เป็น NULL และอยู่ในช่วงเวลาที่เรากำหนด
+        // จากนั้นจัดกลุ่มผลลัพธ์ตาม id และ title ของทัวร์ เพื่อให้เราสามารถคำนวณยอดขายรวมสำหรับแต่ละทัวร์ได้ ต้อง groupBy id และ title เพราะไม่งั้น มันจะเอาทุกอย่างมารวมกันเป็นบรรทัดเดียว
+        // สุดท้ายเรียงลำดับผลลัพธ์ตามยอดขายรวม (totalSales) จากมากไปน้อย และจำกัดผลลัพธ์ให้แสดงแค่ 10 อันดับแรก
+        const topToursByRevenueRaw = await prisma.$queryRaw` 
             SELECT t.id AS tourPackageId, t.title AS title, COALESCE(SUM(p.amount), 0) AS totalSales
             FROM Payment p
             INNER JOIN Booking b ON p.bookingId = b.id
@@ -388,6 +395,21 @@ exports.getDashboardAnalytics = async (req, res) => {
             ORDER BY totalSales DESC
             LIMIT 10
         `
+
+        // ทัวร์ที่มีคนจองเยอะที่สุด 10 อันดับแรก (กรองเฉพาะคนที่จ่ายแล้ว)
+        const topToursByVolumeRaw = await prisma.$queryRaw` 
+            SELECT t.id AS tourPackageId, t.title AS title, COALESCE(SUM(b.adultCount), 0) AS totalSeatsSold
+            FROM Payment p
+            INNER JOIN Booking b ON p.bookingId = b.id
+            INNER JOIN TourPackage t ON b.tourPackageId = t.id
+            WHERE p.paymentStatus = 'PAID'
+              AND p.paymentDate IS NOT NULL
+              AND p.paymentDate >= ${ startDate }
+              AND p.paymentDate <= ${ endDate }
+            GROUP BY t.id, t.title
+            ORDER BY totalSeatsSold DESC
+            LIMIT 10
+            `
 
         const mapTrend = (rows) =>
             rows.map((row) => ({
@@ -419,7 +441,8 @@ exports.getDashboardAnalytics = async (req, res) => {
             salesByCategory: mapNamed(salesByCategoryRaw),
             bookingStatus,
             paymentStatus,
-            topTours: mapNamed(topToursRaw),
+            topToursByRevenue: mapNamed(topToursByRevenueRaw),
+            topToursByVolume: mapNamed(topToursByVolumeRaw),
             meta: { granularity }
         })
     } catch (err) {

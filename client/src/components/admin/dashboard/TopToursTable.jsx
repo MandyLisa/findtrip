@@ -1,10 +1,11 @@
-const TopToursTable = ({ rows }) => {
+// เพิ่ม prop 'type' เพื่อแยกประเภทตาราง
+const TopToursTable = ({ rows, title, description, type = 'revenue' }) => {
   const list = Array.isArray(rows) ? rows : []
 
   return (
     <div className='rounded-2xl border border-gray-100 bg-white p-6 shadow-sm'>
-      <h3 className='mb-1 text-lg font-semibold text-gray-900'>ทัวร์ขายดี 10 อันดับ</h3>
-      <p className='mb-4 text-sm text-gray-500'>เรียงตามยอดขายรวม (เฉพาะการชำระ PAID)</p>
+      <h3 className='mb-1 text-lg font-semibold text-gray-900'>{title}</h3>
+      <p className='mb-4 text-sm text-gray-500'>{description}</p>
       <div className='overflow-x-auto rounded-xl border border-gray-100'>
         <table className='min-w-full divide-y divide-gray-100 text-left text-sm'>
           <thead className='bg-gray-50/80'>
