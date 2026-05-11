@@ -36,7 +36,7 @@ const AdminDashBoard = () => {
             setLoading(true)
             try {
                 const res = await fetchDashboardAnalytics(token, { granularity })
-                console.log('Dashboard analytics loaded:', res.data)
+                // console.log('Dashboard analytics loaded:', res.data)
                 setAnalytics({ ...emptyAnalytics, ...res.data })
             } catch (err) {
                 console.error('Error loading dashboard:', err)

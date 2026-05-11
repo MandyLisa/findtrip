@@ -12,14 +12,16 @@ const TopToursTable = ({ rows, title, description, type = 'revenue' }) => {
             <tr>
               <th className='px-4 py-3 font-semibold text-gray-600'>#</th>
               <th className='px-4 py-3 font-semibold text-gray-600'>ชื่อทัวร์</th>
-              <th className='px-4 py-3 font-semibold text-gray-600 text-right'>ยอดขายรวม</th>
+              <th className='px-4 py-3 font-semibold text-gray-600 text-right'>
+                {type === 'revenue' ? 'ยอดขายรวม' : 'จำนวนการจอง'}
+              </th>
             </tr>
           </thead>
           <tbody className='divide-y divide-gray-50 bg-white'>
             {list.length === 0 ? (
               <tr>
                 <td colSpan={3} className='px-4 py-10 text-center text-gray-400'>
-                  ยังไม่มีข้อมูลยอดขาย
+                  ยังไม่มีข้อมูล
                 </td>
               </tr>
             ) : (
@@ -28,7 +30,7 @@ const TopToursTable = ({ rows, title, description, type = 'revenue' }) => {
                   <td className='px-4 py-3 font-medium text-gray-500'>{idx + 1}</td>
                   <td className='px-4 py-3 text-gray-900'>{row.title}</td>
                   <td className='px-4 py-3 text-right font-semibold text-pink-600'>
-                    {Number(row.totalSales).toLocaleString()} ฿
+                    {type === 'revenue' ? `${Number(row.totalSales).toLocaleString()} ฿` : Number(row.bookingCount).toLocaleString()}
                   </td>
                 </tr>
               ))

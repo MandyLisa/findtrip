@@ -22,6 +22,7 @@ const Pre_Footer = () => {
 
     const buildCountryLinkProps = (countryName) => { // สร้างฟังก์ชันช่วยสร้าง props สำหรับ Link ของแต่ละประเทศ โดยรับชื่อประเทศเป็นพารามิเตอร์
         const countryId = getCountryIdByName(countryName)
+        console.log('countryId:', countryId)
         if (!countryId) {
             return { to: '/programs' }
         }
@@ -30,6 +31,8 @@ const Pre_Footer = () => {
             state: { filters: { country: String(countryId) }, page: 1 }
         }
     }
+
+    
 
     return (
         <div className='bg-white mt-12 mb-12'>
@@ -140,8 +143,8 @@ const Pre_Footer = () => {
 
                         {/* American/Oceania Destinations */}
                         <div className='lg:col-span-1 space-y-4 space-x-6'>
-                            <Link {...buildCountryLinkProps('อเมริกา')} className='block text-gray-700 font-medium hover:text-brand-pink hover:underline transition-colors ml-6'>
-                                อเมริกา
+                            <Link {...buildCountryLinkProps('สหรัฐอเมริกา')} className='block text-gray-700 font-medium hover:text-brand-pink hover:underline transition-colors ml-6'>
+                                สหรัฐอเมริกา
                             </Link>
                             <Link {...buildCountryLinkProps('แคนาดา')} className='block text-gray-700 font-medium hover:text-brand-pink hover:underline transition-colors'>
                                 แคนาดา

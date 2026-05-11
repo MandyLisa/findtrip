@@ -17,25 +17,24 @@ const Programs = () => {
   const [searchParams] = useSearchParams() // home ค้นหาด้วย title อ่าน query string จาก URL
   const searchTitle = searchParams.get('title') // home ค้นหาด้วย title ดึงค่าของ title มาใช้
 
-  const [filters, setFilters] = useState(null)
-  const [recommendMode, setRecommendMode] = useState(false)
   const [allTours, setAllTours] = useState([])
+  const [filters, setFilters] = useState(location.state?.filters || null)
+  const [recommendMode, setRecommendMode] = useState(location.state?.mode === 'recommend' || false)
+  const [currentPage, setCurrentPage] = useState(location.state?.page || 1)
   const [filterTours, setFilterTours] = useState([])
-  const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const [totalCount, setTotalCount] = useState(0)
+//   const [totalCount, setTotalCount] = useState(0)
   const [loading, setLoading] = useState(false)
   const limit = 10
 
   useEffect(() => {
-    fetchTour() // เรียกฟังก์ชัน fetchTour() ทันทีเมื่อ Component ถูก mount หรือเมื่อค่า searchTitle, category, filters, currentPage เปลี่ยนแปลง
-    // console.log("Programs Component Loaded!")
+    fetchTour() // เรียกฟังก์ชัน fetchTour() ทันทีเมื่อ Component ถูก mount หรือเมื่อค่า ใน array dependency เปลี่ยน
   }, [searchTitle, category, filters, recommendMode, currentPage]) 
 
   const fetchTour = async () => {
     setLoading(true)
     try {
-      if (recommendMode) {
+      if (recommendMode) { // หน้า programs ที่กดดูทัวร์แนะนำทั้งหมด 
         const res = await getRecommendPaginated(currentPage, limit)
         setFilterTours(res.data.data)
         setTotalPages(res.data.totalPage)
@@ -52,7 +51,7 @@ const Programs = () => {
         setFilterTours(res.data.data)
         setTotalPages(res.data.totalPage)
 
-      } else if (filters) { // จากหน้า searchCard (sidebar) ที่อยู่ในหน้านี้เอง
+      } else if (filters) { // จากหน้า searchCard (sidebar) ที่อยู่ในหน้า programs นี้
         const res = await searchFilters(filters, currentPage, limit)
         setFilterTours(res.data.data)
         setTotalPages(res.data.totalPage)
@@ -70,8 +69,8 @@ const Programs = () => {
     }
   }
 
-  useEffect(() => { // ฟังการเปลี่ยนแปลงของค่า location.state จาก React Router (useLocation)
-    if (location.state) {  // ผู้ใช้กดค้นหามาจากหน้าอื่นแล้วส่ง state มา
+  useEffect(() => { // คอยฟังการเปลี่ยนแปลงของค่า location.state จาก React Router (useLocation)
+    if (location.state) {  // ผู้ใช้กดค้นหามาจากหน้า home แล้วส่ง state มา
       setFilters(location.state.filters)
       setCurrentPage(location.state.page)
       setRecommendMode(location.state.mode === 'recommend')
