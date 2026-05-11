@@ -162,8 +162,8 @@ model Payment {
     paymentMethod PaymentMethod
     paymentStatus PaymentStatus @default(PENDING)
     transactionId String?
-    stripeSessionId String?      @unique
-    stripeClientSecret String?
+    stripeSessionId String?      @unique @db.VarChar(500) // ยาวพอเก็บค่าจาก Stripe และ ยังสามารถคงค่า @unique ไว้ได้ 
+    stripeClientSecret String?   @db.Text
     stripeSessionCreatedAt DateTime?
     paymentDate   DateTime?
     secure_url    String? // URL แบบ https

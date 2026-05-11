@@ -4,7 +4,7 @@ import { toast } from 'react-toastify'
 import { uploadPaymentSlip } from '../../API/payment'
 import { useNavigate } from 'react-router-dom'
 
-const BankTransferForm = ({ token, bookingId }) => {
+const BankTransferForm = ({ token, bookingId, setIsSubmitting, isSubmitting }) => {
     const navigate = useNavigate()
 
     // local state 
@@ -24,10 +24,27 @@ const BankTransferForm = ({ token, bookingId }) => {
         { id: 'bbl', name: 'ธนาคารกรุงเทพ', account: '555-1-23456-7', accountName: 'บริษัท ฟายทริป จำกัด' }
     ]
 
+    // ฟังชั่นเลือกธนาคาร
     const handleBankSelect = (bank) => {
         setSelectedBank(bank)
-        // setUploadedSlip(null)
         setIsDropdownOpen(false)
+    }
+
+    // ฟังชั่นก์อัพโหลดไฟล์
+    const handleFileUpload = (e) => {
+        const file = e.target.files[0] // เอาไฟล์แรกที่เลือก
+        if (file) { // ตรวจสอบว่ามีไฟล์ก่อนส่ง
+
+            setUploadedSlip(file) // อัปเดต state ด้วยไฟล์ที่เลือก
+            // console.log('File selected:', file.name)
+
+            const reader = new FileReader() // สร้าง preview สำหรับรูป
+            reader.onload = (e) => {
+                setImagePreview(e.target.result)
+
+            }
+            reader.readAsDataURL(file)
+        }
     }
 
     //  ฟังก์ชันสำหรับประมวลผลการชำระเงินด้วยการโอนเงิน
@@ -53,6 +70,8 @@ const BankTransferForm = ({ token, bookingId }) => {
         try {
 
             setLoadingBankTransfer(true) // เริ่ม loading
+            setIsSubmitting(true)        // ล็อคปุ่มยกเลิกที่หน้า Parent
+
             // Step 2: อัปโหลดสลิปการชำระเงิน
             await uploadPaymentSlip(token, bookingId, formData)
             toast.success('อัปโหลดสลิปสำเร็จแล้ว! กำลังรอการตรวจสอบ')
@@ -62,28 +81,13 @@ const BankTransferForm = ({ token, bookingId }) => {
 
         } catch (error) {
             console.error('Bank transfer payment failed', error)
-            throw error
-        } finally {
+            setIsSubmitting(false)
             setLoadingBankTransfer(false)
-        }
+            throw error        
+        } 
     }
 
-    // ฟังชั่นก์อัพโหลดไฟล์
-    const handleFileUpload = (e) => {
-        const file = e.target.files[0] // เอาไฟล์แรกที่เลือก
-        if (file) { // ตรวจสอบว่ามีไฟล์ก่อนส่ง
 
-            setUploadedSlip(file) // อัปเดต state ด้วยไฟล์ที่เลือก
-            // console.log('File selected:', file.name)
-
-            const reader = new FileReader() // สร้าง preview สำหรับรูป
-            reader.onload = (e) => {
-                setImagePreview(e.target.result)
-
-            }
-            reader.readAsDataURL(file)
-        }
-    }
 
     // ฟังก์ชันลบไฟล์
     const handleRemoveFile = () => {
@@ -219,8 +223,8 @@ const BankTransferForm = ({ token, bookingId }) => {
                         <button
                             onClick={processBankTransferPayment}
                             className='text-xl text-white flex items-center justify-center h-[50px] w-full
-                            hover:bg-pink-600'
-                            disabled={loadingBankTransfer}
+                            hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed'
+                            disabled={loadingBankTransfer || isSubmitting}
                         >
                             {loadingBankTransfer ? (
                                 <>

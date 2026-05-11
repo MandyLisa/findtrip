@@ -25,6 +25,7 @@ const PaymentUser = () => {
     const [booking, setBooking] = useState({})
     const [loading, setLoading] = useState(true)
     const [paymentMethod, setPaymentMethod] = useState(null)
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     // Effects
     useEffect(() => {
@@ -196,6 +197,7 @@ const PaymentUser = () => {
                                             <CheckoutCardForm
                                                 token={token}
                                                 bookingId={bookingId}
+                                                setIsSubmitting={setIsSubmitting} // ส่งตัวควบคุมไปให้ลูก
                                             />
                                         )}
                                     </div>
@@ -227,6 +229,8 @@ const PaymentUser = () => {
                                             <BankTransferForm
                                                 token={token}
                                                 bookingId={bookingId}
+                                                isSubmitting={isSubmitting} // ส่ง "ค่า" ไปให้ลูกใช้ disabled ปุ่ม
+                                                setIsSubmitting={setIsSubmitting} // ส่งฟังชั่นตัวควบคุมไปให้ลูก
                                             />
                                         )}
                                     </div>
@@ -246,10 +250,9 @@ const PaymentUser = () => {
                         onConfirm={handleCancelBooking}
                     >
                         <button
-                            // onClick={handleCancelBooking}
                             className='w-full bg-gray-200 text-gray-700 py-3 rounded-lg font-medium 
-            hover:bg-gray-300 transition-colors'
-                            disabled={loading}
+            hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed'
+                            disabled={loading || isSubmitting}
                         >
                             ยกเลิกการจอง
                         </button>
@@ -262,7 +265,7 @@ const PaymentUser = () => {
                     <button
                         type='button'
                         className='p-2 bg-brand-pink text-white rounded-md hover:bg-pink-600
-          hover:text-white'
+            hover:text-white'
                         onClick={handleBack}
                     >
                         ย้อนกลับ

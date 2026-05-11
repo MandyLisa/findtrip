@@ -22,7 +22,7 @@ const Pre_Footer = () => {
 
     const buildCountryLinkProps = (countryName) => { // สร้างฟังก์ชันช่วยสร้าง props สำหรับ Link ของแต่ละประเทศ โดยรับชื่อประเทศเป็นพารามิเตอร์
         const countryId = getCountryIdByName(countryName)
-        console.log('countryId:', countryId)
+        // console.log('countryId:', countryId)
         if (!countryId) {
             return { to: '/programs' }
         }
