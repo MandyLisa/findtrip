@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import useAuthStore from '../../store/authStore'
 import { validateField, validateLoginForm } from '@/utils/validateRegisterForm'
 import Swal from 'sweetalert2'
+import { EyeIcon, EyeOffIcon } from 'lucide-react'
 
 
 const Login = () => {
@@ -11,6 +12,7 @@ const Login = () => {
     const actionLogin = useAuthStore((state) => state.actionLogin)
     const user = useAuthStore((state) => state.user)
     const token = useAuthStore((state) => state.token)
+    const [showPassword, setShowPassword] = useState(false)
 
     useEffect(() => {
         // ถ้ามี user อยู่แล้ว (เช่น เข้ามาหน้า login ทั้งที่มี token ค้างอยู่) ค่อยดีดออก
@@ -107,9 +109,8 @@ const Login = () => {
                         <form onSubmit={handleSubmit} className='space-y-4'>
                             {/* Username/Email */}
                             <div>
-                                <label className='block text-gray-700 text-md font-medium mb-2'>
-                                    Username or Email
-                                </label>
+                                <label className='block text-gray-700 text-md font-medium mb-2'>Username or Email</label>
+
                                 <input
                                     name='identifier'
                                     type='text'
@@ -126,14 +127,24 @@ const Login = () => {
                             {/* Password */}
                             <div>
                                 <label className='block text-gray-700 text-md font-medium mb-2'>Password</label>
-                                <input
-                                    name='password'
-                                    type='password'
-                                    className='w-full border border-gray-300 p-2 rounded-lg'
-                                    placeholder='กรอกรหัสผ่าน'
-                                    value={form.password}
-                                    onChange={handleOnChange}
-                                />
+                                <div className='relative'>
+                                    <input
+                                        type={showPassword ? 'text' : 'password'}
+                                        name='password'
+                                        className='w-full border border-gray-300 p-2 rounded-lg pr-10'
+                                        placeholder='กรอกรหัสผ่าน'
+                                        value={form.password}
+                                        onChange={handleOnChange}
+                                        autoComplete='off'
+                                    />
+                                    <button
+                                        type='button'
+                                        className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700'
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    >
+                                        {showPassword ? <EyeIcon size={20} /> : <EyeOffIcon size={20} />}
+                                    </button>
+                                </div>
                                 {errors.password && (
                                     <p className='text-red-500 text-sm mt-1'>{errors.password}</p>
                                 )}

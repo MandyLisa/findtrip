@@ -197,7 +197,8 @@ const PaymentUser = () => {
                                             <CheckoutCardForm
                                                 token={token}
                                                 bookingId={bookingId}
-                                                setIsSubmitting={setIsSubmitting} // ส่งตัวควบคุมไปให้ลูก
+                                                sSubmitting={isSubmitting} // ส่ง "ค่า" ไปให้ลูกใช้ disabled ปุ่ม
+                                                setIsSubmitting={setIsSubmitting} // ส่งฟังชั่นตัวควบคุมไปให้ลูก
                                             />
                                         )}
                                     </div>

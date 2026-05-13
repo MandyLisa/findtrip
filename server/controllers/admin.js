@@ -159,67 +159,8 @@ exports.changeUserStatus = async (req, res) => {
     }
 }
 
-// // 5. show dashboard
-// exports.getDashboardSummary = async (req, res) => {
-//     try {
 
-
-//         // 2. ดึงข้อมูลแบบ Parallel (รันพร้อมกัน)
-//         const [
-//             bookingCount,
-//             totalRevenueResult,
-//             userCount,
-//             tourCount,
-//             todaySales,
-//             weeklySales,
-//             monthlySales,
-//             yearlySales
-//         ] = await Promise.all([ // 
-//             prisma.booking.count(),
-//             prisma.payment.aggregate({ _sum: { amount: true } }),  // คำนวณยอดรวมเงินทั้งหมดจากฟิลด์ amount ในตาราง payment
-//             prisma.user.count(),
-//             prisma.tourPackage.count(),
-
-//             // เพิ่มยอดขายตามช่วงเวลา (กรองเฉพาะคนที่จ่ายแล้ว) gte = greater than or equal (ข้อมูลตั้งแต่วันที่ 1 เป็นต้นไป)
-//             prisma.payment.aggregate({
-//                 where: { paymentStatus: 'PAID', paymentDate: { gte: startOfDay } },
-//                 _sum: { amount: true }
-//             }),
-//             prisma.payment.aggregate({
-//                 where: { paymentStatus: 'PAID', paymentDate: { gte: startOfWeek } },
-//                 _sum: { amount: true }
-//             }),
-//             prisma.payment.aggregate({
-//                 where: { paymentStatus: 'PAID', paymentDate: { gte: startOfMonth } },
-//                 _sum: { amount: true }
-//             }),
-//             prisma.payment.aggregate({
-//                 where: { paymentStatus: 'PAID', paymentDate: { gte: startOfYear } },
-//                 _sum: { amount: true }
-//             }),
-//         ])
-
-//         // 3. ส่งข้อมูลกลับ (ใช้ toNum ที่เราทำไว้จะดีมาก) 
-//         res.status(200).json({
-//             totalBookings: bookingCount,
-//             totalRevenue: totalRevenueResult._sum.amount || 0,
-//             totalUsers: userCount,
-//             totalTours: tourCount,
-//             salesMetrics: {
-//                 today: toNum(todaySales._sum.amount),
-//                 thisWeek: toNum(weeklySales._sum.amount),
-//                 thisMonth: toNum(monthlySales._sum.amount),
-//                 thisYear: toNum(yearlySales._sum.amount)
-//             }
-//         })
-//     } catch (err) {
-//         console.error('Error in Get Dashboard Summary:', err)
-//         res.status(500).json({ message: 'Error in Get Dashboard Summary:' })
-//     }
-// }
-
-
-// 6. Dashboard analytics (KPI + charts + top tours) — aggregate ที่ backend
+// 5. Dashboard analytics (KPI + charts + top tours) — aggregate ที่ backend
 exports.getDashboardAnalytics = async (req, res) => {
     try {
         // 1. รับค่า granularity (ช่วงเวลาที่ใช้ในการแสดงผล เช่น รายเดือน รายสัปดาห์ รายปี) จาก query parameters
@@ -278,10 +219,10 @@ exports.getDashboardAnalytics = async (req, res) => {
             prisma.tourPackage.count(), // นับจำนวนแพ็กเกจทัวร์ทั้งหมดที่มีในระบบ
             prisma.booking.count(), // นับจำนวนการจองทั้งหมดในฐานข้อมูล
             prisma.user.count(), // นับจำนวนผู้ใช้งาน (Member) ทั้งหมด
-            prisma.payment.aggregate({ where: { paymentStatus: 'PAID', paymentDate: { gte: startOfDay } }, _sum: { amount: true } }), // คำนวณยอดรวมเงินทั้งหมดจากฟิลด์ amount ในตาราง payment
-            prisma.payment.aggregate({ where: { paymentStatus: 'PAID', paymentDate: { gte: startOfWeek } }, _sum: { amount: true } }),
-            prisma.payment.aggregate({ where: { paymentStatus: 'PAID', paymentDate: { gte: startOfMonth } }, _sum: { amount: true } }),
-            prisma.payment.aggregate({ where: { paymentStatus: 'PAID', paymentDate: { gte: startOfYear } }, _sum: { amount: true } }),
+            prisma.payment.aggregate({ where: { paymentStatus: 'PAID', paymentDate: { gte: startOfDay } }, _sum: { amount: true } }), // รวมยอดขายเฉพาะ "วันนี้" คำนวณยอดรวมเงินทั้งหมดจากฟิลด์ amount ในตาราง payment
+            prisma.payment.aggregate({ where: { paymentStatus: 'PAID', paymentDate: { gte: startOfWeek } }, _sum: { amount: true } }), // รวมยอดขายเฉพาะ "สัปดาห์นี้" 
+            prisma.payment.aggregate({ where: { paymentStatus: 'PAID', paymentDate: { gte: startOfMonth } }, _sum: { amount: true } }), // รวมยอดขายเฉพาะ "เดือนนี้"
+            prisma.payment.aggregate({ where: { paymentStatus: 'PAID', paymentDate: { gte: startOfYear } }, _sum: { amount: true } }), // รวมยอดขายเฉพาะ "ปีนี้"
         ])
 
         // 4. ดึงข้อมูลทำกราฟและ Chart

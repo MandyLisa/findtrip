@@ -1,12 +1,20 @@
 import { loadStripe } from '@stripe/stripe-js'
 import { EmbeddedCheckoutProvider, EmbeddedCheckout } from '@stripe/react-stripe-js'
 import { createStripePayment } from '../../API/payment'
+import { useState } from 'react'
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
 
 
-const CheckoutCardForm = ({ token, bookingId }) => {
+const CheckoutCardForm = ({ token, bookingId, isSubmitting, setIsSubmitting }) => {
+
+    const [loadingCheckoutCard, setLoadingCheckoutCard] = useState(false)
+
     const fetchClientSecret = async () => {
+
         try {
+            setLoadingCheckoutCard(true) // เริ่ม loading
+            setIsSubmitting(true)        // ล็อคปุ่มยกเลิกที่หน้า Parent
+
             // Step 1: สร้าง stripe session
             const response = await createStripePayment(token, bookingId)
             // step 2: ตรวจสอบว่า clientSecret มีอยู่จริง และเป็น string ก่อน return
@@ -19,7 +27,9 @@ const CheckoutCardForm = ({ token, bookingId }) => {
 
         } catch (error) {
             console.log('Error Stripe payment: ', error)
-            throw error // สำคัญ ต้อง throw error กลับไป เพื่อให้ Stripe.js จัดการ
+            setIsSubmitting(false)
+            setLoadingCheckoutCard(false)
+            throw error // throw error กลับไป เพื่อให้ Stripe.js จัดการ
         }
     }
     const options = { fetchClientSecret } // มันคือค่าที่ return จาก response.data.clientSecret ส่งไปให้ตัว Embedded
@@ -47,6 +57,7 @@ const CheckoutCardForm = ({ token, bookingId }) => {
                 <EmbeddedCheckoutProvider //Stripe Checkout แบบฝังในหน้า (Embedded Checkout)
                     stripe={stripePromise}
                     options={options}
+                    disabled={loadingCheckoutCard || isSubmitting}
                 >
                     <EmbeddedCheckout />
                 </EmbeddedCheckoutProvider>
