@@ -230,25 +230,47 @@ const FormBookingDetail = () => {
 
             {showSlipModal && (
                 <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4'>
-                    <div className='relative w-full max-w-3xl rounded-2xl bg-white p-4 shadow-xl ring-1 ring-gray-200 sm:p-6'>
-                        <button
-                            onClick={handleCloseSlip}
-                            className='absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+                    <div
+                        onClick={handleCloseSlip} // เพิ่ม onClick ให้ปิดเมื่อคลิกพื้นหลัง (Overlay)
+                        className='relative w-full max-w-3xl rounded-2xl bg-white p-4 shadow-xl ring-1 ring-gray-200 sm:p-6'>
+                        <div
+                            onClick={(e) => e.stopPropagation()} // หยุดการปิดเมื่อคลิกโดนตัว Modal ด้านใน
                         >
-                            ✕
-                        </button>
-                        <h2 className='text-base font-semibold text-gray-800 sm:text-lg mb-4'>สลิปการชำระเงิน</h2>
-                        {booking?.Payment?.secure_url ? (
-                            <img
-                                src={booking.Payment.secure_url}
-                                alt='สลิปโอนเงิน'
-                                className='w-full h-auto rounded-xl ring-1 ring-gray-200'
-                            />
-                        ) : (
-                            <p className='text-gray-500'>ไม่พบสลิปการชำระเงิน</p>
-                        )}
+                            {/* 3. ปุ่มปิดที่ชัดเจนขึ้น และมี Hover Effect ที่เด่นกว่าเดิม */}
+                            <button
+                                onClick={handleCloseSlip}
+                                className='absolute -top-12 right-0 sm:-right-2 sm:top-2 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/40 sm:bg-gray-100 sm:text-gray-500 sm:hover:bg-gray-200 transition-all'
+                                title='ปิด'
+                            >
+                                <span className='text-2xl leading-none'>✕</span>
+                            </button>
+
+                            <h2 className='text-base font-semibold text-gray-800 sm:text-lg mb-4'>สลิปการชำระเงิน</h2>
+
+                            <div className='overflow-y-auto max-h-[70vh] rounded-xl'>
+                                {booking?.Payment?.secure_url ? (
+                                    <img
+                                        src={booking.Payment.secure_url}
+                                        alt='สลิปโอนเงิน'
+                                        className='w-full h-auto rounded-xl ring-1 ring-gray-200'
+                                    />
+                                ) : (
+                                    <p className='text-gray-500'>ไม่พบสลิปการชำระเงิน</p>
+                                )}
+                            </div>
+
+                            {/* 4. เพิ่มปุ่ม "ปิดหน้าต่าง" ด้านล่างสำหรับมือถือ */}
+                            <div className='mt-6 sm:hidden'>
+                                <button
+                                    onClick={handleCloseSlip}
+                                    className='w-full py-3 bg-gray-100 text-gray-700 font-medium rounded-xl active:bg-gray-200'
+                                >
+                                    ปิดหน้าต่าง
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </div >
             )}
         </div >
     )
