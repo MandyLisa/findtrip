@@ -1,10 +1,8 @@
 import axios from 'axios'
 import useAuthStore from '@/store/authStore'
 
-// ตั้ง baseURL เฉพาะตอน build production
-if (import.meta.env.PROD) {
-    axios.defaults.baseURL = import.meta.env.VITE_API_URL
-}
+// ตั้ง baseURL 
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
 // ขาไป ตัวดักจับคำขอ แนบ token ทุก request
 axios.interceptors.request.use(

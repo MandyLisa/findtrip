@@ -10,13 +10,13 @@ export default defineConfig({
       '@' : path.resolve(__dirname, './src'),
     },
   },
-  server: { // ตั้งค่า "proxy" ซึ่งทำหน้าที่เหมือนตัวกลาง ส่งต่อ คำขอจากเว็บแอปพลิเคชันของเราไปหาเซิร์ฟเวอร์
-    proxy: {
-      '/api': {
-        target: 'http://localhost:5000',
-        changeOrigin: true,
-        secure: false,
-      },
-    },
-  },
+//   server: { // ตั้งค่า "proxy" ซึ่งทำหน้าที่เหมือนตัวกลาง ส่งต่อ คำขอจากเว็บแอปพลิเคชันของเราไปหาเซิร์ฟเวอร์
+//     proxy: {
+//       '/api': {
+//         target: 'http://localhost:5000',
+//         changeOrigin: true,
+//         secure: false,
+//       },
+//     },
+//   },
 })
