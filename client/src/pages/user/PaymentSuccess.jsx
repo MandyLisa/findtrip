@@ -1,5 +1,5 @@
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { CheckCircle, Clock } from 'lucide-react'
+import { CheckCircle, Clock, Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { stripeCheckoutStatus } from '../../API/payment'
 import { toast } from 'react-toastify'
@@ -19,6 +19,7 @@ const PaymentSuccess = () => {
     const [statusIcon, setStatusIcon] = useState(null) // icon ที่จะแสดง
     const [message, setMessage] = useState('') // ข้อความที่จะแสดง
     const [bookingDisplayInfo, setBookingDisplayInfo] = useState(null) // ข้อมูล booking ที่จะแสดง
+    const [isVerifying, setIsVerifying] = useState(false); // 
 
     useEffect(() => {
         if (!token) return
@@ -36,7 +37,9 @@ const PaymentSuccess = () => {
     const verifyStripePayment = async () => {
         if (!token || !sessionId) return
 
-        setPaymentStatus('กำลังยืนยันการชำระเงินด้วยบัตรเครดิต...')
+        setIsVerifying(true) // เริ่มการตรวจสอบ (เปิด loading)
+        setPaymentStatus('กำลังยืนยันการชำระเงินด้วยบัตรเครดิต...กรุณารอสักครู่')
+        setStatusIcon(<Loader2 className='w-16 h-16 text-blue-500 animate-spin mx-auto mb-4' />)
 
         try {
             const response = await stripeCheckoutStatus(token, sessionId)
@@ -49,11 +52,12 @@ const PaymentSuccess = () => {
                 if (response.data.booking) {
                     setBookingDisplayInfo(response.data.booking)
                 }
+    
             } else {
                 setPaymentStatus('การชำระเงินยังไม่สำเร็จ')
                 setMessage('การชำระเงินของคุณอาจมีปัญหา โปรดตรวจสอบสถานะการจองได้ที่ การจองของฉัน')
                 setStatusIcon(<Clock className='w-16 h-16 text-orange-500 mx-auto mb-4' />)
-
+                
             }
 
         } catch (error) {
@@ -61,6 +65,9 @@ const PaymentSuccess = () => {
             setPaymentStatus('เกิดข้อผิดพลาดในการยืนยันการชำระเงิน')
             setMessage('ไม่สามารถยืนยันสถานะการชำระเงินได้ กรุณาลองใหม่ภายหลัง หรือติดต่อผู้ดูแลระบบ')
             setStatusIcon(<XCircle className='w-16 h-16 text-red-600 mx-auto mb-4' />)
+            
+        } finally {
+            setIsVerifying(false) // ปิด loading ไม่ว่าจะสำเร็จหรือเกิด error ก็ตาม
         }
     }
 
@@ -98,7 +105,7 @@ const PaymentSuccess = () => {
             setMessage('ไม่สามารถดึงข้อมูลการจองได้ กรุณาลองใหม่ภายหลัง หรือติดต่อผู้ดูแลระบบ')
             setStatusIcon(<XCircle className='w-16 h-16 text-red-600 mx-auto mb-4' />)
         }
-        
+
     }
 
     return (
@@ -150,10 +157,13 @@ const PaymentSuccess = () => {
             )}
             <button
                 onClick={() => navigate('/user/mybookings')}
-                className='mt-4 bg-brand-pink text-white py-3 px-6 rounded-lg font-medium
-                     hover:bg-pink-600 transition-colors text-lg'
+                disabled={isVerifying} // ถ้ากำลังตรวจสอบสถานะการชำระเงินอยู่ ล็อคปุ่มไม่ให้คลิก
+                className={`px-6 py-3 rounded-lg font-medium transition-all
+                    ${isVerifying
+                        ? 'bg-gray-300 cursor-not-allowed text-gray-500'
+                        : 'bg-brand-pink hover:bg-pink-600 text-white shadow-md'}`}
             >
-                ดูสถานะการจองของฉัน
+                {isVerifying ? 'กรุณารอสักครู่...' : 'ดูสถานะการจองของฉัน'}
             </button>
         </div>
     )

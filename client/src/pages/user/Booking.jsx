@@ -282,7 +282,7 @@ const BookingUser = () => {
                     {isLoading ? (
                         <>
                             <div className='w-6 h-6 mr-3 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
-                            <span>กำลังทำรายการจอง...</span>
+                            <span>กำลังทำรายการจอง...กรุณารอสักครู่</span>
                         </>
                     ) : (
                         'จองเลย'

@@ -87,8 +87,6 @@ const BankTransferForm = ({ token, bookingId, setIsSubmitting, isSubmitting }) =
         } 
     }
 
-
-
     // ฟังก์ชันลบไฟล์
     const handleRemoveFile = () => {
         setImagePreview(null)
@@ -224,7 +222,7 @@ const BankTransferForm = ({ token, bookingId, setIsSubmitting, isSubmitting }) =
                             onClick={processBankTransferPayment}
                             className='text-xl text-white flex items-center justify-center h-[50px] w-full
                             hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed'
-                            disabled={loadingBankTransfer || isSubmitting}
+                            disabled={loadingBankTransfer}
                         >
                             {loadingBankTransfer ? (
                                 <>
